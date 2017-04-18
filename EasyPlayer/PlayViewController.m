@@ -2,7 +2,7 @@
 #import <VideoToolbox/VideoToolbox.h>
 #import <AudioToolbox/AudioToolbox.h>
 #import <QuartzCore/QuartzCore.h>
-#import <EasyAudioDecode/EasyAudioDecode.h>
+#import <EasyAudioDecoder/EasyAudioDecode.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "EasyRTSPClientAPI.h"
 #import "ToolBar.h"
@@ -327,7 +327,7 @@ int RTSPClientCallBack(int _chid, int *_chPtr, int _frameType, char *_pBuf, RTSP
     }
     _mediaArray = [NSMutableArray array];
     _mediaCond = [[NSCondition alloc] init];
-    int err = EasyRTSP_Activate("6A59754D6A2F2B32734B794162386458714469504576564659584E3555477868655756794B56634D5671442B6B75424859585A7062695A4359574A76633246414D6A41784E6B566863336C4559584A33615735555A5746745A57467A65513D3D");
+    int err = EasyRTSP_Activate("79393674362F2B32734B7941762B3559707846414A66564659584E3555477868655756794B56634D5671442F7065424859585A7062695A4359574A76633246414D6A41784E6B566863336C4559584A33615735555A5746745A57467A65513D3D");
     if(err){
         _authAlertView = [[UIAlertView alloc] initWithTitle:@"授权失败" message:nil delegate:self
                                               cancelButtonTitle:@"关闭" otherButtonTitles:nil];
@@ -454,7 +454,6 @@ NSString * const naluTypesStrings[] =
     if((status == noErr) && (_decompressionSession == NULL)){
         [self createDecompSession];
     }
-    
     if(nalu_type == 6) {//sei;
         for (int i = idx + 4; i < frameSize; i++) {
             if (frame[i] == 0x00 && frame[i+1] == 0x00 && frame[i+2] == 0x00 && frame[i+3] == 0x01) {
