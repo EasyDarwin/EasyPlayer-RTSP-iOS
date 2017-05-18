@@ -1,6 +1,3 @@
-# 代码下载 #
-[http://pan.baidu.com/s/1gfBWwrL](http://pan.baidu.com/s/1gfBWwrL "EasyPlayer iOS")
-
 # EasyPlayer_iOS
 EasyPlayer & EasyPlayerPro是由EasyDarwin团队开发和维护的一个流媒体播放器项目，目前支持Windows(支持多窗口、包含ActiveX，npAPI Web插件)、Android平台，iOS平台，视频支持H.264，H.265，MPEG4，MJPEG，音频支持G711A，G711U，G726，AAC，支持RTSP over TCP/UDP、RTMP、HTTP、HLS等多种协议，支持硬解码，是一套极佳的流媒体全平台播放组件！
 
