@@ -7,7 +7,7 @@
 #import "EasyRTSPClientAPI.h"
 #import "ToolBar.h"
 
-#define MIN_SIZE_PER_FRAME 2048
+#define MIN_SIZE_PER_FRAME 100*1024
 #define AUDIO_BUF_SIZE 3
 
 PlayViewController* pvc = nil;
