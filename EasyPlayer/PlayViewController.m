@@ -214,10 +214,7 @@ int RTSPClientCallBack(int _chid, int *_chPtr, int _frameType, char *_pBuf, RTSP
 @property (nonatomic,strong)ToolBar *topBar,*bottomBar;
 @property (nonatomic,strong)UIBarButtonItem *backBtnItem, *spaceItem, *fullBtnItem;
 @property (nonatomic,strong)UIButton *backBtn, *fullBtn;
-@property (nonatomic , strong)AVAssetWriter *videoWriter;
-@property (nonatomic , strong)AVAssetWriterInput *videoWriterInput;
-@property(nonatomic , strong)AVAssetWriterInputPixelBufferAdaptor *adaptor;
-@property(nonatomic ,strong)AVAssetWriterInput *audioWriterInput;
+
 @end
 
 
@@ -271,7 +268,6 @@ int RTSPClientCallBack(int _chid, int *_chPtr, int _frameType, char *_pBuf, RTSP
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor blackColor];
     self.title = @"视频播放";
-    [self initVideoAudioWriter];
     _imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
     [self.view addSubview:_imageView];
     [self.view bringSubviewToFront:_imageView];
@@ -566,63 +562,63 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
         NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
         NSLog(@"Decompressed error: %@", error);
     }else{
-        static int frame1 = 0;
-        //        CMTime lastSampleTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-        
-        if( frame1 == 0 && pvc.videoWriter.status != AVAssetWriterStatusWriting &&  pvc.videoWriter.status != AVAssetWriterStatusFailed)
-            
-        {
-            BOOL success = [pvc.videoWriter startWriting];
-            
-            //            [_videoWriter startSessionAtSourceTime:CMTimeMake(1, 25)];
-            [pvc.videoWriter startSessionAtSourceTime:CMTimeMake(1, 25)];
-            
-        } if( pvc.videoWriter.status > AVAssetWriterStatusWriting )
-            
-        {
-            
-            NSLog(@"Warning: writer status is %zd", pvc.videoWriter.status);
-            if( pvc.videoWriter.status == AVAssetWriterStatusFailed )
-                
-                NSLog(@"Error: %@",pvc.videoWriter.error);
-            
-            return;
-            
-        }
-        if (pvc.videoWriter.status == AVAssetWriterStatusWriting) {
-            if ([pvc.videoWriterInput isReadyForMoreMediaData])
-            {
-//                                NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES],kCVPixelBufferCGImageCompatibilityKey, nil];
-//                                int cvRet = CVPixelBufferCreate(kCFAllocatorDefault,480, 320,kCVPixelFormatType_32BGRA, (__bridge CFDictionaryRef)(options),&outputPixelBuffer);
-//                OSStatus result = CMSampleBufferMakeDataReady(sampleBuffer);
-                CIImage *ciImage = [CIImage imageWithCVPixelBuffer:CVPixelBufferRetain(imageBuffer)];
-                UIImage *image = [UIImage imageWithCIImage:ciImage];
-                pvc.imageView.image = image;
-                if( ![pvc.adaptor appendPixelBuffer:imageBuffer withPresentationTime:CMTimeMake(1*frame1, 25)])
-                {
-                    NSLog(@"Unable to write to video input");
-                }
-                else
-                {
-                    NSLog(@"already write vidio");
-                }
-                CFRelease(imageBuffer);
-            }
-            frame1++;
-            
-        }
-       
-        if(![[NSFileManager defaultManager] fileExistsAtPath:pvc.imagePath]){
-            CIImage *ciImage = [CIImage imageWithCVPixelBuffer:CVPixelBufferRetain(imageBuffer)];
-            UIImageView* imgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight)];
-            imgView.image = [UIImage imageWithCIImage:ciImage];
-            
-            UIGraphicsBeginImageContext(imgView.bounds.size);
-            [imgView.layer renderInContext:UIGraphicsGetCurrentContext()];
-            UIImage *temp = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            [pvc writeImage:temp toFileAtPath:pvc.imagePath];
-        }
+//        static int frame1 = 0;
+//        //        CMTime lastSampleTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+//        
+//        if( frame1 == 0 && pvc.videoWriter.status != AVAssetWriterStatusWriting &&  pvc.videoWriter.status != AVAssetWriterStatusFailed)
+//            
+//        {
+//            BOOL success = [pvc.videoWriter startWriting];
+//            
+//            //            [_videoWriter startSessionAtSourceTime:CMTimeMake(1, 25)];
+//            [pvc.videoWriter startSessionAtSourceTime:CMTimeMake(1, 25)];
+//            
+//        } if( pvc.videoWriter.status > AVAssetWriterStatusWriting )
+//            
+//        {
+//            
+//            NSLog(@"Warning: writer status is %zd", pvc.videoWriter.status);
+//            if( pvc.videoWriter.status == AVAssetWriterStatusFailed )
+//                
+//                NSLog(@"Error: %@",pvc.videoWriter.error);
+//            
+//            return;
+//            
+//        }
+//        if (pvc.videoWriter.status == AVAssetWriterStatusWriting) {
+//            if ([pvc.videoWriterInput isReadyForMoreMediaData])
+//            {
+////                                NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES],kCVPixelBufferCGImageCompatibilityKey, nil];
+////                                int cvRet = CVPixelBufferCreate(kCFAllocatorDefault,480, 320,kCVPixelFormatType_32BGRA, (__bridge CFDictionaryRef)(options),&outputPixelBuffer);
+////                OSStatus result = CMSampleBufferMakeDataReady(sampleBuffer);
+//                CIImage *ciImage = [CIImage imageWithCVPixelBuffer:CVPixelBufferRetain(imageBuffer)];
+//                UIImage *image = [UIImage imageWithCIImage:ciImage];
+//                pvc.imageView.image = image;
+//                if( ![pvc.adaptor appendPixelBuffer:imageBuffer withPresentationTime:CMTimeMake(1*frame1, 25)])
+//                {
+//                    NSLog(@"Unable to write to video input");
+//                }
+//                else
+//                {
+//                    NSLog(@"already write vidio");
+//                }
+//                CFRelease(imageBuffer);
+//            }
+//            frame1++;
+//            
+//        }
+//       
+//        if(![[NSFileManager defaultManager] fileExistsAtPath:pvc.imagePath]){
+//            CIImage *ciImage = [CIImage imageWithCVPixelBuffer:CVPixelBufferRetain(imageBuffer)];
+//            UIImageView* imgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight)];
+//            imgView.image = [UIImage imageWithCIImage:ciImage];
+//            
+//            UIGraphicsBeginImageContext(imgView.bounds.size);
+//            [imgView.layer renderInContext:UIGraphicsGetCurrentContext()];
+//            UIImage *temp = UIGraphicsGetImageFromCurrentImageContext();
+//            UIGraphicsEndImageContext();
+//            [pvc writeImage:temp toFileAtPath:pvc.imagePath];
+//        }
     }
 }
 
@@ -747,12 +743,14 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
 {
     __weak typeof(self) weakSelf = self;
     
-    if (_videoWriter.status != AVAssetWriterStatusUnknown) {
-        [_videoWriterInput markAsFinished];
-        [_videoWriter finishWritingWithCompletionHandler:^{
-            [weakSelf dismissViewControllerAnimated:YES completion:nil];
-        }];
-    }else{
+//    if (_videoWriter.status != AVAssetWriterStatusUnknown) {
+//        [_videoWriterInput markAsFinished];
+//        [_videoWriter finishWritingWithCompletionHandler:^{
+//            [weakSelf dismissViewControllerAnimated:YES completion:nil];
+//        }];
+//    }
+//    else
+    {
         [weakSelf dismissViewControllerAnimated:YES completion:nil];
     }
    
@@ -836,149 +834,6 @@ void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,
             ];
 }
 
--(void) initVideoAudioWriter
-
-{
-    
-    CGSize size = CGSizeMake(640, 480);
-    
-    NSString *betaCompressionDirectory = [NSHomeDirectory()stringByAppendingPathComponent:@"Documents/Movie.mp4"];
-    
-    
-    
-    NSError *error = nil;
-    
-    
-    
-    unlink([betaCompressionDirectory UTF8String]);
-    
-    
-    
-    //----initialize compression engine
-    
-    self.videoWriter = [[AVAssetWriter alloc] initWithURL:[NSURL fileURLWithPath:betaCompressionDirectory]
-                        
-                                                 fileType:AVFileTypeMPEG4
-                        
-                                                    error:&error];
-    
-    NSParameterAssert(self.videoWriter);
-    
-    if(error)
-        
-        NSLog(@"error = %@", [error localizedDescription]);
-    
-    NSDictionary *videoCompressionProps = [NSDictionary dictionaryWithObjectsAndKeys:
-                                           
-                                           [NSNumber numberWithDouble:128.0*1024.0],AVVideoAverageBitRateKey,
-                                           
-                                           nil ];
-    
-    
-    
-    NSDictionary *videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:AVVideoCodecH264, AVVideoCodecKey,
-                                   
-                                   [NSNumber numberWithInt:size.width], AVVideoWidthKey,
-                                   
-                                   [NSNumber numberWithInt:size.height],AVVideoHeightKey,videoCompressionProps, AVVideoCompressionPropertiesKey, nil];
-    
-    self.videoWriterInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
-    
-    
-    
-    NSParameterAssert(self.videoWriterInput);
-    
-    
-    
-    self.videoWriterInput.expectsMediaDataInRealTime = YES;
-    
-    
-    
-    NSDictionary *sourcePixelBufferAttributesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-                                                           
-                                                           [NSNumber numberWithInt:kCVPixelFormatType_32ARGB], kCVPixelBufferPixelFormatTypeKey,[NSNumber numberWithInt:size.width], kCVPixelBufferWidthKey, [NSNumber numberWithInt:size.height], kCVPixelBufferHeightKey, nil];
-    
-    
-    
-    self.adaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:self.videoWriterInput
-                    
-                                                                                   sourcePixelBufferAttributes:sourcePixelBufferAttributesDictionary];
-    
-    NSParameterAssert(self.videoWriterInput);
-    
-    NSParameterAssert([self.videoWriter canAddInput:self.videoWriterInput]);
-//    
-//    NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:nil];
-//    //提前create  CVPixelBufferRef，避免每次create
-//    int cvRet = CVPixelBufferCreate(kCFAllocatorDefault,480, 320,kCVPixelFormatType_32BGRA, (__bridge CFDictionaryRef)(options),&_pixelBuffer);
-    
-    if ([self.videoWriter canAddInput:self.videoWriterInput])
-    {
-        NSLog(@"I can add this input");
-    }else{
-        NSLog(@"i can't add this input");
-    }
-    
-    
-    // Add the audio input
-    
-    AudioChannelLayout acl;
-    
-    bzero( &acl, sizeof(acl));
-    
-    acl.mChannelLayoutTag = kAudioChannelLayoutTag_Mono;
-    
-    
-    
-    NSDictionary* audioOutputSettings = nil;
-    
-    //    audioOutputSettings = [ NSDictionary dictionaryWithObjectsAndKeys:
-    
-    //                           [ NSNumber numberWithInt: kAudioFormatAppleLossless ], AVFormatIDKey,
-    
-    //                           [ NSNumber numberWithInt: 16 ], AVEncoderBitDepthHintKey,
-    
-    //                           [ NSNumber numberWithFloat: 44100.0 ], AVSampleRateKey,
-    
-    //                           [ NSNumber numberWithInt: 1 ], AVNumberOfChannelsKey,
-    
-    //                           [ NSData dataWithBytes: &acl length: sizeof( acl ) ], AVChannelLayoutKey,
-    
-    //                           nil ];
-    
-    audioOutputSettings = [ NSDictionary dictionaryWithObjectsAndKeys:
-                           
-                           [ NSNumber numberWithInt: kAudioFormatMPEG4AAC ], AVFormatIDKey,
-                           
-                           [ NSNumber numberWithInt:64000], AVEncoderBitRateKey,
-                           
-                           [ NSNumber numberWithFloat: 44100.0 ], AVSampleRateKey,
-                           
-                           [ NSNumber numberWithInt: 1 ], AVNumberOfChannelsKey,
-                           
-                           [ NSData dataWithBytes: &acl length: sizeof( acl ) ], AVChannelLayoutKey,
-                           
-                           nil ];  
-    
-    
-    
-//    _audioWriterInput = [AVAssetWriterInput
-//                         
-//                         assetWriterInputWithMediaType: AVMediaTypeAudio   
-//                         
-//                         outputSettings: audioOutputSettings ];
-//    
-//    
-//    
-//    _audioWriterInput.expectsMediaDataInRealTime = YES;
-//    
-//    // add input  
-//    
-//    [_videoWriter addInput:_audioWriterInput];
-    
-    [_videoWriter addInput:_videoWriterInput];
-    
-}
 
 @end
 
