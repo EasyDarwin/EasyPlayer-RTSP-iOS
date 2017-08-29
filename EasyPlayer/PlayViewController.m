@@ -259,9 +259,31 @@ int RTSPClientCallBack(int _chid, int *_chPtr, int _frameType, char *_pBuf, RTSP
                 CFRelease(_formatDesc);
                 _formatDesc = NULL;
             }
+            
         }
     });
     
+}
+
+- (void)dealloc
+{
+    if (spsData != NULL)
+    {
+        free(spsData);
+        spsData = NULL;
+    }
+    
+    if (ppsData != NULL)
+    {
+        free(ppsData);
+        ppsData = NULL;
+    }
+    
+    if (pInnerData != NULL)
+    {
+        free(pInnerData);
+        pInnerData = NULL;
+    }
 }
 
 - (void)viewDidLoad {
@@ -325,8 +347,13 @@ int RTSPClientCallBack(int _chid, int *_chPtr, int _frameType, char *_pBuf, RTSP
     [self.view addGestureRecognizer:tapGesture];
     [self restartToolbarTimer];
     
+    spsData = NULL;
+    ppsData = NULL;
     pvc = self;
-   
+    xps_found = NO;
+    pInnerData = NULL;
+    innerLen = 0;
+    
     if(lockObj == nil){
         lockObj = [[NSObject alloc] init];
     }
@@ -398,140 +425,148 @@ NSString * const naluTypesStrings[] =
 -(void) receivedRawVideoFrame:(uint8_t *)frame withSize:(uint32_t)frameSize
 {
     OSStatus status = noErr;
+    uint8_t *pData = frame;
+    int len = frameSize;
+    if (_formatDesc == NULL)
+    {
+        int spsIndex = 0;
+        int ppsIndex = 0;
+        int spsLength = 0;
+        int ppsLength = 0;
+        getXps2(pData, 0, len, 7, &spsIndex, &spsLength);
+        getXps2(pData, 0, len, 8, &ppsIndex, &ppsLength);
+        
+        if (spsLength == 0 || ppsLength == 0)
+        {
+            return;
+        }
+        
+        if (spsData != NULL)
+        {
+            free(spsData);
+            spsData = NULL;
+        }
+        
+        if (ppsData != NULL)
+        {
+            free(ppsData);
+            ppsData = NULL;
+        }
+        
+        spsData = (unsigned char *)malloc(spsLength);
+        memcpy(spsData, pData + spsIndex, spsLength);
+        
+        ppsData = (unsigned char *)malloc(ppsLength);
+        memcpy(ppsData, pData + ppsIndex, ppsLength);
+        
+        const uint8_t* const parameterSetPointers[2] = { spsData, ppsData };
+        const size_t parameterSetSizes[2] = { (size_t)spsLength, (size_t)ppsLength };
+        OSStatus status = CMVideoFormatDescriptionCreateFromH264ParameterSets(NULL,
+                                                                              2,
+                                                                              parameterSetPointers,
+                                                                              parameterSetSizes,
+                                                                              4,
+                                                                              &_formatDesc);
+        NSLog(@"Found all data for CMVideoFormatDescription. Creation: %@.", (status == noErr) ? @"successfully." : @"failed.");
+        if (status != noErr)
+        {
+            return;
+        }
+        
+        VTDecompressionOutputCallbackRecord callback;
+        callback.decompressionOutputCallback = decompressionSessionDecodeFrameCallback;
+        callback.decompressionOutputRefCon = (__bridge void *)self;
+        NSDictionary *destinationImageBufferAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                                          [NSNumber numberWithBool:YES],(id)kCVPixelBufferOpenGLESCompatibilityKey,
+                                                          [NSNumber numberWithInt:kCVPixelFormatType_32BGRA],(id)kCVPixelBufferPixelFormatTypeKey,
+                                                          nil
+                                                          ];
+        //kCVPixelFormatType_420YpCbCr8BiPlanarFullRange is NV12
+        status = VTDecompressionSessionCreate(kCFAllocatorDefault, _formatDesc, NULL, (__bridge CFDictionaryRef)destinationImageBufferAttributes, &callback, &_decompressionSession);
+        NSLog(@"Creating Video Decompression Session: %@.", (status == noErr) ? @"successfully." : @"failed.");
+    }
     
-    uint8_t *data = NULL;
-    uint8_t *pps = NULL;
-    uint8_t *sps = NULL;
-    int _spsSize = 0;
-    int _ppsSize = 0;
-    int idx = 0;
-    long blockLength = 0;
+    int nDiff = 0;
+    int nalPackLen = len;
+    unsigned char *pTemp = pData;
+    for (int i=0; i<len; i++)
+    {
+        if (*(pTemp) == 0 && *(pTemp+1) == 0)
+        {
+            if (*(pTemp+2) == 1)
+            {
+                int nalu_type = ((uint8_t)*(pTemp+3) & 0x1F);
+                if (nalu_type == 1 || nalu_type == 5)
+                {
+                    nDiff = 3;
+                    break;
+                }
+            }
+            else if (*(pTemp+2) == 0 && *(pTemp+3) == 1)
+            {
+                int nalu_type = ((uint8_t)*(pTemp+4) & 0x1F);
+                
+                if (nalu_type == 1 || nalu_type == 5)
+                {
+                    nDiff = 4;
+                    break;
+                }
+            }
+        }
+        
+        pTemp++;
+        nalPackLen--;
+    }
     
-    CMSampleBufferRef sampleBuffer = NULL;
-    CMBlockBufferRef blockBuffer = NULL;
-    int nalu_type = (frame[idx + 4] & 0x1F);
-    if (nalu_type != 7 && _formatDesc == NULL) {
-        NSLog(@"Video error: Frame is not an I Frame and format description is null");
+    if (nDiff == 0)
+    {
         return;
     }
     
-    if (nalu_type == 7) {
-        for (int i = idx + 4; i < frameSize; i++) {
-            if (frame[i] == 0x00 && frame[i+1] == 0x00 && frame[i+2] == 0x00 && frame[i+3] == 0x01) {
-                idx = i;
-                _spsSize = i;   // includes the header in the size
-                break;
+    int nalu_type = ((uint8_t)*(pTemp + nDiff) & 0x1F);
+    
+    if (nalu_type == 1 || nalu_type == 5)
+    {
+        if (nDiff == 3)
+        {
+            // 只有2个0 前面补位0
+            if (innerLen <= nalPackLen)
+            {
+                innerLen = nalPackLen + 1;
+                pInnerData = (unsigned char *)realloc(pInnerData, innerLen);
             }
-        }
-        nalu_type = (frame[idx + 4] & 0x1F);
-    }
-    
-    // type 8 is the PPS parameter NALU
-    if(nalu_type == 8) {
-        for (int i = idx + 4; i < frameSize; i++) {
-            if (frame[i] == 0x00 && frame[i+1] == 0x00 && frame[i+2] == 0x00 && frame[i+3] == 0x01) {
-                idx = i;
-                _ppsSize = i - _spsSize;
-                break;
-            }
-        }
-        sps = malloc(_spsSize - 4);
-        pps = malloc(_ppsSize - 4);
-        memcpy (sps, &frame[4], _spsSize-4);
-        memcpy (pps, &frame[_spsSize+4], _ppsSize-4);
-        
-        // now we set our H264 parameters
-        uint8_t*  parameterSetPointers[2] = {sps, pps};
-        size_t parameterSetSizes[2] = {_spsSize-4, _ppsSize-4};
-        
-        status = CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, 2,
-                                                                     (const uint8_t *const*)parameterSetPointers,
-                                                                     parameterSetSizes, 4,
-                                                                     &_formatDesc);
-        if(status != noErr){
-            NSLog(@"Format Description ERROR type: %d", (int)status);
+            
+            memcpy(pInnerData + 1, pTemp, nalPackLen);
+            pTemp = pInnerData;
+            nalPackLen++;
         }
         
-        nalu_type = (frame[idx + 4] & 0x1F);
-    }
-    
-    if((status == noErr) && (_decompressionSession == NULL)){
-        [self createDecompSession];
-    }
-    if(nalu_type == 6) {//sei;
-        for (int i = idx + 4; i < frameSize; i++) {
-            if (frame[i] == 0x00 && frame[i+1] == 0x00 && frame[i+2] == 0x00 && frame[i+3] == 0x01) {
-                idx = i;
-                break;
-            }
-        }
-        nalu_type = (frame[idx + 4] & 0x1F);
-    }
-    
-    if(nalu_type == 5) {
-        blockLength = frameSize - idx;
-        data = malloc(blockLength);
-        data = memcpy(data, &frame[idx], blockLength);
+        CMBlockBufferRef videoBlock = NULL;
+        OSStatus status = CMBlockBufferCreateWithMemoryBlock(NULL, pTemp, nalPackLen, kCFAllocatorNull, NULL, 0, nalPackLen, 0, &videoBlock);
         
-        uint32_t dataLength32 = htonl (blockLength - 4);
-        memcpy (data, &dataLength32, sizeof (uint32_t));
+        int reomveHeaderSize = nalPackLen - 4;
+        const uint8_t sourceBytes[] = {(uint8_t)(reomveHeaderSize >> 24), (uint8_t)(reomveHeaderSize >> 16), (uint8_t)(reomveHeaderSize >> 8), (uint8_t)reomveHeaderSize};
+        status = CMBlockBufferReplaceDataBytes(sourceBytes, videoBlock, 0, 4);
         
-        status = CMBlockBufferCreateWithMemoryBlock(NULL, data,  // memoryBlock to hold buffered data
-                                                    blockLength,  // block length of the mem block in bytes.
-                                                    kCFAllocatorNull, NULL,
-                                                    0, // offsetToData
-                                                    blockLength,   // dataLength of relevant bytes, starting at offsetToData
-                                                    0, &blockBuffer);
-        if(status != kCMBlockBufferNoErr){
-            NSLog(@"CMBlockBufferCreateWithMemoryBlock ERROR type : %d",(int)status);
-        }
-    }
-    
-    if (nalu_type == 1) {
-        blockLength = frameSize;
-        data = malloc(blockLength);
-        data = memcpy(data, &frame[0], blockLength);
-        
-        uint32_t dataLength32 = htonl (blockLength - 4);
-        memcpy (data, &dataLength32, sizeof (uint32_t));
-        
-        status = CMBlockBufferCreateWithMemoryBlock(NULL, data,  // memoryBlock to hold data. If NULL, block will be alloc when needed
-                                                    blockLength,  // overall length of the mem block in bytes
-                                                    kCFAllocatorNull, NULL,
-                                                    0,     // offsetToData
-                                                    blockLength,  // dataLength of relevant data bytes, starting at offsetToData
-                                                    0, &blockBuffer);
-        if(status != kCMBlockBufferNoErr){
-            NSLog(@"CMBlockBufferCreateWithMemoryBlock ERROR type : %d",(int)status);
-        }
-    }
-    
-    if(status == noErr) {
-        // here I'm not bothering with any timing specifics since in my case we displayed all frames immediately
-    
+        CMSampleBufferRef sampleBuffer = NULL;
         CMSampleTimingInfo sampleTiming = { 1/25, 12012/30000, 10010/30000 };
-        const size_t sampleSize = blockLength;
+        const size_t sampleSize = len;
         status = CMSampleBufferCreate(kCFAllocatorDefault,
-                                      blockBuffer, true, NULL, NULL,
+                                      videoBlock, true, NULL, NULL,
                                       _formatDesc, 1, 1, &sampleTiming, 1,
                                       &sampleSize, &sampleBuffer);
-        if(status != noErr){
-            NSLog(@"CMSampleBufferCreate ERROR type : %d",(int)status);
-        }
         
-    }
-    
-    if(status == noErr) {
-        CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, YES);
-        CFMutableDictionaryRef dict = (CFMutableDictionaryRef)CFArrayGetValueAtIndex(attachments, 0);
-        CFDictionarySetValue(dict, kCMSampleAttachmentKey_DisplayImmediately, kCFBooleanTrue);
-        [self.videoLayer enqueueSampleBuffer:sampleBuffer];
-//        if(![[NSFileManager defaultManager] fileExistsAtPath:_imagePath]){
+        if(status == noErr) {
+            CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, YES);
+            CFMutableDictionaryRef dict = (CFMutableDictionaryRef)CFArrayGetValueAtIndex(attachments, 0);
+            CFDictionarySetValue(dict, kCMSampleAttachmentKey_DisplayImmediately, kCFBooleanTrue);
+            [self.videoLayer enqueueSampleBuffer:sampleBuffer];
+            //        if(![[NSFileManager defaultManager] fileExistsAtPath:_imagePath]){
             VTDecodeFrameFlags flags = kVTDecodeFrame_EnableAsynchronousDecompression;
             VTDecodeInfoFlags flagOut;
             CVPixelBufferRef outputPixelBuffer = NULL;
             status = VTDecompressionSessionDecodeFrame(_decompressionSession, sampleBuffer, flags, &outputPixelBuffer, &flagOut);
-        
+            
             if(status == kVTInvalidSessionErr) {
                 NSLog(@"IOS8VT: Invalid session, reset decoder session");
             } else if(status == kVTVideoDecoderBadDataErr) {
@@ -539,15 +574,60 @@ NSString * const naluTypesStrings[] =
             } else if(status != noErr) {
                 NSLog(@"IOS8VT: decode failed status=%d", (int)status);
             }
-//        }
- 
-        CFRelease(sampleBuffer);
+            //        }
+            
+            CFRelease(sampleBuffer);
+        }
+
+    }
+}
+
+int getXps2(unsigned char *data, int offset, int length, int type, int *outPos, int *xpsLen)
+{
+    int i;
+    int pos0;
+    int pos1;
+    pos0 = -1;
+    
+    for (i = offset; i < length - 4; i++)
+    {
+        if ((0 == data[i]) && (0 == data[i + 1]) && (1 == data[i + 2]) && (type == (0x0F & data[i + 3])))
+        {
+            pos0 = i;
+            break;
+        }
     }
     
-    if (NULL != data) {
-        free (data);
-        data = NULL;
+    if (-1 == pos0)
+    {
+        return -1;
     }
+    
+    pos1 = -1;
+    for (i = pos0 + 4; i < length - 4; i++)
+    {
+        if ((0 == data[i]) && (0 == data[i + 1]) && (1 == data[i + 2]))
+        {
+            pos1 = i;
+            
+            if (data[i - 1] == 0)
+            {
+                // 00 00 00 01
+                pos1--;
+            }
+            break;
+        }
+    }
+    
+    if (-1 == pos1)
+    {
+        return -2;
+    }
+    
+    *outPos = pos0 + 3;
+    *xpsLen = pos1 - pos0 - 3;
+    printf("type = %d xpsLen= %d ; outPos = %d pos1 = %d\r\n", type, *xpsLen, *outPos, pos1);
+    return 0;
 }
 
 void decompressionSessionDecodeFrameCallback(void *decompressionOutputRefCon,

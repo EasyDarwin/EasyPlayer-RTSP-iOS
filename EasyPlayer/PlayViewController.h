@@ -3,6 +3,14 @@
 #import <AVFoundation/AVFoundation.h>
 
 @interface PlayViewController : UIViewController
+{
+    BOOL xps_found;
+    uint8_t *spsData;
+    uint8_t *ppsData;
+    
+    unsigned char *pInnerData;
+    unsigned int innerLen;
+}
 @property(nonatomic,strong)NSString *urlStr;
 @property(nonatomic,strong)NSString *imagePath;
 
