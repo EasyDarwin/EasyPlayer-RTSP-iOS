@@ -6,10 +6,6 @@ EasyPlayer & EasyPlayerPro是由EasyDarwin团队开发和维护的一个流媒�
 
 ![EasyPlayer](http://www.easydarwin.org/github/images/easyplayer/easyplayerios20170313.png)
 
-- EasyPlayer Pro全功能版：[https://itunes.apple.com/us/app/easyplayerpro/id1205087581?l=zh&ls=1&mt=8](https://itunes.apple.com/us/app/easyplayerpro/id1205087581?l=zh&ls=1&mt=8)
-
-![EasyPlayer Pro 版](http://www.easydarwin.org/github/images/easyplayer/easyplayerproios20170313.png)
-
 ## 版本更新记录 ##
 
 ### v1.0 (Build 1) ###
