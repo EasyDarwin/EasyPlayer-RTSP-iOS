@@ -1,4 +1,4 @@
-
+//
 #import <UIKit/UIKit.h>
 #import "RtspDataReader.h"
 
@@ -11,26 +11,23 @@ typedef enum {
 
 @protocol VideoViewDelegate;
 
-@interface VideoView : UIView<UIGestureRecognizerDelegate>
+@interface VideoView : UIView <UIGestureRecognizerDelegate>
 
-@property (nonatomic, weak) UIView *container;
+@property (nonatomic, weak)UIView *container;
 @property (nonatomic, strong) UIButton *addButton;
 
-@property (nonatomic, copy) NSString *url;
-
-@property (nonatomic, copy) NSString *recordFilePath;   // 录像地址
-@property (nonatomic, assign) BOOL isRecord;
+@property (nonatomic, copy)NSString *url;
 
 @property (nonatomic, weak) id<VideoViewDelegate> delegate;
 
 @property (nonatomic) BOOL active;
-@property (nonatomic, strong) RtspDataReader *reader;
-@property (nonatomic, assign) IVideoStatus videoStatus;
+@property (nonatomic, strong)RtspDataReader *reader;
+@property (nonatomic, assign)IVideoStatus videoStatus;
 
-@property (nonatomic, assign) BOOL showAllRegon;
-@property (nonatomic, assign) BOOL fullScreen;
-@property (nonatomic, assign) BOOL showActiveStatus;
-@property (nonatomic, readonly) BOOL audioPlaying;
+@property (nonatomic)BOOL showAllRegon;
+@property(nonatomic) BOOL fullScreen;
+@property (nonatomic, assign)BOOL showActiveStatus;
+@property (nonatomic, readonly)BOOL audioPlaying;
 
 // 是否启用硬解
 @property (nonatomic)BOOL useHWDecoder;
@@ -44,6 +41,7 @@ typedef enum {
 - (void)startPlay;
 - (void)stopPlay;
 
+
 - (void)flush;
 //- (void)puaseReplay;
 //- (void)resumeReplay;
@@ -56,6 +54,7 @@ typedef enum {
 - (void)stopAudio;
 
 @end
+
 
 @protocol VideoViewDelegate <NSObject>
 

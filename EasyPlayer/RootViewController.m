@@ -1,22 +1,36 @@
-
 #import "RootViewController.h"
 #import "VideoPlayerController.h"
 #import "VideoCell.h"
 #import <CommonCrypto/CommonDigest.h>
 
-@interface RootViewController()<UICollectionViewDelegate,UICollectionViewDataSource,UIActionSheetDelegate> {
+@interface RootViewController()<UICollectionViewDelegate,UICollectionViewDataSource,UIActionSheetDelegate>
+{
     UIAlertView* _alertView;
     UIAlertView* _deleteAlertView;
     UIActionSheet* _actionSheet;
 }
-
 @end
 
 @implementation RootViewController
 
-- (void)viewDidLoad {
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    NSMutableArray *urls = [[NSUserDefaults standardUserDefaults] objectForKey:@"videoUrls"];
+    if(urls)
+    {
+        _dataArray = [urls mutableCopy];
+    }
+    else
+    {
+        _dataArray = [NSMutableArray array];
+    }
+    [self.collectionView reloadData];
+}
+
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    
     self.view.backgroundColor = [UIColor whiteColor];
     [self navigationSetting];
     
@@ -33,43 +47,42 @@
     self.collectionView.showsHorizontalScrollIndicator = NO;
     self.collectionView.showsVerticalScrollIndicator = NO;
     self.collectionView.backgroundColor = [UIColor whiteColor];
+    
+    
     [self.collectionView registerClass:[VideoCell class] forCellWithReuseIdentifier:@"VideoCell"];
     [self.view addSubview:self.collectionView];
+
     
     _alertView = [[UIAlertView alloc] initWithTitle:@"请输入播放地址" message: nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
     [_alertView setAlertViewStyle:UIAlertViewStylePlainTextInput];
     [_alertView textFieldAtIndex:0].keyboardType = UIKeyboardTypeURL;
     
     _deleteAlertView = [[UIAlertView alloc] initWithTitle:@"确定删除?" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
+    
     _actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:@"删除" otherButtonTitles:@"修改", nil];
+    
+//    self.collectionView.mj_header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(doReload)];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    
-    NSMutableArray *urls = [[NSUserDefaults standardUserDefaults] objectForKey:@"videoUrls"];
-    if(urls) {
-        _dataArray = [urls mutableCopy];
-    } else {
-        _dataArray = [NSMutableArray array];
-    }
-    
+- (void)doReload
+{
     [self.collectionView reloadData];
-}
-
-- (void)doReload {
-    [self.collectionView reloadData];
+//    [self.collectionView.mj_header endRefreshing];
 }
 
 //导航栏设置
-- (void)navigationSetting {
+- (void)navigationSetting
+{
     [self.navigationController.navigationBar setTitleTextAttributes:
      @{NSFontAttributeName:[UIFont systemFontOfSize:17],
        NSForegroundColorAttributeName:[UIColor whiteColor]}];
     
-    if (self.previewMore != nil) {
+    if (self.previewMore != nil)
+    {
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelVc)];
-    } else {
+    }
+    else
+    {
         UIView* logo = [[UIView alloc]init];
         logo.frame = CGRectMake(0, 0, 160, 30);
         UIImageView* img = [[UIImageView alloc]init];
@@ -89,25 +102,27 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(clickAddBtn)];
 }
 
-- (void)cancelVc {
+- (void)cancelVc
+{
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)clickAddBtn {
-//    @"rtsp://cloud.easydarwin.org:554/542902.sdp"
+//    @"rtsp://cloud.easydarwin.org:554/048044.sdp"
 //    @"rtsp://admin:Hf123456@120.210.129.17/Streaming/Channels/101"
-    [_alertView textFieldAtIndex:0].text = @"rtsp://admin:Hf123456@120.210.129.17/Streaming/Channels/101";
+    [_alertView textFieldAtIndex:0].text = @"rtsp://cloud.easydarwin.org:554/048044.sdp";
     _alertView.tag = -1;
     [_alertView show];
 }
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if(alertView == _alertView && buttonIndex == 1) {
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if(alertView == _alertView && buttonIndex == 1){
         UITextField *tf = [_alertView textFieldAtIndex:0];
         NSString* url = [tf.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        if(_alertView.tag < 0) {
+        if(_alertView.tag < 0){//new
             [_dataArray insertObject:url atIndex:0];
-        } else {
+        } else {//edit
             [_dataArray removeObjectAtIndex:_alertView.tag];
             [_dataArray insertObject:url atIndex:_alertView.tag];
         }
@@ -115,8 +130,7 @@
         [[NSUserDefaults standardUserDefaults] synchronize];
         [self.collectionView reloadData];
     }
-    
-    if(alertView == _deleteAlertView && buttonIndex == 1) {
+    if(alertView == _deleteAlertView && buttonIndex == 1){
         NSString* url = [_dataArray objectAtIndex:_deleteAlertView.tag];
         const char *cStr = [url UTF8String];
         unsigned char result[16];
@@ -133,24 +147,27 @@
         if([[NSFileManager defaultManager] fileExistsAtPath:path]){
             [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
         }
-        
         [_dataArray removeObjectAtIndex:_deleteAlertView.tag];
         [[NSUserDefaults standardUserDefaults] setObject:_dataArray forKey:@"videoUrls"];
         [[NSUserDefaults standardUserDefaults] synchronize];
         [self.collectionView reloadData];
     }
+
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if(actionSheet == _actionSheet) {
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if(actionSheet == _actionSheet){
         switch (buttonIndex) {
-            case 0: {
+            case 0:
+            {
                 //delete
                 _deleteAlertView.tag = _actionSheet.tag;
                 [_deleteAlertView show];
                 break;
             }
-            case 1: {
+            case 1:
+            {
                 //edit
                 _alertView.tag = _actionSheet.tag;
                 UITextField *tf = [_alertView textFieldAtIndex:0];
@@ -164,17 +181,20 @@
     }
 }
 
--(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
     return _dataArray.count;
 }
 
--(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
     int w = ScreenWidth - 20;
     int h = w * 9 /16;
     return CGSizeMake(w, h + VIDEO_TITLE_HEIGHT);//30 is the bottom title height
 }
 
--(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
     VideoCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"VideoCell" forIndexPath:indexPath];
     NSString *url = _dataArray[indexPath.row];
     [cell.titleLabel setText:[NSString stringWithFormat:@"  %@",url]];
@@ -193,7 +213,7 @@
     NSString* path = [docDir stringByAppendingPathComponent:[NSString stringWithFormat:@"snapshot/%@.png", strMd5]];
     if([[NSFileManager defaultManager] fileExistsAtPath:path]){
         cell.imageView.image = [UIImage imageWithContentsOfFile:path];
-    } else {
+    }else {
         cell.imageView.image = [UIImage imageNamed:@"ImagePlaceholder"];
     }
     
@@ -204,24 +224,31 @@
     return cell;
 }
 
--(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.previewMore != nil) {
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (self.previewMore != nil)
+    {
         [self cancelVc];
         self.previewMore(_dataArray[indexPath.row]);
-    } else {
+    }
+    else
+    {
         VideoPlayerController* pvc = [[VideoPlayerController alloc] init];
         pvc.url = _dataArray[indexPath.row];
         [self.navigationController pushViewController:pvc animated:YES];
     }
+    
 }
 
--(void)longpress:(UILongPressGestureRecognizer*)ges {
+-(void)longpress:(UILongPressGestureRecognizer*)ges
+{
     CGPoint pointTouch = [ges locationInView:self.collectionView];
-    if(ges.state == UIGestureRecognizerStateBegan) {
+    if(ges.state == UIGestureRecognizerStateBegan){
         NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:pointTouch];
         _actionSheet.tag = indexPath.row;
         [_actionSheet showInView:self.view];
     }
 }
+
 
 @end

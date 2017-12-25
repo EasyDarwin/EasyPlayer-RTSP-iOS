@@ -1,12 +1,12 @@
-
 #import "VideoCell.h"
 
 @implementation VideoCell
 
-- (id)initWithFrame:(CGRect)frame {
+- (id)initWithFrame:(CGRect)frame
+{
     self = [super initWithFrame:frame];
     
-    if(self) {
+    if(self){
         self.layer.masksToBounds = NO;
         self.layer.contentsScale = [UIScreen mainScreen].scale;
         self.layer.borderColor = [[UIColor grayColor] CGColor];
@@ -16,7 +16,7 @@
         self.layer.shadowRadius = 5;
         self.layer.shadowOffset  = CGSizeZero;
         self.layer.shadowPath = [UIBezierPath bezierPathWithRect:self.bounds].CGPath;
-        
+
         CGRect imgRect = {CGPointZero,{self.contentView.frame.size.width,self.contentView.frame.size.height - VIDEO_TITLE_HEIGHT}};
         self.imageView = [[UIImageView alloc]initWithFrame:imgRect];
         self.imageView.image = [UIImage imageNamed:@"ImagePlaceholder"];
@@ -33,6 +33,16 @@
         [self.contentView addSubview:self.titleLabel];
     }
     return self;
+}
+
+// Check if the "thing" pass'd is empty
+static inline BOOL isEmpty(id thing) {
+    return thing == nil
+    || [thing isKindOfClass:[NSNull class]]
+    || ([thing respondsToSelector:@selector(length)]
+        && [(NSData *)thing length] == 0)
+    || ([thing respondsToSelector:@selector(count)]
+        && [(NSArray *)thing count] == 0);
 }
 
 @end

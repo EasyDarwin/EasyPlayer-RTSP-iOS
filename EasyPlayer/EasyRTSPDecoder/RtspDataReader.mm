@@ -3,10 +3,8 @@
 #include <pthread.h>
 #include <vector>
 #import <string.h>
-
 #include "VideoDecode.h"
 #include "EasyAudioDecoder.h"
-#import "MuxerToVideo.h"
 #import "HWVideoDecoder.h"
 
 struct FrameInfo {
@@ -29,8 +27,6 @@ struct FrameInfo {
     
     void *_videoDecHandle;  // 视频解码句柄
     void *_audioDecHandle;  // 音频解码句柄
-    
-    void *_recordHandle;
     
     EASY_MEDIA_INFO_T _mediaInfo;   // 媒体信息
     
@@ -108,7 +104,7 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
         
         _videoDecHandle = NULL;
         _audioDecHandle = NULL;
-        
+
         self.url = url;
         
         // 初始化硬解码器
@@ -199,14 +195,10 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
             } else {
                 [self decodeVideoFrame:frame];
             }
-            
-            [self recordVideoFrame:frame];
         } else {
             if (self.enableAudio) {
                 [self decodeAudioFrame:frame];
             }
-            
-            [self recordAudioFrame:frame];
         }
         
         delete []frame->pBuf;
@@ -378,18 +370,6 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     NSLog(@" --> %@", frame);
 }
 
-#pragma mark - H264HWDecoderDelegate
-
-- (void) displayDecodePictureData:(KxVideoFrame *)frame {
-    if (self.frameOutputBlock) {
-        self.frameOutputBlock(frame);
-    }
-}
-
-- (void) displayDecodedFrame:(CVImageBufferRef)frame {
-    NSLog(@" --> %@", frame);
-}
-
 #pragma mark - dealloc
 
 - (void)dealloc {
@@ -410,57 +390,6 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
 
 - (EASY_MEDIA_INFO_T)mediaInfo {
     return _mediaInfo;
-}
-
-#pragma mark - 录像
-
-- (void)recordVideoFrame:(FrameInfo *)video {
-    if (_recordHandle == NULL) {
-        RECORD_CREATE_PARAM param;
-        param.nMaxImgWidth = video->width;
-        param.nMaxImgHeight = video->height;
-        param.coderID = RECORD_CODER_H264;
-        param.method = RECORD_IDM_SW;
-        _recordHandle = recordVideoCreate(&param);
-    }
-    
-    if (_videoDecHandle == NULL) {
-        DEC_CREATE_PARAM param;
-        param.nMaxImgWidth = video->width;
-        param.nMaxImgHeight = video->height;
-        param.coderID = CODER_H264;
-        param.method = IDM_SW;
-        _videoDecHandle = DecodeCreate(&param);
-    }
-    
-    DEC_COMPONENT *pComponent = (DEC_COMPONENT *)_videoDecHandle;
-    AVCodec *avCodec = pComponent->avCodec;
-    
-    AVCodecContext *pCodecCtx = pComponent->pCodecCtx;
-    
-    MUXER_VIDEO_PARAM param;
-    param.pStream = video->pBuf;
-    param.nLen = video->frameLen;
-    param.need_sps_head = false;
-
-    convertVideoToAVPacket(avCodec, pCodecCtx, [self.recordFilePath UTF8String], _recordHandle, &param);
-}
-
-- (void)recordAudioFrame:(FrameInfo *)audio {
-    
-    if (_audioDecHandle == NULL) {
-        _audioDecHandle = EasyAudioDecodeCreate(_mediaInfo.u32AudioCodec,
-                                                _mediaInfo.u32AudioSamplerate,
-                                                _mediaInfo.u32AudioChannel,
-                                                16);
-    }
-    
-    EasyAudioHandle *audioDecHandle = (EasyAudioHandle *)_audioDecHandle;
-    AACDFFmpeg *audioCodec = (AACDFFmpeg *)audioDecHandle->pContext;
-    AVCodec *avCodec = audioCodec->avCodec;
-    AVCodecContext *pCodecCtx = audioCodec->pCodecCtx;
-    
-    convertAudioToAVPacket(avCodec, pCodecCtx, [self.recordFilePath UTF8String], audio->pBuf, audio->frameLen);
 }
 
 @end

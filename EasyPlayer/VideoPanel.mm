@@ -8,7 +8,8 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
 
 #define kContentInset 1
 
-@interface VideoPanel() <VideoViewDelegate> {
+@interface VideoPanel() <VideoViewDelegate>
+{
     NSMutableArray *resuedViews;
     VideoView *_activeView;
     
@@ -17,13 +18,14 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
     BOOL startAnimate;
     BOOL willAnimateToPrimary;
 }
-
 @end
 
 @implementation VideoPanel
 
-- (id)initWithFrame:(CGRect)frame {
-    if (self = [super initWithFrame:frame]) {
+- (id)initWithFrame:(CGRect)frame
+{
+    if (self = [super initWithFrame:frame])
+    {
         self.backgroundColor = [UIColor clearColor];
         resuedViews = [[NSMutableArray alloc] init];
         self.layout = IVL_One;
@@ -32,19 +34,24 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
     return self;
 }
 
-- (void)setActiveView:(VideoView *)activeView {
-    if (_activeView != activeView) {
+- (void)setActiveView:(VideoView *)activeView
+{
+    if (_activeView != activeView)
+    {
         _activeView.active = NO;
         _activeView = activeView;
         _activeView.active = YES;
     }
 }
 
-- (BOOL)hasVideoPlaying {
+- (BOOL)hasVideoPlaying;
+{
     BOOL playing = NO;
-    for (int i=0; i<[resuedViews count]; i++) {
+    for (int i=0; i<[resuedViews count]; i++)
+    {
         VideoContainerView *view = [resuedViews objectAtIndex:i];
-        if (view.videoView.videoStatus == Rendering) {
+        if (view.videoView.videoStatus == Rendering)
+        {
             playing = YES;
             break;
         }
@@ -53,12 +60,15 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
     return playing;
 }
 
-- (VideoView *)viewInRecording {
+- (VideoView *)viewInRecording
+{
     VideoView *target = nil;
-    for (int i=0; i<[resuedViews count]; i++) {
-//        VideoContainerView *container = [resuedViews objectAtIndex:i];
+    for (int i=0; i<[resuedViews count]; i++)
+    {
+        VideoContainerView *container = [resuedViews objectAtIndex:i];
 //        AVCommand *avCom = container.videoView.avCom;
-//        if (avCom.recording) {
+//        if (avCom.recording)
+//        {
 //            target = container.videoView;
 //            break;
 //        }
@@ -67,12 +77,15 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
     return target;
 }
 
-- (BOOL)isVideoPlaying:(NSString *)url {
+- (BOOL)isVideoPlaying:(NSString *)url
+{
     BOOL resPlaying = NO;
-    for (int i = 0; i < [resuedViews count]; i++) {
-//        VideoContainerView *container = [resuedViews objectAtIndex:i];
+    for (int i=0; i<[resuedViews count]; i++)
+    {
+        VideoContainerView *container = [resuedViews objectAtIndex:i];
 //        AVCommand *avCom = container.videoView.avCom;
-//        if (container.videoView.videoRes == pRes && container.videoView.videoStatus != Stopped) {
+//        if (container.videoView.videoRes == pRes && container.videoView.videoStatus != Stopped)
+//        {
 //            resPlaying = YES;
 //            break;
 //        }
@@ -81,9 +94,11 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
     return resPlaying;
 }
 
-- (void)stopRecord {
-    for (int i = 0; i < [resuedViews count]; i++) {
-//        VideoContainerView *container = [resuedViews objectAtIndex:i];
+- (void)stopRecord
+{
+    for (int i=0; i<[resuedViews count]; i++)
+    {
+        VideoContainerView *container = [resuedViews objectAtIndex:i];
 //        AVCommand *avCom = container.videoView.avCom;
 //        if (avCom.recording)
 //        {
@@ -92,127 +107,160 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
     }
 }
 
-- (void)stopAll {
-    for (int i = 0; i < [resuedViews count]; i++) {
+- (void)stopAll
+{
+    for (int i=0; i<[resuedViews count]; i++)
+    {
         VideoContainerView *view = [resuedViews objectAtIndex:i];
-        view.videoView.isRecord = NO;
-//        [view.videoView stopPlay];
+        [view.videoView stopPlay];
     }
 }
 
-- (void)restore {
-    for (int i = 0; i < [resuedViews count]; i++) {
+- (void)restore
+{
+    for (int i=0; i<[resuedViews count]; i++)
+    {
         VideoContainerView *view = [resuedViews objectAtIndex:i];
-        if (view.videoView.videoStatus == Stopped) {
+        if (view.videoView.videoStatus == Stopped)
+        {
 //            NSInteger mode = view.videoView.avCom.playMode;
             [view.videoView startPlay];
         }
     }
 }
 
-- (VideoContainerView *)nextAvailableContainer {
+- (VideoContainerView *)nextAvailableContainer
+{
     int nIndex = -1;
 
-    for (int i=0; i<[resuedViews count]; i++) {
+    for (int i=0; i<[resuedViews count]; i++)
+    {
         VideoContainerView *view = [resuedViews objectAtIndex:i];
-        if (view.videoView.videoStatus == Stopped && view.videoView.active) {
+        if (view.videoView.videoStatus == Stopped && view.videoView.active)
+        {
             nIndex = i;
             break;
         }
     }
     
     VideoContainerView *view = nil;
-    if (nIndex >= 0) {
+    if (nIndex >= 0)
+    {
         view = [resuedViews objectAtIndex:nIndex];
-    } else {
+    }
+    else
+    {
         view = [resuedViews firstObject];
     }
     
-    if (view.videoView.videoStatus == Rendering) {
+    if (view.videoView.videoStatus == Rendering)
+    {
         
     }
 
     return view;
 }
 
-- (void)unregistObserver {
-    for (int i = 0; i < [resuedViews count]; i++) {
+- (void)unregistObserver
+{
+    for (int i=0; i<[resuedViews count]; i++)
+    {
         VideoContainerView *view = [resuedViews objectAtIndex:i];
         [view.videoView removeObserver:self forKeyPath:@"audioPlaying"];
         [view.videoView removeObserver:self forKeyPath:@"videoStatus"];
     }
 }
 
-- (void)setLayout:(IVideoLayout)layout {
-    if (_layout == layout) {
+- (void)setLayout:(IVideoLayout)layout
+{
+    if (_layout == layout)
+    {
         return;
     }
     
     _layout = layout;
     NSInteger diff = _layout - [resuedViews count];
-    for (int i = 0; i < diff; i++) {
+    for (int i=0; i<diff; i++)
+    {
         VideoContainerView *view = [VideoContainerView newAutoLayoutView];
         view.videoView.delegate = self;
         [resuedViews addObject:view];
-        [view.videoView.addButton addTarget:self action:@selector(addCameraRes:) forControlEvents:UIControlEventTouchUpInside];
+        [view.videoView.addButton addTarget:self
+                       action:@selector(addCameraRes:) forControlEvents:UIControlEventTouchUpInside];
         
         [view.videoView addObserver:self forKeyPath:@"audioPlaying" options:NSKeyValueObservingOptionOld|NSKeyValueObservingOptionNew context:(__bridge void *)(RenerStatisObservationContext)];
         [view.videoView addObserver:self forKeyPath:@"videoStatus" options:NSKeyValueObservingOptionOld|NSKeyValueObservingOptionNew context:(__bridge void *)(RenerStatisObservationContext)];
     }
 
-    for (int i = (int)layout; i<[resuedViews count]; i++) {
+    for (int i=layout; i<[resuedViews count]; i++)
+    {
         VideoContainerView *view = [resuedViews objectAtIndex:i];
-        if (view.videoView.videoStatus >= Connecting) {
+        if (view.videoView.videoStatus >= Connecting)
+        {
             [view.videoView stopPlay];
             view.videoView.url = nil;
         }
     }
     
-    for (int i = 0; i < [resuedViews count]; i++) {
+    for (int i=0; i<[resuedViews count]; i++)
+    {
         VideoContainerView *view = [resuedViews objectAtIndex:i];
-        if (view.superview != nil) {
+        if (view.superview != nil)
+        {
             [view removeFromSuperview];
         }
     }
     
     BOOL hasActiveView = NO;
     NSInteger rowCnt = [self rowCount];
-//    NSMutableArray *viewsOneCol = [[NSMutableArray alloc] init];
+    NSMutableArray *viewsOneCol = [[NSMutableArray alloc] init];
     VideoContainerView *topView = nil;
     NSInteger colCount = _layout / rowCnt;
-    for (int i = 0; i < rowCnt; i++) {
+    for (int i=0; i<rowCnt; i++)
+    {
         VideoContainerView *leftView = nil;
         NSMutableArray *viewsOneRow = [[NSMutableArray alloc] init];
-        for (int j = 0; j < colCount; j++) {
+        for (int j=0; j<colCount; j++)
+        {
             VideoContainerView *view = [resuedViews objectAtIndex:(i * colCount + j)];
             [self addSubview:view];
             [viewsOneRow addObject:view];
             
-            if (view.videoView.active) {
+            if (view.videoView.active)
+            {
                 hasActiveView = YES;
             }
             
-            if (leftView == nil) {
+            if (leftView == nil)
+            {
                 [view autoPinEdgeToSuperviewEdge:ALEdgeLeading];
                 
-                if (topView == nil) {
+                if (topView == nil)
+                {
                     [view autoPinEdgeToSuperviewEdge:ALEdgeTop];
-                } else {
+                }
+                else
+                {
                     [UIView autoSetPriority:UILayoutPriorityRequired - 1 forConstraints:^{
+                    
                         [view autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:topView withOffset:kContentInset];
                     }];
                     
                     [view autoMatchDimension:ALDimensionHeight toDimension:ALDimensionHeight ofView:topView];
                 }
                 
-                if (i == rowCnt -1) {
+                if (i == rowCnt -1)
+                {
                     [view autoPinEdgeToSuperviewEdge:ALEdgeBottom];
                 }
                 
                 topView = view;
-            } else {
+            }
+            else
+            {
                 [view autoAlignAxis:ALAxisHorizontal toSameAxisOfView:leftView];
                 [UIView autoSetPriority:UILayoutPriorityRequired - 1 forConstraints:^{
+                    
                     [view autoPinEdge:ALEdgeLeading toEdge:ALEdgeTrailing ofView:leftView withOffset:kContentInset];
                 }];
                 
@@ -220,18 +268,21 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
                 [view autoMatchDimension:ALDimensionHeight toDimension:ALDimensionHeight ofView:leftView];
             }
             
-            if (j == colCount - 1) {
+            if (j == colCount - 1)
+            {
                 [view autoPinEdgeToSuperviewEdge:ALEdgeTrailing];
             }
             
             leftView = view;
         }
-        
+
         leftView = nil;
     }
     
-    if (!hasActiveView) {
-        for (VideoContainerView *view in resuedViews) {
+    if (!hasActiveView)
+    {
+        for (VideoContainerView *view in resuedViews)
+        {
             view.videoView.active = NO;
         }
         
@@ -240,20 +291,26 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
     }
 }
 
-- (IBAction)addCameraRes:(id)sender {
+- (IBAction)addCameraRes:(id)sender
+{
     UIButton *button = (UIButton *)sender;
     VideoView *view = (VideoView *)button.superview;
     [self videoViewBeginActive:view];
     [self.delegate videoViewWillAddNewRes:view];
 }
 
-- (void)layoutSubviews {
+- (void)layoutSubviews
+{
     [super layoutSubviews];
     
-    if (startAnimate) {
-        if (willAnimateToPrimary) {
+    if (startAnimate)
+    {
+        if (willAnimateToPrimary)
+        {
             primaryView.frame = self.bounds;
-        } else {
+        }
+        else
+        {
             primaryView.frame = primaryView.container.frame;
         }
         
@@ -261,15 +318,18 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
     }
 }
 
-- (NSInteger)rowCount {
+- (NSInteger)rowCount
+{
     NSInteger count = 1;
     switch (self.layout) {
+            
         case IVL_Four:
             count = 2;
             break;
         case IVL_Nine:
             count = 3;
             break;
+            
         default:
             break;
     }
@@ -277,17 +337,20 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
     return count;
 }
 
-- (CGFloat)cellWidth {
+- (CGFloat)cellWidth
+{
     CGSize size = [UIScreen mainScreen].bounds.size;
     return (size.width - kContentInset * [self insertCount]) / ([self insertCount] + 1);
 }
 
-- (CGFloat)cellHeight {
+- (CGFloat)cellHeight
+{
     return (self.frame.size.height - kContentInset * [self insertCount]) / ([self insertCount] + 1);
 }
 
-- (NSInteger)insertCount {
-    NSInteger insetCount = 0;
+- (NSInteger)insertCount
+{
+     NSInteger insetCount = 0;
     switch (self.layout) {
         case IVL_Four:
             insetCount = 1;
@@ -295,6 +358,7 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
         case IVL_Nine:
             insetCount = 2;
             break;
+            
         default:
             break;
     }
@@ -302,20 +366,25 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
     return insetCount;
 }
 
-- (void)videoViewBeginActive:(VideoView *)view {
+- (void)videoViewBeginActive:(VideoView *)view
+{
     [self setActiveView:view];
+    
     [self.delegate didSelectVideoView:view];
 }
 
-- (void)videoViewWillAnimateToFullScreen:(VideoView *)view {
+- (void)videoViewWillAnimateToFullScreen:(VideoView *)view
+{
     [self.delegate videoViewWillAnimateToFullScreen:view];
 }
 
-- (void)videoViewWillAnimateToNomarl:(VideoView *)view {
+- (void)videoViewWillAnimateToNomarl:(VideoView *)view
+{
     [self.delegate videoViewWillAnimateToNomarl:view];
 }
 
-//- (void)videoViewWillAnimateToPrimary:(VideoView *)view complete:(dispatch_block_t)block {
+//- (void)videoViewWillAnimateToPrimary:(VideoView *)view complete:(dispatch_block_t)block
+//{
 //    primaryView = view;
 //    [view removeFromSuperview];
 //    [self addSubview:view];
@@ -335,7 +404,8 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
 //                     }];
 //}
 //
-//- (void)videoViewWillAnimateToNormal:(VideoView *)view complete:(dispatch_block_t)block {
+//- (void)videoViewWillAnimateToNormal:(VideoView *)view complete:(dispatch_block_t)block
+//{
 //    primaryView = view;
 //    willAnimateToPrimary = NO;
 //    startAnimate = YES;
@@ -356,52 +426,70 @@ static NSString* const RenerStatisObservationContext = @"RenerStatisObservationC
 //                     }];
 //}
 
-- (void)videoView:(VideoView *)view response:(int)error {
-    if (view == _activeView) {
+- (void)videoView:(VideoView *)view response:(int)error
+{
+    if (view == _activeView)
+    {
         [self.delegate activeVideoViewRendStatusChanged:view];
     }
 }
 
-- (void)videoView:(VideoView *)view connectionBreak:(int)error {
-    if (view == _activeView) {
+- (void)videoView:(VideoView *)view connectionBreak:(int)error
+{
+    if (view == _activeView)
+    {
         [self.delegate activeVideoViewRendStatusChanged:_activeView];
     }
 }
 
-- (void)videoViewWillTryToConnect:(VideoView *)view {
-    if (view == _activeView) {
+- (void)videoViewWillTryToConnect:(VideoView *)view
+{
+    if (view == _activeView)
+    {
         [self.delegate activeVideoViewRendStatusChanged:_activeView];
     }
 }
 
-- (void)videoViewDidiUpdateStream:(VideoView *)view {
-    if (view == _activeView) {
+- (void)videoViewDidiUpdateStream:(VideoView *)view
+{
+    if (view == _activeView)
+    {
         [self.delegate activeViewDidiUpdateStream:_activeView];
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (context == (__bridge void * )(RenerStatisObservationContext)) {
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if (context == (__bridge void * )(RenerStatisObservationContext))
+    {
         VideoView *view = (VideoView *)object;
-        if ([keyPath isEqualToString:@"audioPlaying"]) {
-            if (view.audioPlaying) {
-                for (int i = 0; i < [resuedViews count]; i++) {
+        if ([keyPath isEqualToString:@"audioPlaying"])
+        {
+            if (view.audioPlaying)
+            {
+                for (int i=0; i<[resuedViews count]; i++)
+                {
                     VideoContainerView *container = [resuedViews objectAtIndex:i];
-                    if (container.videoView != view) {
+                    if (container.videoView != view)
+                    {
                         [container.videoView stopAudio];
                     }
                 }
             }
         }
-        
         [self.delegate activeVideoViewRendStatusChanged:view];
-    } else {
+    }
+    else
+    {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
     [self unregistObserver];
 }
-
 @end
+
+
+

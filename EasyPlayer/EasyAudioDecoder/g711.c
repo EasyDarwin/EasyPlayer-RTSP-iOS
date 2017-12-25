@@ -307,3 +307,4 @@ ulaw2alaw(
 	return (unsigned char) ((uval & 0x80) ? (0xD5 ^ (_u2a[0xFF ^ uval] - 1)) :
 	    (unsigned char) (0x55 ^ (_u2a[0x7F ^ uval] - 1)));
 }
+

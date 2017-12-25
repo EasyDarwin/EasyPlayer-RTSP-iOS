@@ -10,8 +10,6 @@
  */
 @interface RtspDataReader : NSObject
 
-@property (nonatomic, copy) NSString *recordFilePath;   // 录像地址
-
 @property (nonatomic, copy) NSString *url;              // 流媒体地址
 @property (nonatomic, readonly) BOOL running;           // 播放中
 

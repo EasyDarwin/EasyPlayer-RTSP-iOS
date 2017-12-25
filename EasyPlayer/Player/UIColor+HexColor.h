@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-
 #define TableViewBKColor 0xe1e1e1
 #define SeperatorColor  0xe3e3e3
 #define BlueNavigationBar 0x1a7cc5
@@ -18,5 +17,4 @@
 
 + (UIColor *)colorFromHex:(NSInteger) value;
 + (UIColor *)colorWithHex:(NSInteger)value alpa:(float)alpa;
-
 @end

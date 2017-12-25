@@ -15,11 +15,13 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:alpa]
 
 @implementation UIColor (HexColor)
 
-+ (UIColor *)colorFromHex:(NSInteger)value {
++ (UIColor *)colorFromHex:(NSInteger)value
+{
     return HEXCOLOR(value, 1);
 }
 
-+ (UIColor *)colorWithHex:(NSInteger)value alpa:(float)alpa {
++ (UIColor *)colorWithHex:(NSInteger)value alpa:(float)alpa
+{
     return HEXCOLOR(value, alpa);
 }
 

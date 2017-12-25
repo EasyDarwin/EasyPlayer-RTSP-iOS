@@ -3,9 +3,6 @@
 #ifndef _VideoDecode_h
 #define _VideoDecode_h
 
-#include "libavformat/avformat.h"
-#include "libswscale/swscale.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -23,7 +20,7 @@ typedef enum {
     
 #define MAX_PLANES  3
     
-typedef unsigned char BYTE;
+typedef unsigned char   BYTE;
     
 // should be entirely filled by all codecs
 typedef struct DVDVideoPicture {
@@ -69,25 +66,7 @@ typedef struct DVDVideoPicture {
     } format;
 }DVDVideoPicture;
     
-    // 解码组件
-    typedef struct _DEC_COMPONENT {
-        AVCodec *avCodec;
-        // 编码器上下文(存储该视频/音频流使用解码方式的相关数据)
-        AVCodecContext *pCodecCtx;
-        // 存储一帧解码后像素(采样)数据
-        AVFrame *pFrame;
-        
-        // 主要用来对图像进行变化
-        struct SwsContext *pImgConvertCtx;
-        // RGB picture
-        AVPicture picture;
-        
-        unsigned char * pNewStream;
-        int newStreamLen;
-        unsigned int uiOriginLen;
-        unsigned int bScaleCreated;
-    }DEC_COMPONENT;
-    
+
 // 创建参数
 typedef struct _DEC_CREATE_PARAM {
     int nMaxImgWidth;
@@ -110,16 +89,11 @@ typedef struct _DEC_DECODE_PARAM {
     int linsize[4];
 }DEC_DECODE_PARAM;       
     
-    void DecodeRegiestAll(void);
-    
-    // 创建视频解码器
-    void *DecodeCreate(DEC_CREATE_PARAM *pCreateParam);
-    
-    // 解码一帧视频帧
-    unsigned int DecodeVideo(void *DecHandle, DEC_DECODE_PARAM *pDecodeParam, DVDVideoPicture *picture);
-    
-    // 关闭视频解码器
-    void DecodeClose(void *DecHandle);
+void DecodeRegiestAll();
+void *DecodeCreate(DEC_CREATE_PARAM *pCreateParam);
+
+unsigned int DecodeVideo(void *DecHandle, DEC_DECODE_PARAM *pDecodeParam, DVDVideoPicture *picture);
+void DecodeClose(void *DecHandle);
     
 #ifdef __cplusplus
 }

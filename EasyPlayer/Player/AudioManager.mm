@@ -7,14 +7,17 @@
 //
 
 #import "AudioManager.h"
-#import <Accelerate/Accelerate.h>
-#include <vector>
 
-static void sessionInterruptionListener(void *inClientData, UInt32 inInterruption) {
-    
+#include <vector>
+#import <Accelerate/Accelerate.h>
+
+static void sessionInterruptionListener(void *inClientData, UInt32 inInterruption)
+{
+
 }
 
-@interface AudioManager() {
+@interface AudioManager()
+{
     AudioUnit remoteIOUnit;
     SInt16 * _outData;
     BOOL _activated;
@@ -24,10 +27,10 @@ static void sessionInterruptionListener(void *inClientData, UInt32 inInterruptio
 @property (nonatomic, readwrite)BOOL playing;
 
 - (void)fillBuf:(AudioBufferList *)ioData num:(UInt32)inNumberFrames;
-
 @end
 
-static BOOL checkError(OSStatus error, const char *operation) {
+static BOOL checkError(OSStatus error, const char *operation)
+{
     if (error == noErr)
         return NO;
     
@@ -37,38 +40,42 @@ static BOOL checkError(OSStatus error, const char *operation) {
     if (isprint(str[1]) && isprint(str[2]) && isprint(str[3]) && isprint(str[4])) {
         str[0] = str[5] = '\'';
         str[6] = '\0';
-    } else {
+    } else
         // no, format it as an integer
         sprintf(str, "%d", (int)error);
-    }
     
     NSLog(@"Error: %s (%s)\n", operation, str);
+    
     
     return YES;
 }
 
 @implementation AudioManager
 
-+ (AudioManager *) sharedInstance {
++ (AudioManager *) sharedInstance
+{
     static AudioManager *audioManager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         audioManager = [[AudioManager alloc] init];
     });
-    
     return audioManager;
 }
 
-- (id)init {
-    if (self = [super init]) {
+- (id)init
+{
+    if (self = [super init])
+    {
         _outData = (SInt16 *)calloc(4096 * 2, sizeof(SInt16));
     }
     
     return self;
 }
 
-- (BOOL) activateAudioSession {
-    if (!_initialized) {
+- (BOOL) activateAudioSession
+{
+    if (!_initialized)
+    {
         AudioSessionInitialize(NULL,
                                kCFRunLoopDefaultMode,
                                sessionInterruptionListener,
@@ -77,7 +84,8 @@ static BOOL checkError(OSStatus error, const char *operation) {
         _initialized = YES;
     }
     
-    if (!_activated) {
+    if (!_activated)
+    {
         UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
         if (checkError(AudioSessionSetProperty(kAudioSessionProperty_AudioCategory,
                                                sizeof(sessionCategory),
@@ -95,7 +103,8 @@ static BOOL checkError(OSStatus error, const char *operation) {
     return _initialized;
 }
 
-- (void) deactivateAudioSession {
+- (void) deactivateAudioSession
+{
     [self stop];
     
     checkError(AudioSessionSetActive(NO),
@@ -103,10 +112,12 @@ static BOOL checkError(OSStatus error, const char *operation) {
     _activated = NO;
 }
 
-- (void)stop {
+- (void)stop
+{
     [self pause];
     
-    if (remoteIOUnit != nil) {
+    if (remoteIOUnit != nil)
+    {
         checkError(AudioUnitUninitialize(remoteIOUnit),
                    "Couldn't uninitialize the audio unit");
         
@@ -117,9 +128,12 @@ static BOOL checkError(OSStatus error, const char *operation) {
     remoteIOUnit = nil;
 }
 
-- (BOOL)play {
-    if (!_playing) {
-        if ([self activateAudioSession] && [self setupAudio]) {
+- (BOOL)play
+{
+    if (!_playing)
+    {
+        if ([self activateAudioSession] && [self setupAudio])
+        {
             _playing = !checkError(AudioOutputUnitStart(remoteIOUnit),
                                    "Couldn't start the output unit");
         }
@@ -128,8 +142,10 @@ static BOOL checkError(OSStatus error, const char *operation) {
     return _playing;
 }
 
-- (void)pause {
+- (void)pause
+{
     if (_playing) {
+        
         checkError(AudioOutputUnitStop(remoteIOUnit),
                               "Couldn't stop the output unit");
     }
@@ -137,7 +153,8 @@ static BOOL checkError(OSStatus error, const char *operation) {
     _playing = NO;
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
     delete []_outData;
 }
 
@@ -147,14 +164,18 @@ static OSStatus outputRenderCallback(void                        *inRefCon,
                                      UInt32                      inBusNumber,
                                      UInt32                      inNumberFrames,
                                      AudioBufferList             *ioData){
+    
+    
     AudioManager *output = (__bridge AudioManager*)inRefCon;
     
     [output fillBuf:ioData num:inNumberFrames];
     return noErr;
 }
 
--(BOOL)setupAudio {
-    if (remoteIOUnit != nil) {
+-(BOOL)setupAudio
+{
+    if (remoteIOUnit != nil)
+    {
         return YES;
     }
     
@@ -165,10 +186,13 @@ static OSStatus outputRenderCallback(void                        *inRefCon,
     
     AudioComponent component = AudioComponentFindNext(NULL, &inputcd);
     if (checkError(AudioComponentInstanceNew(component, &remoteIOUnit),
-                 "Couldn't create the output audio unit")) {
+                 "Couldn't create the output audio unit"))
+    {
         return NO;
     }
+ 
     
+
     AudioStreamBasicDescription streamFormat;
     UInt32 size = sizeof(AudioStreamBasicDescription);
     AudioUnitGetProperty(remoteIOUnit,
@@ -178,6 +202,7 @@ static OSStatus outputRenderCallback(void                        *inRefCon,
                          &streamFormat,
                          &size);
     
+
     streamFormat.mFormatID = kAudioFormatLinearPCM;
     streamFormat.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
     streamFormat.mSampleRate = self.sampleRate;
@@ -193,7 +218,8 @@ static OSStatus outputRenderCallback(void                        *inRefCon,
                                       0,
                                       &streamFormat,
                                       sizeof(streamFormat)),
-                 "kAudioUnitProperty_StreamFormat of bus 0 failed")) {
+                 "kAudioUnitProperty_StreamFormat of bus 0 failed"))
+    {
         return NO;
     }
     
@@ -206,12 +232,14 @@ static OSStatus outputRenderCallback(void                        *inRefCon,
                                       0,//input mic
                                       &input,
                                       sizeof(input)),
-                 "kAudioUnitProperty_SetRenderCallback failed")) {
+                 "kAudioUnitProperty_SetRenderCallback failed"))
+    {
         return NO;
     }
     
     if (checkError(AudioUnitInitialize(remoteIOUnit),
-               "Couldn't initialize the audio unit")) {
+               "Couldn't initialize the audio unit"))
+    {
         return NO;
     }
     
@@ -220,22 +248,28 @@ static OSStatus outputRenderCallback(void                        *inRefCon,
     return YES;
 }
 
-- (void)fillBuf:(AudioBufferList *)ioData num:(UInt32)inNumberFrames {
-    for (int iBuffer=0; iBuffer < ioData->mNumberBuffers; ++iBuffer) {
+- (void)fillBuf:(AudioBufferList *)ioData num:(UInt32)inNumberFrames
+{
+    for (int iBuffer=0; iBuffer < ioData->mNumberBuffers; ++iBuffer)
+    {
         memset(ioData->mBuffers[iBuffer].mData, 0, ioData->mBuffers[iBuffer].mDataByteSize);
     }
     
-    if (_playing) {
-        if (_outputBlock != nil) {
+    if (_playing)
+    {
+        if (_outputBlock != nil)
+        {
             _outputBlock(_outData, inNumberFrames, self.channel);
             
-            for (int iBuffer=0; iBuffer < ioData->mNumberBuffers; ++iBuffer) {
+            for (int iBuffer=0; iBuffer < ioData->mNumberBuffers; ++iBuffer)
+            {
                 int thisNumChannels = ioData->mBuffers[iBuffer].mNumberChannels;
                 SInt16 *frameBuffer = (SInt16 *)ioData->mBuffers[iBuffer].mData;
                 memcpy(frameBuffer, _outData, inNumberFrames * thisNumChannels * sizeof(SInt16));
             }
         }
     }
+
 }
 
 @end
