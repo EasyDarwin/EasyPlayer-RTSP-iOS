@@ -67,7 +67,7 @@
         needChangeViewFrame = NO;
         _showActiveStatus = YES;
         
-//        self.useHWDecoder = YES;
+        self.useHWDecoder = YES;
         
         self.tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
         [self addGestureRecognizer:self.tapGesture];
@@ -161,6 +161,20 @@
     __weak VideoView *weakSelf = self;
     reader = [[RtspDataReader alloc] initWithUrl:self.url];
     reader.useHWDecoder = self.useHWDecoder;
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString* _dir = [documentsDirectory stringByAppendingPathComponent:@"record"];
+    if(![[NSFileManager defaultManager] fileExistsAtPath:_dir]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:_dir withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    
+    NSDate *date = [NSDate date];
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"YYYYMMddhhmmss"];
+    NSString *DateTime = [formatter stringFromDate:date];
+    reader.recordFilePath = [_dir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.mp4", DateTime]];
+    
     reader.fetchMediaInfoSuccessBlock = ^(void){
         weakSelf.videoStatus = Rendering;
         [weakSelf updateUI];
@@ -266,7 +280,6 @@
 
 - (void)fillAudioData:(SInt16 *) outData numFrames: (UInt32) numFrames numChannels: (UInt32) numChannels {
     @autoreleasepool {
-        
         while (numFrames > 0) {
             if (_currentAudioFrame == nil) {
                 @synchronized(_audioFrames) {
@@ -317,6 +330,14 @@
     audioButton.selected = audioPlaying;
 }
 
+- (void) setIsRecord:(BOOL)isRecord {
+    _isRecord = isRecord;
+    
+    if (!_isRecord) {
+        reader.recordFilePath = nil;
+    }
+}
+
 - (void)stopAudio {
     if ([AudioManager sharedInstance].source == self) {
         [[AudioManager sharedInstance] stop];
@@ -347,14 +368,12 @@
     }
 }
 
-- (void)setUrl:(NSString *)url
-{
+- (void)setUrl:(NSString *)url {
     _url = url;
     _addButton.hidden = [_url length] == 0 ? NO : YES;
 }
 
-- (void)stopPlay
-{
+- (void)stopPlay {
     [self hideActivity];
     [displayLink invalidate];
     displayLink = nil;
@@ -362,11 +381,11 @@
     [self stopAudio];
     [reader stop];
     
-    @synchronized(rgbFrameArray){
+    @synchronized(rgbFrameArray) {
         [rgbFrameArray removeAllObjects];
     }
     
-    @synchronized(_audioFrames){
+    @synchronized(_audioFrames) {
         [_audioFrames removeAllObjects];
     }
     
@@ -374,28 +393,23 @@
     [self flush];
 }
 
-- (void)changeStream
-{
-
+- (void)changeStream {
+    
 }
 
-- (void)updateStreamCount
-{
+- (void)updateStreamCount {
     [self.delegate videoViewDidiUpdateStream:self];
 }
 
-- (void)setShowAllRegon:(BOOL)showAllRegon
-{
+- (void)setShowAllRegon:(BOOL)showAllRegon {
     _showAllRegon = showAllRegon;
     scrollView.scrollEnabled = _showAllRegon;
 }
 
-- (void)startRecord
-{
+- (void)startRecord {
 //    _firstFrameRecord = -1;
 //    [_avCom startRecord];
-//    if (self.bounds.size.width > self.recordDurationLabel.frame.size.width)
-//    {
+//    if (self.bounds.size.width > self.recordDurationLabel.frame.size.width) {
 //        self.recordDurationLabel.hidden = NO;
 //    }
 //    self.recordDurationLabel.text = nil;
@@ -408,8 +422,7 @@
 //                                                userInfo:nil repeats:YES];
 }
 
-- (void)stopRecord
-{
+- (void)stopRecord {
 //    [_avCom stopRecord];
 //    self.recordDurationLabel.hidden = YES;
 //    self.recordDurationLabel.text = nil;
@@ -417,25 +430,19 @@
 //    self.timer = nil;
 }
 
-- (void)layoutSubviews
-{
+- (void)layoutSubviews {
     [super layoutSubviews];
     _addButton.frame = CGRectMake((self.bounds.size.width - 30) / 2, (self.bounds.size.height - 30) / 2, 30, 30);
     
-    if (self.fullScreen)
-    {
+    if (self.fullScreen) {
         kxGlView.frame = scrollView.bounds;
         scrollView.contentSize = scrollView.frame.size;
-    }
-    else
-    {
-        if (_showAllRegon)
-        {
+    } else {
+        if (_showAllRegon) {
             CGRect rc = scrollView.frame;
             scrollView.contentSize = rc.size;
-            if (displayWidth != 0 && displayHeight != 0)
-            {
-                int x = displayWidth > self.bounds.size.width ? 0 : (int)(abs(self.bounds.size.width - displayWidth) / 2.0 + 0.5);
+            if (displayWidth != 0 && displayHeight != 0) {
+                int x = displayWidth > self.bounds.size.width ? 0 : (int)(fabs(self.bounds.size.width - displayWidth) / 2.0 + 0.5);
                 int cx = MIN(displayWidth, self.bounds.size.width);
                 int cy = MIN(displayHeight*cx/displayWidth, self.bounds.size.height);
                 int y = (self.bounds.size.height - cy) / 2.0 + 0.5;
@@ -445,16 +452,12 @@
                 imageRect.size = CGSizeMake(cx, cy);
                 kxGlView.frame = imageRect;
             }
-        }
-        else
-        {
+        } else {
             CGRect rc = scrollView.bounds;
             CGFloat width = rc.size.height * 16.0 / 9.0;
-            if (displayHeight != 0 && displayWidth != 0)
-            {
+            if (displayHeight != 0 && displayWidth != 0) {
                 width = rc.size.height * (float)displayWidth / (float)displayHeight;
-                if (width < rc.size.width)
-                {
+                if (width < rc.size.width) {
                     width = rc.size.width;
                 }
             }
@@ -467,41 +470,32 @@
             
             [self reCalculateArcPos];
         }
-
     }
 }
 
-- (void)reCalculateArcPos
-{
-    if (self.fullScreen)
-    {
+- (void)reCalculateArcPos {
+    if (self.fullScreen) {
         return;
     }
     
-    CGPoint point = scrollView.contentOffset;
+//    CGPoint point = scrollView.contentOffset;
     CGFloat maxDiffer = scrollView.contentSize.width - scrollView.frame.size.width;
-    if (maxDiffer <= 0 || self.videoStatus != Rendering)
-    {
+    if (maxDiffer <= 0 || self.videoStatus != Rendering) {
         return;
-    }
-    else
-    {
-        if (!firstFrame)
-        {
-
+    } else {
+        if (!firstFrame) {
+            
         }
     }
 }
 
-- (void)beginTransform
-{
+- (void)beginTransform {
     scrollView.contentOffset = CGPointZero;
     scrollView.zoomScale = 1;
     transforming = YES;
 }
 
-- (void)endTransform
-{
+- (void)endTransform {
     transforming = NO;
 }
 
@@ -509,46 +503,35 @@
     return nil;
 }
 
-- (void)scrollViewWillBeginZooming:(UIScrollView *)aScrollView withView:(UIView *)view
-{
-}
-
-- (void)scrollViewDidZoom:(UIScrollView *)scrollView
-{
+- (void)scrollViewWillBeginZooming:(UIScrollView *)aScrollView withView:(UIView *)view {
     
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)aScrollView
-{
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView {
     
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)aScrollView
-{
-    if (transforming)
-    {
+- (void)scrollViewWillBeginDragging:(UIScrollView *)aScrollView {
+    
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)aScrollView {
+    if (transforming) {
         return;
     }
+    
     CGPoint point = aScrollView.contentOffset;
     CGFloat maxX = aScrollView.contentSize.width - aScrollView.frame.size.width;
-    if (point.x < 0.5)
-    {
+    if (point.x < 0.5) {
         point.x = 0.0;
         aScrollView.contentOffset = point;
-    }
-    else if ( point.x > maxX)
-    {
+    } else if ( point.x > maxX) {
         point.x = maxX;
         aScrollView.contentOffset = point;
-        
-    }
-    else if (point.y < 0.5)
-    {
+    } else if (point.y < 0.5) {
         point.y = 0.0;
         aScrollView.contentOffset = point;
-    }
-    else if ( point.y > (aScrollView.contentSize.height - aScrollView.frame.size.height))
-    {
+    } else if ( point.y > (aScrollView.contentSize.height - aScrollView.frame.size.height)) {
         point.y = aScrollView.contentSize.height - aScrollView.frame.size.height;
         aScrollView.contentOffset = point;
     }
@@ -556,18 +539,14 @@
     [self reCalculateArcPos];
 }
 
-- (CGFloat)displayFrame:(KxVideoFrame *)frame
-{
-    if (frame.width != displayWidth || displayHeight != frame.height)
-    {
+- (CGFloat)displayFrame:(KxVideoFrame *)frame {
+    if (frame.width != displayWidth || displayHeight != frame.height) {
         needChangeViewFrame = YES;
     }
     displayWidth = (int)frame.width;
     displayHeight = (int)frame.height;
-    if (self.videoStatus == Rendering)
-    {
-        if (firstFrame)
-        {
+    if (self.videoStatus == Rendering) {
+        if (firstFrame) {
             needChangeViewFrame = YES;
             firstFrame = NO;
             scrollView.scrollEnabled = YES;
@@ -575,33 +554,28 @@
             [self hideActivity];
         }
     }
-    if (needChangeViewFrame)
-    {
+    if (needChangeViewFrame) {
         [self setNeedsLayout];
         needChangeViewFrame = NO;
     }
-
+    
     [kxGlView render:frame];
     
     _moviePosition = frame.position;
-
+    
     return frame.duration;
 }
 
-- (void)displayImage:(UIImage *)image width:(uint)width height:(int)height
-{
-    if (width != displayWidth || displayHeight != height)
-    {
+- (void)displayImage:(UIImage *)image width:(uint)width height:(int)height {
+    if (width != displayWidth || displayHeight != height) {
         needChangeViewFrame = YES;
     }
     
     displayWidth = width;
     displayHeight = height;
     
-    if (self.videoStatus == Rendering)
-    {
-        if (firstFrame)
-        {
+    if (self.videoStatus == Rendering) {
+        if (firstFrame) {
             needChangeViewFrame = YES;
             firstFrame = NO;
             scrollView.scrollEnabled = YES;
@@ -611,86 +585,70 @@
         }
     }
     
-    if (needChangeViewFrame)
-    {
+    if (needChangeViewFrame) {
         [self setNeedsLayout];
         needChangeViewFrame = NO;
     }
 }
 
-- (void)reserveLastImageeBuf
-{
-//    if (self.displayImage != nil && videoRes != nil)
-//    {
+- (void)reserveLastImageeBuf {
+//    if (self.displayImage != nil && videoRes != nil) {
 //        [SnapshotCache cacheImage:self.displayImage puid:[NSString stringWithFormat:@"%s", videoRes->puid.c_str()] index:self.videoRes->cIdx];
 //    }
 }
 
-- (void)flush
-{
+- (void)flush {
     [kxGlView flush];
     firstFrame = YES;
     scrollView.zoomScale = 1.0;
     scrollView.scrollEnabled = NO;
 }
 
-- (void)setVideoStatus:(IVideoStatus)videoStatus
-{
+- (void)setVideoStatus:(IVideoStatus)videoStatus {
     _videoStatus = videoStatus;
 }
 
-- (void)handleTapGesture:(UITapGestureRecognizer *)tapGesture
-{
+- (void)handleTapGesture:(UITapGestureRecognizer *)tapGesture {
     [self.delegate videoViewBeginActive:self];
 }
 
-- (void)handleDoubleTapGesture:(UIGestureRecognizer *)gestureRecognizer
-{
+- (void)handleDoubleTapGesture:(UIGestureRecognizer *)gestureRecognizer {
     [self.delegate videoViewBeginActive:self];
     
-    if (!self.fullScreen)
-    {
+    if (!self.fullScreen) {
         [self.delegate videoViewWillAnimateToFullScreen:self];
         self.fullScreen = YES;
-    }
-    else
-    {
+    } else {
         [self.delegate videoViewWillAnimateToNomarl:self];
         self.fullScreen = NO;
     }
 }
 
-- (void)setFullScreen:(BOOL)fullScreen
-{
+- (void)setFullScreen:(BOOL)fullScreen {
     _fullScreen = fullScreen;
 }
 
-- (void)setActive:(BOOL)active
-{
+- (void)setActive:(BOOL)active {
     _active = active;
     
 //    self.layer.borderWidth = _active && _showActiveStatus ? 1 : 0;
 //    self.layer.borderColor = [UIColor colorFromHex:0xc19948].CGColor;
 }
 
-- (void)setShowActiveStatus:(BOOL)showActiveStatus
-{
+- (void)setShowActiveStatus:(BOOL)showActiveStatus {
     _showActiveStatus = showActiveStatus;
     self.layer.borderWidth = _active && _showActiveStatus ? 1 : 0;
 }
 
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
-{
-    if ([[touch view] isKindOfClass:[UIControl class]])
-    {
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    if ([[touch view] isKindOfClass:[UIControl class]]) {
         return NO;
     }
     
     return YES;
 }
 
-- (void)showActivity
-{
+- (void)showActivity {
     [self bringSubviewToFront:activityIndicatorView];
 	[activityIndicatorView startAnimating];
     [loadingLabel sizeToFit];
@@ -698,8 +656,7 @@
     [loadingLabel setHidden:NO];
 }
 
-- (void)hideActivity
-{
+- (void)hideActivity {
 	[activityIndicatorView stopAnimating];
     [loadingLabel setHidden:YES];
 }

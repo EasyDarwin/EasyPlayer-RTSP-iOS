@@ -12,7 +12,6 @@
 
 @implementation AppDelegate
 
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [RtspDataReader startUp];
     
@@ -30,7 +29,7 @@
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:[[RootViewController alloc]init]];
     self.window.rootViewController = nav;
     [self.window makeKeyAndVisible];
-
+    
     return YES;
 }
 

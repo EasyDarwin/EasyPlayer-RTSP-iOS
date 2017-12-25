@@ -1,8 +1,6 @@
 
 #import <UIKit/UIKit.h>
-
 #import "videoView.h"
-
 
 @interface VideoContainerView : UIView
 

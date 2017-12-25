@@ -1,5 +1,4 @@
 
-
 #if !defined(_G711_H_)
 #define _G711_H_
 
