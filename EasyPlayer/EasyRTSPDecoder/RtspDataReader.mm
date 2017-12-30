@@ -3,9 +3,11 @@
 #include <pthread.h>
 #include <vector>
 #import <string.h>
-#include "VideoDecode.h"
-#include "EasyAudioDecoder.h"
+
 #import "HWVideoDecoder.h"
+#include "MuxerToVideo.h"
+//#include "VideoDecode.h"
+//#include "EasyAudioDecoder.h"
 
 struct FrameInfo {
     FrameInfo() : pBuf(NULL), frameLen(0), type(0), timeStamp(0), width(0), height(0){}
@@ -104,7 +106,7 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
         
         _videoDecHandle = NULL;
         _audioDecHandle = NULL;
-
+        
         self.url = url;
         
         // 初始化硬解码器
@@ -190,15 +192,13 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
         // ------------ 解锁mutexFrame ------------
         
         if (frame->type == EASY_SDK_VIDEO_FRAME_FLAG) {
+            [self decodeVideoFrame:frame];
+            
             if (self.useHWDecoder) {
                 [_hwDec decodeVideoData:frame->pBuf len:frame->frameLen];
-            } else {
-                [self decodeVideoFrame:frame];
             }
         } else {
-            if (self.enableAudio) {
-                [self decodeAudioFrame:frame];
-            }
+            [self decodeAudioFrame:frame];
         }
         
         delete []frame->pBuf;
@@ -222,7 +222,8 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     }
 }
 
-// 解码视频帧
+#pragma mark - 解码视频帧
+
 - (void)decodeVideoFrame:(FrameInfo *)video {
     if (_videoDecHandle == NULL) {
         DEC_CREATE_PARAM param;
@@ -238,44 +239,50 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     param.nLen = video->frameLen;
     param.need_sps_head = false;
     
-    DVDVideoPicture picture;
-    memset(&picture, 0, sizeof(picture));
-    picture.iDisplayWidth = video->width;
-    picture.iDisplayHeight = video->height;
+    // 录像：视频
+    convertVideoToAVPacket([self.recordFilePath UTF8String], _videoDecHandle, &param);
     
-    NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
-    int nRet = DecodeVideo(_videoDecHandle, &param, &picture);
-    NSTimeInterval decodeInterval = [NSDate timeIntervalSinceReferenceDate] - now;
-    if (nRet) {
-        @autoreleasepool {
-            KxVideoFrameRGB *frame = [[KxVideoFrameRGB alloc] init];
-            frame.width = param.nOutWidth;
-            frame.height = param.nOutHeight;
-            frame.linesize = param.nOutWidth * 3;;
-            frame.hasAlpha = NO;
-            frame.rgb = [NSData dataWithBytes:param.pImgRGB length:param.nLineSize  * param.nOutHeight];
-            frame.position = video->timeStamp;
-            
-            if (_lastVideoFramePosition == 0) {
+    if (!self.useHWDecoder) {
+        DVDVideoPicture picture;
+        memset(&picture, 0, sizeof(picture));
+        picture.iDisplayWidth = video->width;
+        picture.iDisplayHeight = video->height;
+        
+        NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+        int nRet = DecodeVideo(_videoDecHandle, &param, &picture);
+        NSTimeInterval decodeInterval = [NSDate timeIntervalSinceReferenceDate] - now;
+        if (nRet) {
+            @autoreleasepool {
+                KxVideoFrameRGB *frame = [[KxVideoFrameRGB alloc] init];
+                frame.width = param.nOutWidth;
+                frame.height = param.nOutHeight;
+                frame.linesize = param.nOutWidth * 3;;
+                frame.hasAlpha = NO;
+                frame.rgb = [NSData dataWithBytes:param.pImgRGB length:param.nLineSize  * param.nOutHeight];
+                frame.position = video->timeStamp;
+                
+                if (_lastVideoFramePosition == 0) {
+                    _lastVideoFramePosition = video->timeStamp;
+                }
+                
+                CGFloat duration = video->timeStamp - _lastVideoFramePosition - decodeInterval;
+                if (duration >= 1.0 || duration <= -1.0) {
+                    duration = 0.02;
+                }
+                
+                frame.duration = duration;
                 _lastVideoFramePosition = video->timeStamp;
-            }
-            
-            CGFloat duration = video->timeStamp - _lastVideoFramePosition - decodeInterval;
-            if (duration >= 1.0 || duration <= -1.0) {
-                duration = 0.02;
-            }
-            
-            frame.duration = duration;
-            _lastVideoFramePosition = video->timeStamp;
-            
-            if (self.frameOutputBlock) {
-                self.frameOutputBlock(frame);
+                
+                if (self.frameOutputBlock) {
+                    self.frameOutputBlock(frame);
+                }
             }
         }
     }
 }
 
-// 解码音频帧
+#pragma mark - 解码音频帧
+
 - (void)decodeAudioFrame:(FrameInfo *)audio {
     if (_audioDecHandle == NULL) {
         _audioDecHandle = EasyAudioDecodeCreate(_mediaInfo.u32AudioCodec,
@@ -284,21 +291,26 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
                                                 16);
     }
     
-    unsigned char pcmBuf[10 * 1024] = { 0 };
-    int pcmLen = 0;
-    int ret = EasyAudioDecode((EasyAudioHandle *)_audioDecHandle,
-                              audio->pBuf,
-                              0,
-                              audio->frameLen,
-                              pcmBuf,
-                              &pcmLen);
-    if (ret == 0) {
-        @autoreleasepool {
-            KxAudioFrame *frame = [[KxAudioFrame alloc] init];
-            frame.samples = [NSData dataWithBytes:pcmBuf length:pcmLen];
-            frame.position = audio->timeStamp;
-            if (self.frameOutputBlock) {
-                self.frameOutputBlock(frame);
+    // 录像：音频
+    convertAudioToAVPacket([self.recordFilePath UTF8String], _audioDecHandle, audio->pBuf, audio->frameLen);
+    
+    if (self.enableAudio) {
+        unsigned char pcmBuf[10 * 1024] = { 0 };
+        int pcmLen = 0;
+        int ret = EasyAudioDecode((EasyAudioHandle *)_audioDecHandle,
+                                  audio->pBuf,
+                                  0,
+                                  audio->frameLen,
+                                  pcmBuf,
+                                  &pcmLen);
+        if (ret == 0) {
+            @autoreleasepool {
+                KxAudioFrame *frame = [[KxAudioFrame alloc] init];
+                frame.samples = [NSData dataWithBytes:pcmBuf length:pcmLen];
+                frame.position = audio->timeStamp;
+                if (self.frameOutputBlock) {
+                    self.frameOutputBlock(frame);
+                }
             }
         }
     }
@@ -367,6 +379,18 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
 }
 
 -(void) getDecodePixelData:(CVImageBufferRef)frame {
+    NSLog(@" --> %@", frame);
+}
+
+#pragma mark - H264HWDecoderDelegate
+
+- (void) displayDecodePictureData:(KxVideoFrame *)frame {
+    if (self.frameOutputBlock) {
+        self.frameOutputBlock(frame);
+    }
+}
+
+- (void) displayDecodedFrame:(CVImageBufferRef)frame {
     NSLog(@" --> %@", frame);
 }
 

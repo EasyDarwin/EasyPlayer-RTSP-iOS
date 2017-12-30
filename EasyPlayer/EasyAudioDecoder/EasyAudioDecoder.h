@@ -1,6 +1,8 @@
 #ifndef _EasyAudioDecode_h
 #define _EasyAudioDecode_h
 
+#include "AACDecoder.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

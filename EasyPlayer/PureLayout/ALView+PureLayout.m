@@ -714,7 +714,7 @@ static NSMutableArray *_al_globalConstraintIdentifiers = nil;
  */
 - (void)autoSetContentHuggingPriorityForAxis:(ALAxis)axis
 {
-    NSAssert(@"", @"");
+//    NSAssert(@"", @"");
 //    NSAssert([ALView al_isExecutingPriorityConstraintsBlock], @"%@ should only be called from within the block passed into the method +[autoSetPriority:forConstraints:]", NSStringFromSelector(_cmd));
     if ([ALView al_isExecutingPriorityConstraintsBlock]) {
         self.translatesAutoresizingMaskIntoConstraints = NO;

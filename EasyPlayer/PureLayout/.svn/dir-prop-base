@@ -1,9 +1,0 @@
-K 10
-svn:ignore
-V 69
-.bundle
-project.xcworkspace
-xcuserdata/
-TSVideoPlayerResource.bundle
-
-END

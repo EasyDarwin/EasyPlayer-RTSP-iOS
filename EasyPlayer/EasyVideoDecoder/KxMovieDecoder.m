@@ -12,103 +12,92 @@
 #import "KxMovieDecoder.h"
 #import <Accelerate/Accelerate.h>
 
-
-////////////////////////////////////////////////////////////////////////////////
 NSString * kxmovieErrorDomain = @"ru.kolyvan.kxmovie";
-static void FFLog(void* context, int level, const char* format, va_list args);
+//static void FFLog(void* context, int level, const char* format, va_list args);
 
-static NSError * kxmovieError (NSInteger code, id info)
-{
-    NSDictionary *userInfo = nil;
-    
-    if ([info isKindOfClass: [NSDictionary class]]) {
-        
-        userInfo = info;
-        
-    } else if ([info isKindOfClass: [NSString class]]) {
-        
-        userInfo = @{ NSLocalizedDescriptionKey : info };
-    }
-    
-    return [NSError errorWithDomain:kxmovieErrorDomain
-                               code:code
-                           userInfo:userInfo];
-}
+//static NSError * kxmovieError (NSInteger code, id info) {
+//    NSDictionary *userInfo = nil;
+//
+//    if ([info isKindOfClass: [NSDictionary class]]) {
+//        userInfo = info;
+//    } else if ([info isKindOfClass: [NSString class]]) {
+//        userInfo = @{ NSLocalizedDescriptionKey : info };
+//    }
+//
+//    return [NSError errorWithDomain:kxmovieErrorDomain code:code userInfo:userInfo];
+//}
 
-static NSString * errorMessage (kxMovieError errorCode)
-{
-    switch (errorCode) {
-        case kxMovieErrorNone:
-            return @"";
-            
-        case kxMovieErrorOpenFile:
-            return NSLocalizedString(@"Unable to open file", nil);
-            
-        case kxMovieErrorStreamInfoNotFound:
-            return NSLocalizedString(@"Unable to find stream information", nil);
-            
-        case kxMovieErrorStreamNotFound:
-            return NSLocalizedString(@"Unable to find stream", nil);
-            
-        case kxMovieErrorCodecNotFound:
-            return NSLocalizedString(@"Unable to find codec", nil);
-            
-        case kxMovieErrorOpenCodec:
-            return NSLocalizedString(@"Unable to open codec", nil);
-            
-        case kxMovieErrorAllocateFrame:
-            return NSLocalizedString(@"Unable to allocate frame", nil);
-            
-        case kxMovieErroSetupScaler:
-            return NSLocalizedString(@"Unable to setup scaler", nil);
-            
-        case kxMovieErroReSampler:
-            return NSLocalizedString(@"Unable to setup resampler", nil);
-            
-        case kxMovieErroUnsupported:
-            return NSLocalizedString(@"The ability is not supported", nil);
-    }
-}
+//static NSString * errorMessage (kxMovieError errorCode) {
+//    switch (errorCode) {
+//        case kxMovieErrorNone:
+//            return @"";
+//        case kxMovieErrorOpenFile:
+//            return NSLocalizedString(@"Unable to open file", nil);
+//        case kxMovieErrorStreamInfoNotFound:
+//            return NSLocalizedString(@"Unable to find stream information", nil);
+//        case kxMovieErrorStreamNotFound:
+//            return NSLocalizedString(@"Unable to find stream", nil);
+//        case kxMovieErrorCodecNotFound:
+//            return NSLocalizedString(@"Unable to find codec", nil);
+//        case kxMovieErrorOpenCodec:
+//            return NSLocalizedString(@"Unable to open codec", nil);
+//        case kxMovieErrorAllocateFrame:
+//            return NSLocalizedString(@"Unable to allocate frame", nil);
+//        case kxMovieErroSetupScaler:
+//            return NSLocalizedString(@"Unable to setup scaler", nil);
+//        case kxMovieErroReSampler:
+//            return NSLocalizedString(@"Unable to setup resampler", nil);
+//        case kxMovieErroUnsupported:
+//            return NSLocalizedString(@"The ability is not supported", nil);
+//    }
+//}
 
-static NSData * copyFrameData(UInt8 *src, int linesize, int width, int height)
-{
-    width = MIN(linesize, width);
-    NSMutableData *md = [NSMutableData dataWithLength: width * height];
-    Byte *dst = md.mutableBytes;
-    for (NSUInteger i = 0; i < height; ++i) {
-        memcpy(dst, src, width);
-        dst += width;
-        src += linesize;
-    }
-    return md;
-}
+//static NSData * copyFrameData(UInt8 *src, int linesize, int width, int height) {
+//    width = MIN(linesize, width);
+//    NSMutableData *md = [NSMutableData dataWithLength: width * height];
+//    Byte *dst = md.mutableBytes;
+//
+//    for (NSUInteger i = 0; i < height; ++i) {
+//        memcpy(dst, src, width);
+//        dst += width;
+//        src += linesize;
+//    }
+//    
+//    return md;
+//}
 
-static BOOL isNetworkPath (NSString *path)
-{
-    NSRange r = [path rangeOfString:@":"];
-    if (r.location == NSNotFound)
-        return NO;
-    NSString *scheme = [path substringToIndex:r.length];
-    if ([scheme isEqualToString:@"file"])
-        return NO;
-    return YES;
-}
+//static BOOL isNetworkPath (NSString *path) {
+//    NSRange r = [path rangeOfString:@":"];
+//    if (r.location == NSNotFound)
+//        return NO;
+//
+//    NSString *scheme = [path substringToIndex:r.length];
+//    if ([scheme isEqualToString:@"file"])
+//        return NO;
+//
+//    return YES;
+//}
 
-static int interrupt_callback(void *ctx);
+//static int interrupt_callback(void *ctx);
 
 ////////////////////////////////////////////////////////////////////////////////
 
 @interface KxMovieFrame()
+
 @end
 
 @implementation KxMovieFrame
+
 @end
 
 @interface KxAudioFrame()
+
 @end
 
 @implementation KxAudioFrame
+
 - (KxMovieFrameType) type { return KxMovieFrameTypeAudio; }
+
 @end
 
 @interface KxVideoFrame()
@@ -123,9 +112,12 @@ static int interrupt_callback(void *ctx);
 @end
 
 @implementation KxVideoFrameRGB
-- (KxVideoFrameFormat) format { return KxVideoFrameFormatRGB; }
-- (UIImage *) asImage
-{
+
+- (KxVideoFrameFormat) format {
+    return KxVideoFrameFormatRGB;
+}
+
+- (UIImage *) asImage {
     UIImage *image = nil;
     
     CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)(_rgb));
@@ -155,6 +147,7 @@ static int interrupt_callback(void *ctx);
     
     return image;
 }
+
 @end
 
 @interface KxVideoFrameYUV()
@@ -162,7 +155,10 @@ static int interrupt_callback(void *ctx);
 @end
 
 @implementation KxVideoFrameYUV
-- (KxVideoFrameFormat) format { return KxVideoFrameFormatYUV; }
+
+- (KxVideoFrameFormat) format {
+    return KxVideoFrameFormatYUV;
+}
 
 //- (KxVideoFrame *) handleVideoFrame
 //{
@@ -192,5 +188,5 @@ static int interrupt_callback(void *ctx);
 ////        
 ////        frame = yuvFrame;
 //}
-@end
 
+@end
