@@ -1,6 +1,6 @@
 # EasyPlayer #
 
-EasyPlayer **RTSP iOS** 播放器是由EasyDarwin团队开发和维护的一个完善的RTSP流媒体播放器项目，视频编码支持**H.264**，**H.265**，**MPEG4**，**MJPEG**，音频支持**G711A**，**G711U**，**G726**，**AAC**，支持RTSP over TCP/UDP协议，支持**硬解码**，是一套极佳的安防流媒体平台播放组件！EasyPlayer iOS版本经过了很多年的发展和迭代，已经非常稳定、完整，功能包括：直播、录像(待完善)、抓图，支持指令集包括armv7a、armv8a、x86，应该说是目前市面上功能性、稳定性和完整性最强的一款RTSP播放器！
+EasyPlayer **RTSP iOS** 播放器是由EasyDarwin团队开发和维护的一个完善的RTSP流媒体播放器项目，视频编码支持**H.264**，**H.265**，**MPEG4**，**MJPEG**，音频支持**G711A**，**G711U**，**G726**，**AAC**，支持RTSP over TCP/UDP协议，支持**硬解码**，是一套极佳的安防流媒体平台播放组件！EasyPlayer iOS版本经过了多个项目的检验和迭代，已经非常稳定、完整，功能包括：直播、录像(待完善)、抓图，支持指令集包括armv7a、armv8a、x86，应该说是目前市面上功能性、稳定性和完整性最强的一款RTSP播放器！
 
 
 ## 工作流程 ##
@@ -19,8 +19,9 @@ EasyPlayer **RTSP iOS** 播放器是由EasyDarwin团队开发和维护的一个�
 - [x] 编解码、显示、播放源码全开放，更加灵活;
 - [x] 支持播放过程中，'实时静音/取消静音';
 - [x] 高效的延时追帧策略；
-<!--- [x] [快照]支持播放过程中，**随时快照**；-->
-<!--- [x] [录像]支持播放过程中，**随时录像**；-->
+- [x] [快照]支持播放过程中，**随时快照**；
+- [x] [录像]支持播放过程中，**随时录像**；
+
 
 ## 编译方法 ##
 Xcode 编译；
@@ -32,14 +33,10 @@ Xcode 编译；
 
 ![EasyPlayer iOS](http://www.easydarwin.org/github/images/easyplayer/easyplayer20171225.png)
 
-- iOS Pro全功能版：[https://itunes.apple.com/cn/app/easyplayerpro/id1205087581?mt=8](https://itunes.apple.com/cn/app/easyplayerpro/id1205087581?mt=8)
 
-![EasyPlayer Pro 版](http://www.easydarwin.org/github/images/easyplayer/easyplayerpro20171225.png)
+## DEMO效果 ##
 
-
-<!--## DEMO效果 ##
-
-![EasyPlayer Android](https://raw.githubusercontent.com/EasyDarwin/EasyPlayer_Android/master/EasyPlayer/screenshot/single_video.jpg?raw=true)-->
+![EasyPlayer Android](https://raw.githubusercontent.com/EasyDarwin/EasyPlayer_Android/master/EasyPlayer/screenshot/single_video.jpg?raw=true)
 
 
 ## 技术支持 ##
