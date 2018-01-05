@@ -48,7 +48,7 @@
     
     [[AudioManager sharedInstance] activateAudioSession];
     
-    segment = [[UISegmentedControl alloc] initWithItems:@[@"一分屏", @"四分屏", @"九分屏"]];
+    segment = [[UISegmentedControl alloc] initWithItems:@[@"一分屏", @"四分屏" ]];// , @"九分屏"
     segment.translatesAutoresizingMaskIntoConstraints = NO;
     segment.selectedSegmentIndex = 0;
     [segment addTarget:self action:@selector(layoutChanged:) forControlEvents:UIControlEventValueChanged];

@@ -261,9 +261,9 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
             KxVideoFrameRGB *frame = [[KxVideoFrameRGB alloc] init];
             frame.width = param.nOutWidth;
             frame.height = param.nOutHeight;
-            frame.linesize = param.nOutWidth * 3;;
+            frame.linesize = param.nOutWidth * 3;
             frame.hasAlpha = NO;
-            frame.rgb = [NSData dataWithBytes:param.pImgRGB length:param.nLineSize  * param.nOutHeight];
+            frame.rgb = [NSData dataWithBytes:param.pImgRGB length:param.nLineSize * param.nOutHeight];
             frame.position = video->timeStamp;
             
             if (_lastVideoFramePosition == 0) {

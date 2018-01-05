@@ -268,13 +268,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		6631D8BD1FFF5C7A009F262D /* New Group */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "New Group";
-			sourceTree = "<group>";
-		};
 		6635A75C1FF767AA00C25760 /* Util */ = {
 			isa = PBXGroup;
 			children = (
@@ -383,7 +376,6 @@
 				6635A7811FF7997200C25760 /* ScreenShotListCell.m */,
 				E1A6BD031FBAD6800000213E /* VideoPanel.h */,
 				E1A6BD041FBAD6800000213E /* VideoPanel.mm */,
-				6631D8BD1FFF5C7A009F262D /* New Group */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -987,7 +979,12 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ffmpeg/include/;
+				HEADER_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/include/libxml2",
+					ffmpeg/include/,
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public/Masonry\"",
+				);
 				INFOPLIST_FILE = EasyPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1019,7 +1016,12 @@
 				GCC_NO_COMMON_BLOCKS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
-				HEADER_SEARCH_PATHS = ffmpeg/include/;
+				HEADER_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/include/libxml2",
+					ffmpeg/include/,
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public/Masonry\"",
+				);
 				INFOPLIST_FILE = EasyPlayer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

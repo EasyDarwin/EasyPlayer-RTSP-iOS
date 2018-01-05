@@ -59,7 +59,7 @@ int openOutPut(const char *out_filename) {
     if (avFormatContext_out) {
         return 2;
     } else {
-        if (audioCodec != NULL && videoCodec != NULL) {
+        if (videoCodec != NULL && (audioCodec != NULL || audioCodec == 0)) {
             av_register_all();
             
             // 初始化输出文件 Output
@@ -192,9 +192,14 @@ int convertVideoToAVPacket(const char *out_filename, void *recordHandle, Muxer_V
 int convertAudioToAVPacket(const char *out_filename, void *audioDecHandle, unsigned char *pData, int nLen) {
     Muxer_Audio_Handle *pComponent = (Muxer_Audio_Handle *)audioDecHandle;
     
-    Muxer_Audio_PARAM *aacDFFmpeg = (Muxer_Audio_PARAM *)pComponent->pContext;
-    audioCodec = aacDFFmpeg->avCodec;
-    audioCodecCtx = aacDFFmpeg->pCodecCtx;
+    Muxer_Audio_PARAM *aacFFmpeg = (Muxer_Audio_PARAM *)pComponent->pContext;
+    if (aacFFmpeg != NULL) {
+        audioCodec = aacFFmpeg->avCodec;
+        audioCodecCtx = aacFFmpeg->pCodecCtx;
+    } else {
+        audioCodec = 0;
+        audioCodecCtx = 0;
+    }
     
     AVPacket packet;
     av_init_packet(&packet);

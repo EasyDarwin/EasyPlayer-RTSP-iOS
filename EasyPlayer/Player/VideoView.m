@@ -274,6 +274,11 @@
     _reader = [[RtspDataReader alloc] initWithUrl:self.url];
     _reader.useHWDecoder = self.useHWDecoder;
     
+    if ([NSUserDefaultsUnit isAutoRecord]) {
+        _reader.recordFilePath = [PathUnit recordWithURL:_url];
+        recordButton.selected = YES;
+    }
+    
     // 获得媒体类型
     _reader.fetchMediaInfoSuccessBlock = ^(void){
         weakSelf.videoStatus = Rendering;
@@ -356,7 +361,7 @@
         }
     } else if (frame.type == KxMovieFrameTypeAudio) {
         @synchronized(_audioFrames) {
-            if (!self.audioPlaying ) {
+            if (!self.audioPlaying) {
                 [_audioFrames removeAllObjects];
                 return;
             }
@@ -626,9 +631,10 @@
 }
 
 - (void)setAudioPlaying:(BOOL)audioPlaying {
-    _reader.enableAudio = audioPlaying;
     _audioPlaying = audioPlaying;
-    audioButton.selected = audioPlaying;
+    
+    _reader.enableAudio = _audioPlaying;
+    audioButton.selected = _audioPlaying;
 }
 
 - (void)setUrl:(NSString *)url {

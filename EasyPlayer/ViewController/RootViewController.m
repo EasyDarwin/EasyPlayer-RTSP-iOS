@@ -90,10 +90,11 @@
 }
 
 - (void)clickAddBtn {
+//    @"rtsp://admin:admin@112.27.201.103/22"
 //    @"rtsp://cloud.easydarwin.org:554/946813.sdp"
 //    @"rtsp://admin:Hf123456@120.210.129.17/Streaming/Channels/101"
 //    @"rtsp://admin@zljk@12345@221.226.23.58:5504/Streaming/Channels/101"
-    [_alertView textFieldAtIndex:0].text = @"rtsp://cloud.easydarwin.org:554/946813.sdp";
+    [_alertView textFieldAtIndex:0].text = @"rtsp://admin:admin@112.27.201.103/22";
     _alertView.tag = -1;
     [_alertView show];
 }
