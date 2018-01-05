@@ -6,8 +6,8 @@
 
 #import "HWVideoDecoder.h"
 #include "MuxerToVideo.h"
-//#include "VideoDecode.h"
-//#include "EasyAudioDecoder.h"
+#include "VideoDecode.h"
+#include "EasyAudioDecoder.h"
 
 struct FrameInfo {
     FrameInfo() : pBuf(NULL), frameLen(0), type(0), timeStamp(0), width(0), height(0){}
@@ -29,6 +29,9 @@ struct FrameInfo {
     
     void *_videoDecHandle;  // 视频解码句柄
     void *_audioDecHandle;  // 音频解码句柄
+    
+    void *_recordVideoHandle;   // 录像视频句柄
+    void *_recordAudioHandle;   // 录像音频句柄
     
     EASY_MEDIA_INFO_T _mediaInfo;   // 媒体信息
     
@@ -192,13 +195,19 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
         // ------------ 解锁mutexFrame ------------
         
         if (frame->type == EASY_SDK_VIDEO_FRAME_FLAG) {
-            [self decodeVideoFrame:frame];
-            
             if (self.useHWDecoder) {
                 [_hwDec decodeVideoData:frame->pBuf len:frame->frameLen];
+            } else {
+                [self decodeVideoFrame:frame];
             }
+            
+            [self recordVideo:frame];
         } else {
-            [self decodeAudioFrame:frame];
+            if (self.enableAudio) {
+                [self decodeAudioFrame:frame];
+            }
+            
+            [self recordAudio:frame];
         }
         
         delete []frame->pBuf;
@@ -239,43 +248,38 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     param.nLen = video->frameLen;
     param.need_sps_head = false;
     
-    // 录像：视频
-    convertVideoToAVPacket([self.recordFilePath UTF8String], _videoDecHandle, &param);
+    DVDVideoPicture picture;
+    memset(&picture, 0, sizeof(picture));
+    picture.iDisplayWidth = video->width;
+    picture.iDisplayHeight = video->height;
     
-    if (!self.useHWDecoder) {
-        DVDVideoPicture picture;
-        memset(&picture, 0, sizeof(picture));
-        picture.iDisplayWidth = video->width;
-        picture.iDisplayHeight = video->height;
-        
-        NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
-        int nRet = DecodeVideo(_videoDecHandle, &param, &picture);
-        NSTimeInterval decodeInterval = [NSDate timeIntervalSinceReferenceDate] - now;
-        if (nRet) {
-            @autoreleasepool {
-                KxVideoFrameRGB *frame = [[KxVideoFrameRGB alloc] init];
-                frame.width = param.nOutWidth;
-                frame.height = param.nOutHeight;
-                frame.linesize = param.nOutWidth * 3;;
-                frame.hasAlpha = NO;
-                frame.rgb = [NSData dataWithBytes:param.pImgRGB length:param.nLineSize  * param.nOutHeight];
-                frame.position = video->timeStamp;
-                
-                if (_lastVideoFramePosition == 0) {
-                    _lastVideoFramePosition = video->timeStamp;
-                }
-                
-                CGFloat duration = video->timeStamp - _lastVideoFramePosition - decodeInterval;
-                if (duration >= 1.0 || duration <= -1.0) {
-                    duration = 0.02;
-                }
-                
-                frame.duration = duration;
+    NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+    int nRet = DecodeVideo(_videoDecHandle, &param, &picture);
+    NSTimeInterval decodeInterval = [NSDate timeIntervalSinceReferenceDate] - now;
+    if (nRet) {
+        @autoreleasepool {
+            KxVideoFrameRGB *frame = [[KxVideoFrameRGB alloc] init];
+            frame.width = param.nOutWidth;
+            frame.height = param.nOutHeight;
+            frame.linesize = param.nOutWidth * 3;;
+            frame.hasAlpha = NO;
+            frame.rgb = [NSData dataWithBytes:param.pImgRGB length:param.nLineSize  * param.nOutHeight];
+            frame.position = video->timeStamp;
+            
+            if (_lastVideoFramePosition == 0) {
                 _lastVideoFramePosition = video->timeStamp;
-                
-                if (self.frameOutputBlock) {
-                    self.frameOutputBlock(frame);
-                }
+            }
+            
+            CGFloat duration = video->timeStamp - _lastVideoFramePosition - decodeInterval;
+            if (duration >= 1.0 || duration <= -1.0) {
+                duration = 0.02;
+            }
+            
+            frame.duration = duration;
+            _lastVideoFramePosition = video->timeStamp;
+            
+            if (self.frameOutputBlock) {
+                self.frameOutputBlock(frame);
             }
         }
     }
@@ -291,26 +295,21 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
                                                 16);
     }
     
-    // 录像：音频
-    convertAudioToAVPacket([self.recordFilePath UTF8String], _audioDecHandle, audio->pBuf, audio->frameLen);
-    
-    if (self.enableAudio) {
-        unsigned char pcmBuf[10 * 1024] = { 0 };
-        int pcmLen = 0;
-        int ret = EasyAudioDecode((EasyAudioHandle *)_audioDecHandle,
-                                  audio->pBuf,
-                                  0,
-                                  audio->frameLen,
-                                  pcmBuf,
-                                  &pcmLen);
-        if (ret == 0) {
-            @autoreleasepool {
-                KxAudioFrame *frame = [[KxAudioFrame alloc] init];
-                frame.samples = [NSData dataWithBytes:pcmBuf length:pcmLen];
-                frame.position = audio->timeStamp;
-                if (self.frameOutputBlock) {
-                    self.frameOutputBlock(frame);
-                }
+    unsigned char pcmBuf[10 * 1024] = { 0 };
+    int pcmLen = 0;
+    int ret = EasyAudioDecode((EasyAudioHandle *)_audioDecHandle,
+                              audio->pBuf,
+                              0,
+                              audio->frameLen,
+                              pcmBuf,
+                              &pcmLen);
+    if (ret == 0) {
+        @autoreleasepool {
+            KxAudioFrame *frame = [[KxAudioFrame alloc] init];
+            frame.samples = [NSData dataWithBytes:pcmBuf length:pcmLen];
+            frame.position = audio->timeStamp;
+            if (self.frameOutputBlock) {
+                self.frameOutputBlock(frame);
             }
         }
     }
@@ -333,6 +332,39 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     NSLog(@"Reader %8@ removeCach", self);
 }
 
+#pragma mark - 录像
+
+- (void) recordVideo:(FrameInfo *)video {
+    if (_recordVideoHandle == NULL) {
+        Muxer_Video_CREATE_PARAM param;
+        param.nMaxImgWidth = video->width;
+        param.nMaxImgHeight = video->height;
+        param.coderID = Muxer_Video_Coder_H264;
+        param.method = Muxer_Video_IDM_SW;
+        _recordVideoHandle = muxer_Video_COMPONENT_Create(&param);
+    }
+    
+    Muxer_Video_PARAM param;
+    param.pStream = video->pBuf;
+    param.nLen = video->frameLen;
+    param.need_sps_head = false;
+    
+    // 录像：视频
+    convertVideoToAVPacket([self.recordFilePath UTF8String], _recordVideoHandle, &param);
+}
+
+- (void) recordAudio:(FrameInfo *)audio {
+    if (_recordAudioHandle == NULL) {
+        _recordAudioHandle = muxer_Audio_Handle_Create(_mediaInfo.u32AudioCodec,
+                                                       _mediaInfo.u32AudioSamplerate,
+                                                       _mediaInfo.u32AudioChannel,
+                                                       16);
+    }
+    
+    // 录像：音频
+    convertAudioToAVPacket([self.recordFilePath UTF8String], _recordAudioHandle, audio->pBuf, audio->frameLen);
+}
+
 #pragma mark - private method
 
 // 获得媒体类型
@@ -351,9 +383,10 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
         return;
     }
     
-    if (type == EASY_SDK_AUDIO_FRAME_FLAG && !self.enableAudio) {
-        return;
-    }
+    // 录像的时候 即使关闭音频，也会录制音频
+//    if (type == EASY_SDK_AUDIO_FRAME_FLAG && !self.enableAudio) {
+//        return;
+//    }
     
     FrameInfo *frameInfo = (FrameInfo *)malloc(sizeof(FrameInfo));
     frameInfo->type = type;

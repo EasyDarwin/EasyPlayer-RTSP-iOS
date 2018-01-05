@@ -14,6 +14,7 @@ typedef NS_OPTIONS(NSInteger, IVideoLayout){
 
 @property (nonatomic, weak) id<VideoPanelDelegate> delegate;
 
+@property (nonatomic, retain) NSMutableArray *resuedViews;
 @property (nonatomic, strong) VideoView *activeView;
 @property (nonatomic, assign) IVideoLayout layout;
 
@@ -24,6 +25,12 @@ typedef NS_OPTIONS(NSInteger, IVideoLayout){
 
 // 停止全部视频的播放
 - (void) stopAll;
+
+// 开始全部视频的播放
+- (void) startAll:(NSMutableArray *)URLs;
+
+// 设置分屏
+- (void)setLayout:(IVideoLayout)layout currentURL:(NSString *)url URLs:(NSMutableArray *)urls;
 
 @end
 
@@ -38,6 +45,6 @@ typedef NS_OPTIONS(NSInteger, IVideoLayout){
 - (void) videoViewWillAnimateToNomarl:(VideoView *)view;
 
 // 添加新视频源
-- (void) videoViewWillAddNewRes:(VideoView *)view;
+- (void) videoViewWillAddNewRes:(VideoView *)view index:(int)index;
 
 @end

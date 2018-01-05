@@ -30,10 +30,11 @@
     CADisplayLink *displayLink;
     
     UIActivityIndicatorView *activityIndicatorView;
+    UIView *statusView;
     UIButton *audioButton;      // 声音按钮
     UIButton *recordButton;     // 录像按钮
     UIButton *screenshotButton; // 截屏按钮
-    UIButton *landspaceButton;  // 全屏按钮
+    UIButton *playButton;       // 播放按钮
     
     NSTimeInterval _tickCorrectionTime;
     NSTimeInterval _tickCorretionPosition;
@@ -66,7 +67,7 @@
         self.backgroundColor = [UIColor blackColor];
         
         [self addGesture];
-        [self addItemViewWithFrame:frame];
+        [self addItemView];
         
         firstFrame = YES;
         self.videoStatus = Stopped;
@@ -85,17 +86,12 @@
 
 - (void) addGesture {
     self.tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
-    [self addGestureRecognizer:self.tapGesture];
     self.tapGesture.delegate = self;
-    self.doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTapGesture:)];
-    [self addGestureRecognizer:self.doubleTapGesture];
-    self.doubleTapGesture.numberOfTapsRequired = 2;
-    self.doubleTapGesture.delegate = self;
-    [self.tapGesture requireGestureRecognizerToFail:self.doubleTapGesture];
+    [self addGestureRecognizer:self.tapGesture];
 }
 
-- (void) addItemViewWithFrame:(CGRect)frame {
-    scrollView = [[UIScrollView alloc] initWithFrame:frame];
+- (void) addItemView {
+    scrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
     [self addSubview:scrollView];
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.showsVerticalScrollIndicator = NO;
@@ -116,19 +112,31 @@
     [_addButton setImage:[UIImage imageNamed:@"ic_action_add"] forState:UIControlStateNormal];
     [self addSubview:_addButton];
     
-    UIView *statusView = [UIView newAutoLayoutView];
+    CGFloat size = 30;
+    
+    statusView = [UIView newAutoLayoutView];
     [self addSubview:statusView];
     [statusView autoPinEdgeToSuperviewEdge:ALEdgeLeading];
     [statusView autoPinEdgeToSuperviewEdge:ALEdgeTrailing];
     [statusView autoPinEdgeToSuperviewEdge:ALEdgeBottom];
-    [statusView autoSetDimension:ALDimensionHeight toSize:24.0];
+    [statusView autoSetDimension:ALDimensionHeight toSize:size];
     statusView.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.35];
+    statusView.hidden = YES;
+    
+    _landspaceButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [statusView addSubview:_landspaceButton];
+    [_landspaceButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:size * 0];
+    [_landspaceButton autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:.0];
+    [_landspaceButton autoSetDimensionsToSize:CGSizeMake(size, size)];
+    [_landspaceButton setImage:[UIImage imageNamed:@"LandspaceVideo"] forState:UIControlStateNormal];
+    [_landspaceButton setImage:[UIImage imageNamed:@"PortraitVideo"] forState:UIControlStateSelected];
+    [_landspaceButton addTarget:self action:@selector(landspaceButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     
     audioButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [statusView addSubview:audioButton];
-    [audioButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:0.0];
+    [audioButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:size * 1];
     [audioButton autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:0.0];
-    [audioButton autoSetDimensionsToSize:CGSizeMake(24, 24)];
+    [audioButton autoSetDimensionsToSize:CGSizeMake(size, size)];
     [audioButton setImage:[UIImage imageNamed:@"ic_action_audio"] forState:UIControlStateDisabled];
     [audioButton setImage:[UIImage imageNamed:@"ic_action_audio_enabled"] forState:UIControlStateNormal];
     [audioButton setImage:[UIImage imageNamed:@"ic_action_audio_pressed"] forState:UIControlStateSelected];
@@ -137,9 +145,9 @@
     
     recordButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [statusView addSubview:recordButton];
-    [recordButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:24.0];
+    [recordButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:size * 2];
     [recordButton autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:.0];
-    [recordButton autoSetDimensionsToSize:CGSizeMake(24, 24)];
+    [recordButton autoSetDimensionsToSize:CGSizeMake(size, size)];
     [recordButton setImage:[UIImage imageNamed:@"ic_action_record"] forState:UIControlStateDisabled];
     [recordButton setImage:[UIImage imageNamed:@"ic_action_record_enabled"] forState:UIControlStateNormal];
     [recordButton setImage:[UIImage imageNamed:@"ic_action_record_pressed"] forState:UIControlStateSelected];
@@ -148,33 +156,31 @@
     
     screenshotButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [statusView addSubview:screenshotButton];
-    [screenshotButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:48.0];
+    [screenshotButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:size * 3];
     [screenshotButton autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:.0];
-    [screenshotButton autoSetDimensionsToSize:CGSizeMake(24, 24)];
+    [screenshotButton autoSetDimensionsToSize:CGSizeMake(size, size)];
     [screenshotButton setImage:[UIImage imageNamed:@"ic_action_camera"] forState:UIControlStateDisabled];
     [screenshotButton setImage:[UIImage imageNamed:@"ic_action_camera_enabled"] forState:UIControlStateNormal];
     [screenshotButton setImage:[UIImage imageNamed:@"ic_action_camera_pressed"] forState:UIControlStateFocused];
     [screenshotButton addTarget:self action:@selector(screenshotButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     screenshotButton.enabled = NO;
     
-    landspaceButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [statusView addSubview:landspaceButton];
-    [landspaceButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:72.0];
-    [landspaceButton autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:.0];
-    [landspaceButton autoSetDimensionsToSize:CGSizeMake(24, 24)];
-    [landspaceButton setImage:[UIImage imageNamed:@"LandspaceVideo"] forState:UIControlStateDisabled];
-    [landspaceButton setImage:[UIImage imageNamed:@"LandspaceVideo"] forState:UIControlStateNormal];
-    [landspaceButton setImage:[UIImage imageNamed:@"LandspaceVideo"] forState:UIControlStateFocused];
-    [landspaceButton addTarget:self action:@selector(landspaceButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-    landspaceButton.enabled = NO;
+    playButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [statusView addSubview:playButton];
+    [playButton autoPinEdgeToSuperviewEdge:ALEdgeLeading withInset:0];
+    [playButton autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:.0];
+    [playButton autoSetDimensionsToSize:CGSizeMake(size, size)];
+    [playButton setImage:[UIImage imageNamed:@"play"] forState:UIControlStateNormal];
+    [playButton setImage:[UIImage imageNamed:@"pause"] forState:UIControlStateSelected];
+    [playButton addTarget:self action:@selector(playButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     
     activityIndicatorView = [UIActivityIndicatorView newAutoLayoutView];
-    [statusView addSubview:activityIndicatorView];
-    [activityIndicatorView autoPinEdgeToSuperviewEdge:ALEdgeLeading withInset:10.0];
-    [activityIndicatorView autoSetDimensionsToSize:CGSizeMake(10,10)];
     activityIndicatorView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
-    [activityIndicatorView autoAlignAxisToSuperviewAxis:ALAxisHorizontal];
     activityIndicatorView.hidesWhenStopped = YES;
+    [self addSubview:activityIndicatorView];
+    [activityIndicatorView autoSetDimensionsToSize:CGSizeMake(10,10)];
+    [activityIndicatorView autoAlignAxisToSuperviewAxis:ALAxisHorizontal];
+    [activityIndicatorView autoAlignAxisToSuperviewAxis:ALAxisVertical];
 }
 
 #pragma mark - override
@@ -183,7 +189,7 @@
     [super layoutSubviews];
     _addButton.frame = CGRectMake((self.bounds.size.width - 30) / 2, (self.bounds.size.height - 30) / 2, 30, 30);
     
-    if (self.fullScreen) {
+    if (_landspaceButton.selected) {
         kxGlView.frame = scrollView.bounds;
         scrollView.contentSize = scrollView.frame.size;
     } else {
@@ -245,7 +251,7 @@
 }
 
 - (void)startPlay {
-    if (self.url.length == 0) {
+    if (!self.url || self.url.length == 0) {
         return;
     }
     
@@ -325,7 +331,6 @@
     audioButton.enabled = self.videoStatus == Rendering ? YES : NO;
     recordButton.enabled = self.videoStatus == Rendering ? YES : NO;
     screenshotButton.enabled = self.videoStatus == Rendering ? YES : NO;
-    landspaceButton.enabled = self.videoStatus == Rendering ? YES : NO;
 }
 
 #pragma mark - 解码后的音频帧／视频帧
@@ -532,7 +537,7 @@
 }
 
 - (void)reCalculateArcPos {
-    if (self.fullScreen) {
+    if (_landspaceButton.selected) {
         return;
     }
     
@@ -587,46 +592,31 @@
     }
 }
 
-- (void) landspaceButtonClicked:(id)sender {
-    // TODO
+- (void) playButtonClicked:(id)sender {
+    playButton.selected = !playButton.selected;
     
-//    if (!landspaceButton.selected) {
-//        [UIView animateWithDuration:0.5 animations:^{
-//            self.view.transform =CGAffineTransformMakeRotation(M_PI_2);
-//            self.view.bounds = CGRectMake(0, 0,ScreenHeight,ScreenWidth);
-//            self.videoLayer.frame = CGRectMake(0, 0,ScreenHeight,ScreenWidth);
-//            self.topBar.frame = CGRectMake(self.topBar.frame.origin.x,self.topBar.frame.origin.y,ScreenHeight,TOOLBAR_HEIGHT);
-//            self.bottomBar.frame = CGRectMake(0,ScreenWidth-TOOLBAR_HEIGHT,ScreenHeight,TOOLBAR_HEIGHT);
-//
-//            landspaceButton.selected = YES;
-//        }];
-//    } else {
-//        [UIView animateWithDuration:0.5 animations:^{
-//            self.view.transform = CGAffineTransformIdentity;
-//            self.view.bounds = CGRectMake(0, 0, ScreenWidth, ScreenHeight);
-//            self.videoLayer.frame = CGRectMake(0, 0,ScreenWidth,ScreenHeight);
-//            self.topBar.frame = CGRectMake(self.topBar.frame.origin.x,self.topBar.frame.origin.y,self.topBar.frame.size.width,TOOLBAR_HEIGHT);
-//            landspaceButton.selected = NO;
-//        }];
-//    }
+    if (!playButton.selected) {
+        [self startPlay];
+    } else {
+        [self stopPlay];
+    }
+}
+
+- (void) landspaceButtonClicked:(id)sender {
+    _landspaceButton.selected = !_landspaceButton.selected;
+    
+    [self.delegate videoViewBeginActive:self];
+    if (_landspaceButton.selected) {
+        [self.delegate videoViewWillAnimateToFullScreen:self];
+    } else {
+        [self.delegate videoViewWillAnimateToNomarl:self];
+    }
 }
 
 #pragma mark - 手势操作
 
 - (void)handleTapGesture:(UITapGestureRecognizer *)tapGesture {
     [self.delegate videoViewBeginActive:self];
-}
-
-- (void)handleDoubleTapGesture:(UIGestureRecognizer *)gestureRecognizer {
-    [self.delegate videoViewBeginActive:self];
-    
-    if (!self.fullScreen) {
-        [self.delegate videoViewWillAnimateToFullScreen:self];
-        self.fullScreen = YES;
-    } else {
-        [self.delegate videoViewWillAnimateToNomarl:self];
-        self.fullScreen = NO;
-    }
 }
 
 #pragma mark - setter
@@ -643,11 +633,14 @@
 
 - (void)setUrl:(NSString *)url {
     _url = url;
+    
     _addButton.hidden = [_url length] == 0 ? NO : YES;
-}
-
-- (void)setFullScreen:(BOOL)fullScreen {
-    _fullScreen = fullScreen;
+    
+    if (url && [_url length] > 0) {
+        statusView.hidden = NO;
+    } else {
+        statusView.hidden = YES;
+    }
 }
 
 - (void)setActive:(BOOL)active {

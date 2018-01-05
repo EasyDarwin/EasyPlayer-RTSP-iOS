@@ -24,6 +24,10 @@
     
     self.navigationItem.title = @"选择摄像头";
     
+    // 把多余的分割线去掉
+    UIView * footerView = [[UIView alloc] initWithFrame:CGRectZero];
+    self.tableView.tableFooterView = footerView;
+    
     _urls = [NSUserDefaultsUnit urls];
 }
 

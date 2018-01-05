@@ -15,6 +15,7 @@ typedef enum {
 
 @property (nonatomic, weak) UIView *container;
 @property (nonatomic, strong) UIButton *addButton;
+@property (nonatomic, strong) UIButton *landspaceButton;  // 全屏按钮
 
 @property (nonatomic, weak) id<VideoViewDelegate> delegate;
 
@@ -29,11 +30,9 @@ typedef enum {
 @property (nonatomic, assign) BOOL useHWDecoder;        // 是否启用硬解
 @property (nonatomic, assign) BOOL audioPlaying;        // 自动播放音频
 @property (nonatomic, assign) BOOL showAllRegon;        //
-@property (nonatomic, assign) BOOL fullScreen;          // 是否全屏
 @property (nonatomic, assign) BOOL showActiveStatus;    //
 
 @property (nonatomic, assign) int screenShotCount;      // 截屏
-
 
 - (void)beginTransform;
 - (void)endTransform;
@@ -49,12 +48,16 @@ typedef enum {
 @protocol VideoViewDelegate <NSObject>
 
 @optional
+
 - (void)videoViewDidiUpdateStream:(VideoView *)view;
 - (void)videoViewBeginActive:(VideoView *)view;
 
+// 全屏(横屏)
 - (void)videoViewWillAnimateToFullScreen:(VideoView *)view;
+// 竖屏
 - (void)videoViewWillAnimateToNomarl:(VideoView *)view;
 
+// 连接视频源
 - (void)videoViewWillTryToConnect:(VideoView *)view;
 
 @end

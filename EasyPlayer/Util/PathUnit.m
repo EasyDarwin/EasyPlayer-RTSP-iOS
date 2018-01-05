@@ -42,7 +42,7 @@
     
     NSDate *date = [NSDate date];
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setDateFormat:@"YYYY-MM-dd hh:mm:ss"];
+    [formatter setDateFormat:@"YYYYMMddhhmmss"];
     
     NSString *path = [_dir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.mp4", [formatter stringFromDate:date]]];
     
@@ -81,7 +81,7 @@
     
     NSDate *date = [NSDate date];
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setDateFormat:@"YYYY-MM-dd hh:mm:ss"];
+    [formatter setDateFormat:@"YYYYMMddhhmmss"];
     
     NSString *path = [_dir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.png", [formatter stringFromDate:date]]];
     

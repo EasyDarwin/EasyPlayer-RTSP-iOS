@@ -20,10 +20,10 @@
 		6635A76C1FF77CF500C25760 /* RecordListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A76B1FF77CF500C25760 /* RecordListViewController.m */; };
 		6635A76F1FF7837A00C25760 /* FileListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A76E1FF7837A00C25760 /* FileListViewController.m */; };
 		6635A7821FF7997200C25760 /* ScreenShotListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A7811FF7997200C25760 /* ScreenShotListCell.m */; };
-		668B252F1FE93C1700C311E3 /* cuc_ieschool.h264 in Resources */ = {isa = PBXBuildFile; fileRef = 668B252D1FE93C1600C311E3 /* cuc_ieschool.h264 */; };
-		668B25301FE93C1700C311E3 /* cuc_ieschool.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 668B252E1FE93C1600C311E3 /* cuc_ieschool.mp3 */; };
+		6674DCBD1FFB24780011DA0A /* cuc_ieschool.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6674DCB91FFB24780011DA0A /* cuc_ieschool.mp3 */; };
+		6674DCBE1FFB24780011DA0A /* MuxerToMP4.c in Sources */ = {isa = PBXBuildFile; fileRef = 6674DCBA1FFB24780011DA0A /* MuxerToMP4.c */; };
+		6674DCBF1FFB24780011DA0A /* cuc_ieschool.h264 in Resources */ = {isa = PBXBuildFile; fileRef = 6674DCBB1FFB24780011DA0A /* cuc_ieschool.h264 */; };
 		66B5389E1FF38F53001EE17B /* MuxerToVideo.c in Sources */ = {isa = PBXBuildFile; fileRef = 66B5389C1FF38F53001EE17B /* MuxerToVideo.c */; };
-		66D62EEA1FEDF96A00C3B5C7 /* MuxerToMP4.c in Sources */ = {isa = PBXBuildFile; fileRef = 66D62EE91FEDF96A00C3B5C7 /* MuxerToMP4.c */; };
 		A8D224466E1F6D0FAB22A506 /* libPods-EasyPlayer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 556EDF00404392012F37A88D /* libPods-EasyPlayer.a */; };
 		E19AC7B51FBBE686008E2FA7 /* AudioManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = E19AC7B41FBBE686008E2FA7 /* AudioManager.mm */; };
 		E19AC7C01FBBE987008E2FA7 /* AACDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = E19AC7B71FBBE987008E2FA7 /* AACDecoder.c */; };
@@ -87,12 +87,12 @@
 		6635A76E1FF7837A00C25760 /* FileListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileListViewController.m; sourceTree = "<group>"; };
 		6635A7801FF7997200C25760 /* ScreenShotListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenShotListCell.h; sourceTree = "<group>"; };
 		6635A7811FF7997200C25760 /* ScreenShotListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenShotListCell.m; sourceTree = "<group>"; };
-		668B252D1FE93C1600C311E3 /* cuc_ieschool.h264 */ = {isa = PBXFileReference; lastKnownFileType = file; path = cuc_ieschool.h264; sourceTree = "<group>"; };
-		668B252E1FE93C1600C311E3 /* cuc_ieschool.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = cuc_ieschool.mp3; sourceTree = "<group>"; };
+		6674DCB91FFB24780011DA0A /* cuc_ieschool.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = cuc_ieschool.mp3; sourceTree = "<group>"; };
+		6674DCBA1FFB24780011DA0A /* MuxerToMP4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MuxerToMP4.c; sourceTree = "<group>"; };
+		6674DCBB1FFB24780011DA0A /* cuc_ieschool.h264 */ = {isa = PBXFileReference; lastKnownFileType = file; path = cuc_ieschool.h264; sourceTree = "<group>"; };
+		6674DCBC1FFB24780011DA0A /* MuxerToMP4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MuxerToMP4.h; sourceTree = "<group>"; };
 		66B5389C1FF38F53001EE17B /* MuxerToVideo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MuxerToVideo.c; sourceTree = "<group>"; };
 		66B5389D1FF38F53001EE17B /* MuxerToVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MuxerToVideo.h; sourceTree = "<group>"; };
-		66D62EE81FEDF96A00C3B5C7 /* MuxerToMP4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MuxerToMP4.h; sourceTree = "<group>"; };
-		66D62EE91FEDF96A00C3B5C7 /* MuxerToMP4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MuxerToMP4.c; sourceTree = "<group>"; };
 		91A61A234C659B3130EECFE7 /* Pods-EasyPlayer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasyPlayer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EasyPlayer/Pods-EasyPlayer.debug.xcconfig"; sourceTree = "<group>"; };
 		C7C030FE36C447773FBA3A82 /* Pods-EasyPlayer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasyPlayer.release.xcconfig"; path = "Pods/Target Support Files/Pods-EasyPlayer/Pods-EasyPlayer.release.xcconfig"; sourceTree = "<group>"; };
 		E19AC7B31FBBE686008E2FA7 /* AudioManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioManager.h; sourceTree = "<group>"; };
@@ -268,6 +268,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6631D8BD1FFF5C7A009F262D /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
+			sourceTree = "<group>";
+		};
 		6635A75C1FF767AA00C25760 /* Util */ = {
 			isa = PBXGroup;
 			children = (
@@ -290,6 +297,17 @@
 				6635A76B1FF77CF500C25760 /* RecordListViewController.m */,
 			);
 			path = Record;
+			sourceTree = "<group>";
+		};
+		6674DCB81FFB24780011DA0A /* demo */ = {
+			isa = PBXGroup;
+			children = (
+				6674DCBB1FFB24780011DA0A /* cuc_ieschool.h264 */,
+				6674DCB91FFB24780011DA0A /* cuc_ieschool.mp3 */,
+				6674DCBC1FFB24780011DA0A /* MuxerToMP4.h */,
+				6674DCBA1FFB24780011DA0A /* MuxerToMP4.c */,
+			);
+			path = demo;
 			sourceTree = "<group>";
 		};
 		668665451FCE957200956A52 /* EasyVideoDecoder */ = {
@@ -334,7 +352,7 @@
 			children = (
 				66B5389D1FF38F53001EE17B /* MuxerToVideo.h */,
 				66B5389C1FF38F53001EE17B /* MuxerToVideo.c */,
-				66D62EED1FF08B1200C3B5C7 /* demo */,
+				6674DCB81FFB24780011DA0A /* demo */,
 			);
 			path = MuxerToVideo;
 			sourceTree = "<group>";
@@ -365,19 +383,9 @@
 				6635A7811FF7997200C25760 /* ScreenShotListCell.m */,
 				E1A6BD031FBAD6800000213E /* VideoPanel.h */,
 				E1A6BD041FBAD6800000213E /* VideoPanel.mm */,
+				6631D8BD1FFF5C7A009F262D /* New Group */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		66D62EED1FF08B1200C3B5C7 /* demo */ = {
-			isa = PBXGroup;
-			children = (
-				66D62EE81FEDF96A00C3B5C7 /* MuxerToMP4.h */,
-				66D62EE91FEDF96A00C3B5C7 /* MuxerToMP4.c */,
-				668B252D1FE93C1600C311E3 /* cuc_ieschool.h264 */,
-				668B252E1FE93C1600C311E3 /* cuc_ieschool.mp3 */,
-			);
-			path = demo;
 			sourceTree = "<group>";
 		};
 		7A0DC49A2813D2FB8B90E0C7 /* Pods */ = {
@@ -740,11 +748,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				668B25301FE93C1700C311E3 /* cuc_ieschool.mp3 in Resources */,
 				E1A6BC2E1FBAC6EC0000213E /* LaunchScreen.storyboard in Resources */,
 				E1A6BC2B1FBAC6EC0000213E /* Assets.xcassets in Resources */,
+				6674DCBD1FFB24780011DA0A /* cuc_ieschool.mp3 in Resources */,
+				6674DCBF1FFB24780011DA0A /* cuc_ieschool.h264 in Resources */,
 				E1A6BC291FBAC6EC0000213E /* Main.storyboard in Resources */,
-				668B252F1FE93C1700C311E3 /* cuc_ieschool.h264 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -824,11 +832,11 @@
 				6635A7621FF777A000C25760 /* NSUserDefaultsUnit.m in Sources */,
 				6635A75B1FF75C1600C25760 /* SettingViewController.m in Sources */,
 				E1A6BCF61FBAD2210000213E /* ALView+PureLayout.m in Sources */,
+				6674DCBE1FFB24780011DA0A /* MuxerToMP4.c in Sources */,
 				E1A6BD0A1FBAD7700000213E /* VideoPlayerController.m in Sources */,
 				E1A6BCFE1FBAD5EA0000213E /* UIColor+HexColor.m in Sources */,
 				E1A6BC231FBAC6EC0000213E /* AppDelegate.m in Sources */,
 				E1A6BC201FBAC6EC0000213E /* main.m in Sources */,
-				66D62EEA1FEDF96A00C3B5C7 /* MuxerToMP4.c in Sources */,
 				363E00B01FBDB1F4008690E7 /* RootViewController.m in Sources */,
 				66B5389E1FF38F53001EE17B /* MuxerToVideo.c in Sources */,
 				E1A6BCEB1FBAD1E40000213E /* VideoView.m in Sources */,
