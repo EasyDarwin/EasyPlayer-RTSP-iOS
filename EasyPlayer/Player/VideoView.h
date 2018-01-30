@@ -1,70 +1,63 @@
-//
+
 #import <UIKit/UIKit.h>
 #import "RtspDataReader.h"
 
 typedef enum {
-    Stopped,
-    Suspend,
-    Connecting,
-    Rendering,
+    Stopped,    // 停止
+    Suspend,    // 暂停
+    Connecting, // 连接中
+    Rendering,  // 播放中
 }IVideoStatus;
 
 @protocol VideoViewDelegate;
 
-@interface VideoView : UIView <UIGestureRecognizerDelegate>
+@interface VideoView : UIView<UIGestureRecognizerDelegate>
 
-@property (nonatomic, weak)UIView *container;
+@property (nonatomic, weak) UIView *container;
 @property (nonatomic, strong) UIButton *addButton;
-
-@property (nonatomic, copy)NSString *url;
+@property (nonatomic, strong) UIButton *landspaceButton;  // 全屏按钮
 
 @property (nonatomic, weak) id<VideoViewDelegate> delegate;
 
-@property (nonatomic) BOOL active;
-@property (nonatomic, strong)RtspDataReader *reader;
-@property (nonatomic, assign)IVideoStatus videoStatus;
+@property (nonatomic, copy) NSString *url;              // 播放地址
+@property (nonatomic, copy) NSString *recordFilePath;   // 录像地址
+@property (nonatomic, copy) NSString *screenShotPath;   // 截图地址
 
-@property (nonatomic)BOOL showAllRegon;
-@property(nonatomic) BOOL fullScreen;
-@property (nonatomic, assign)BOOL showActiveStatus;
-@property (nonatomic, readonly)BOOL audioPlaying;
+@property (nonatomic, strong) RtspDataReader *reader;
+@property (nonatomic, assign) IVideoStatus videoStatus;
 
-// 是否启用硬解
-@property (nonatomic)BOOL useHWDecoder;
+@property (nonatomic, assign) BOOL active;
+@property (nonatomic, assign) BOOL useHWDecoder;        // 是否启用硬解
+@property (nonatomic, assign) BOOL audioPlaying;        // 自动播放音频
+@property (nonatomic, assign) BOOL showAllRegon;        //
+@property (nonatomic, assign) BOOL showActiveStatus;    //
+
+@property (nonatomic, assign) int screenShotCount;      // 截屏
 
 - (void)beginTransform;
 - (void)endTransform;
 
-- (void)reserveLastImageeBuf;
-
-// ----------------- 视频 -----------------
+// ----------------- 播放控制 -----------------
+- (void)stopAudio;
 - (void)startPlay;
 - (void)stopPlay;
-
-
 - (void)flush;
-//- (void)puaseReplay;
-//- (void)resumeReplay;
-//- (void)snapshot:(id)sender;
-
-// ----------------- 音频 -----------------
-- (void)startRecord;
-- (void)stopRecord;
-
-- (void)stopAudio;
 
 @end
-
 
 @protocol VideoViewDelegate <NSObject>
 
 @optional
+
 - (void)videoViewDidiUpdateStream:(VideoView *)view;
 - (void)videoViewBeginActive:(VideoView *)view;
 
+// 全屏(横屏)
 - (void)videoViewWillAnimateToFullScreen:(VideoView *)view;
+// 竖屏
 - (void)videoViewWillAnimateToNomarl:(VideoView *)view;
 
+// 连接视频源
 - (void)videoViewWillTryToConnect:(VideoView *)view;
 
 @end

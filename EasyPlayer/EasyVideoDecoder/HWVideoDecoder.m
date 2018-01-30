@@ -34,17 +34,12 @@ void didDecompress(void *decompressionOutputRefCon,
                    CMTime presentationTimeStamp,
                    CMTime presentationDuration) {
     if (status != noErr || !imageBuffer) {
-        // error -8969 codecBadDataErr kVTVideoDecoderBadDataErr
-        // -12909 The operation couldn’t be completed. (OSStatus error -12909.)
         NSLog(@"Error decompresssing frame at time: %.3f error: %d infoFlags: %u",
               (float)presentationTimeStamp.value / presentationTimeStamp.timescale,
               (int)status,
               (unsigned int)infoFlags);
         return;
     }
-
-    //NSLog(@"Got frame data.\n");
-    //NSLog(@"Success decompresssing frame at time: %.3f error: %d infoFlags: %u", (float)presentationTimeStamp.value/presentationTimeStamp.timescale, (int)status, (unsigned int)infoFlags);
     
     if (status == noErr) {
         if (imageBuffer != NULL) {
@@ -52,6 +47,7 @@ void didDecompress(void *decompressionOutputRefCon,
 #if 1
             CVPixelBufferLockBaseAddress(imageBuffer, 0);
             
+            // 获取图像内部数据
             void *base;
             size_t width, height, bytesPerRow;
             base = CVPixelBufferGetBaseAddress(imageBuffer);
@@ -137,8 +133,6 @@ void didDecompress(void *decompressionOutputRefCon,
                                                                               parameterSetSizes,
                                                                               4,
                                                                               &videoFormatDescr);
-        
-        NSLog(@"Found all data for CMVideoFormatDescription. Creation: %@.", (status == noErr) ? @"successfully." : @"failed.");
         if (status != noErr) {
             return;
         }
@@ -160,15 +154,13 @@ void didDecompress(void *decompressionOutputRefCon,
                                               &callback,
                                               &decompressSession);
         
-        NSLog(@"Creating Video Decompression Session: %@.", (status == noErr) ? @"successfully." : @"failed.");
-        
-        VTSessionSetProperty(decompressSession,
-                             kVTDecompressionPropertyKey_ThreadCount,
-                             (__bridge CFTypeRef)[NSNumber numberWithInt:1]);
-        // 设置实时解码输出（避免延迟）
-        VTSessionSetProperty(decompressSession,
-                             kVTDecompressionPropertyKey_RealTime,
-                             kCFBooleanTrue);
+//        VTSessionSetProperty(decompressSession,
+//                             kVTDecompressionPropertyKey_ThreadCount,
+//                             (__bridge CFTypeRef)[NSNumber numberWithInt:1]);
+//        // 设置实时解码输出（避免延迟）
+//        VTSessionSetProperty(decompressSession,
+//                             kVTDecompressionPropertyKey_RealTime,
+//                             kCFBooleanTrue);
     }
 }
 
@@ -184,21 +176,23 @@ void didDecompress(void *decompressionOutputRefCon,
  */
 void getXps(unsigned char *data, int offset, int length, int type, int *outPos, int *xpsLen) {
     int i;
-    int pos0 = -1;
+    int startCodeIndex = -1;
     
+    // 0x00 00 00 01四个字节为StartCode，在两个StartCode之间的内容即为一个完整的NALU。
+    // 存储的一般形式为: 00 00 00 01 SPS 00 00 00 01 PPS 00 00 00 01 I帧
     for (i = offset; i < length - 4; i++) {
         if ((0 == data[i]) && (0 == data[i + 1]) && (1 == data[i + 2]) && (type == (0x0F & data[i + 3]))) {
-            pos0 = i;
+            startCodeIndex = i;
             break;
         }
     }
     
-    if (-1 == pos0) {
+    if (-1 == startCodeIndex) {
         return;
     }
     
     int pos1 = -1;
-    for (i = pos0 + 4; i < length - 4; i++) {
+    for (i = startCodeIndex + 4; i < length - 4; i++) {
         if ((0 == data[i]) && (0 == data[i + 1]) && (1 == data[i + 2])) {
             pos1 = i;
             
@@ -214,8 +208,8 @@ void getXps(unsigned char *data, int offset, int length, int type, int *outPos, 
         return;
     }
     
-    *outPos = pos0 + 3;
-    *xpsLen = pos1 - pos0 - 3;
+    *outPos = startCodeIndex + 3;
+    *xpsLen = pos1 - startCodeIndex - 3;
     printf("type = %d xpsLen= %d; outPos = %d, pos1 = %d\n", type, *xpsLen, *outPos, pos1);
 }
 
@@ -231,20 +225,24 @@ void getXps(unsigned char *data, int offset, int length, int type, int *outPos, 
     
     [self initH264DecoderVideoData:pData len:len];
     
-    //
+    /* 确定nDiff值：
+        Start Code表现形式：00 00 01 或 00 00 00 01
+        Length表现形式：00 00 80 00
+        有资料说当一帧图像被编码为多个slice（即需要有多个NALU）时，每个NALU的StartCode为3个字节，否则为4个字节
+     */
     int nDiff = 0;
     int nalPackLen = len;
     unsigned char *pTemp = pData;
     for (int i = 0; i < len; i++) {
         if (*(pTemp) == 0 && *(pTemp + 1) == 0) {
-            if (*(pTemp + 2) == 1) {
-                int nalu_type = ((uint8_t)*(pTemp+3) & 0x1F);
+            if (*(pTemp + 2) == 1) {                                // 00 00 01
+                int nalu_type = ((uint8_t)*(pTemp + 3) & 0x1F);
                 if (nalu_type == 1 || nalu_type == 5) {
                     nDiff = 3;
                     break;
                 }
-            } else if (*(pTemp + 2) == 0 && *(pTemp + 3) == 1) {
-                int nalu_type = ((uint8_t)*(pTemp+4) & 0x1F);
+            } else if (*(pTemp + 2) == 0 && *(pTemp + 3) == 1) {    // 00 00 00 01
+                int nalu_type = ((uint8_t)*(pTemp + 4) & 0x1F);
                 
                 if (nalu_type == 1 || nalu_type == 5) {
                     nDiff = 4;
@@ -263,12 +261,15 @@ void getXps(unsigned char *data, int offset, int length, int type, int *outPos, 
     
     int nalu_type = ((uint8_t)*(pTemp + nDiff) & 0x1F);
     
-    // 关键帧 其他帧
+    // 非IDR图像的片、IDR图像的片
     if (nalu_type == 1 || nalu_type == 5) {
         if (nDiff == 3) {
             // 只有2个0 前面补位0
             if (innerLen <= nalPackLen) {
                 innerLen = nalPackLen + 1;
+                
+                // void* realloc(void* ptr, unsigned newsize);
+                // realloc是给一个已经分配了地址的指针重新分配空间,参数ptr为原有的空间地址,newsize是重新申请的地址长度
                 pInnerData = (unsigned char *)realloc(pInnerData, innerLen);
             }
             
@@ -291,7 +292,10 @@ void getXps(unsigned char *data, int offset, int length, int type, int *outPos, 
                                                              &videoBlock);
         
         int reomveHeaderSize = nalPackLen - 4;
-        const uint8_t sourceBytes[] = {(uint8_t)(reomveHeaderSize >> 24), (uint8_t)(reomveHeaderSize >> 16), (uint8_t)(reomveHeaderSize >> 8), (uint8_t)reomveHeaderSize};
+        const uint8_t sourceBytes[] = { (uint8_t)(reomveHeaderSize >> 24),
+                                        (uint8_t)(reomveHeaderSize >> 16),
+                                        (uint8_t)(reomveHeaderSize >> 8),
+                                        (uint8_t)reomveHeaderSize };
         
         // B.用4字节长度代码（4 byte length code (the length of the NalUnit including the unit code)）替换分隔码（separator code）
         status = CMBlockBufferReplaceDataBytes(sourceBytes, videoBlock, 0, 4);
@@ -329,7 +333,6 @@ void getXps(unsigned char *data, int offset, int length, int type, int *outPos, 
         }
         
         CFRelease(sbRef);
-
         sbRef = NULL;
     }
     

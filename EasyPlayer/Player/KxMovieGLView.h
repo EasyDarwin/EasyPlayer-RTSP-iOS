@@ -21,4 +21,5 @@
 - (void) flush;
 
 - (UIImage *)curImage;
+
 @end

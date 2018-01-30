@@ -16,7 +16,6 @@
 extern NSString * kxmovieErrorDomain;
 
 typedef enum {
-    
     kxMovieErrorNone,
     kxMovieErrorOpenFile,
     kxMovieErrorStreamInfoNotFound,
@@ -26,62 +25,78 @@ typedef enum {
     kxMovieErrorAllocateFrame,
     kxMovieErroSetupScaler,
     kxMovieErroReSampler,
-    kxMovieErroUnsupported,
-    
+    kxMovieErroUnsupported
 } kxMovieError;
 
 typedef enum {
-    
     KxMovieFrameTypeAudio,
     KxMovieFrameTypeVideo,
     KxMovieFrameTypeArtwork,
-    KxMovieFrameTypeSubtitle,
-    
+    KxMovieFrameTypeSubtitle
 } KxMovieFrameType;
 
 typedef enum {
-        
     KxVideoFrameFormatRGB,
-    KxVideoFrameFormatYUV,
-    
+    KxVideoFrameFormatYUV
 } KxVideoFrameFormat;
 
+
 @interface KxMovieFrame : NSObject
+
 @property (readonly, nonatomic) KxMovieFrameType type;
 @property (nonatomic) CGFloat position;
 @property (nonatomic) CGFloat duration;
+
 @end
+
 
 @interface KxAudioFrame : KxMovieFrame
+
 @property (nonatomic, strong) NSData *samples;
+
 @end
 
+
 @interface KxVideoFrame : KxMovieFrame
+
 @property (readonly, nonatomic) KxVideoFrameFormat format;
 @property (nonatomic) NSUInteger width;
 @property (nonatomic) NSUInteger height;
+
 @end
 
+
 @interface KxVideoFrameRGB : KxVideoFrame
+
 @property (nonatomic) NSUInteger linesize;
 @property (nonatomic, strong) NSData *rgb;
 @property (nonatomic) BOOL hasAlpha;
+
 - (UIImage *) asImage;
+
 @end
 
+
 @interface KxVideoFrameYUV : KxVideoFrame
+
 @property ( nonatomic, strong) NSData *luma;
 @property ( nonatomic, strong) NSData *chromaB;
 @property ( nonatomic, strong) NSData *chromaR;
 
 @end
 
+
 @interface KxArtworkFrame : KxMovieFrame
+
 @property (readonly, nonatomic, strong) NSData *picture;
+
 - (UIImage *) asImage;
+
 @end
+
 
 @interface KxSubtitleFrame : KxMovieFrame
-@property (readonly, nonatomic, strong) NSString *text;
-@end
 
+@property (readonly, nonatomic, strong) NSString *text;
+
+@end

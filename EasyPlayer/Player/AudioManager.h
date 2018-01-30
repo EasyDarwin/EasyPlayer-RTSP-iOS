@@ -35,4 +35,3 @@ typedef void (^AudioManagerOutputBlock)(SInt16 *outData, UInt32 numFrames, UInt3
 - (void)stop;
 
 @end
-

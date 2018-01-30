@@ -133,86 +133,80 @@ static GLuint compileShader(GLenum type, NSString *shaderString)
 	return shader;
 }
 
-static void mat4f_LoadOrtho(float left, float right, float bottom, float top, float near, float far, float* mout)
-{
-	float r_l = right - left;
-	float t_b = top - bottom;
-	float f_n = far - near;
-	float tx = - (right + left) / (right - left);
-	float ty = - (top + bottom) / (top - bottom);
-	float tz = - (far + near) / (far - near);
-    
-	mout[0] = 2.0f / r_l;
-	mout[1] = 0.0f;
-	mout[2] = 0.0f;
-	mout[3] = 0.0f;
-	
-	mout[4] = 0.0f;
-	mout[5] = 2.0f / t_b;
-	mout[6] = 0.0f;
-	mout[7] = 0.0f;
-	
-	mout[8] = 0.0f;
-	mout[9] = 0.0f;
-	mout[10] = -2.0f / f_n;
-	mout[11] = 0.0f;
-	
-	mout[12] = tx;
-	mout[13] = ty;
-	mout[14] = tz;
-	mout[15] = 1.0f;
-}
+//static void mat4f_LoadOrtho(float left, float right, float bottom, float top, float near, float far, float* mout)
+//{
+//    float r_l = right - left;
+//    float t_b = top - bottom;
+//    float f_n = far - near;
+//    float tx = - (right + left) / (right - left);
+//    float ty = - (top + bottom) / (top - bottom);
+//    float tz = - (far + near) / (far - near);
+//
+//    mout[0] = 2.0f / r_l;
+//    mout[1] = 0.0f;
+//    mout[2] = 0.0f;
+//    mout[3] = 0.0f;
+//
+//    mout[4] = 0.0f;
+//    mout[5] = 2.0f / t_b;
+//    mout[6] = 0.0f;
+//    mout[7] = 0.0f;
+//
+//    mout[8] = 0.0f;
+//    mout[9] = 0.0f;
+//    mout[10] = -2.0f / f_n;
+//    mout[11] = 0.0f;
+//
+//    mout[12] = tx;
+//    mout[13] = ty;
+//    mout[14] = tz;
+//    mout[15] = 1.0f;
+//}
 
 //////////////////////////////////////////////////////////
 
 #pragma mark - frame renderers
 
 @protocol KxMovieGLRenderer
+
 - (BOOL) isValid;
 - (NSString *) fragmentShader;
 - (void) resolveUniforms: (GLuint) program;
-- (void) updateFrame: (KxVideoFrame *) frame
-;
+- (void) updateFrame: (KxVideoFrame *) frame;
 - (BOOL) prepareRender;
+
 @end
 
 @interface KxMovieGLRenderer_RGB : NSObject<KxMovieGLRenderer> {
-    
     GLint _uniformSampler;
     GLuint _texture;
 }
+
 @end
 
 @implementation KxMovieGLRenderer_RGB
 
-- (BOOL) isValid
-{
+- (BOOL) isValid {
     return (_texture != 0);
 }
 
-- (NSString *) fragmentShader
-{
+- (NSString *) fragmentShader {
     return rgbFragmentShaderString;
 }
 
-- (void) resolveUniforms: (GLuint) program
-{
+- (void) resolveUniforms: (GLuint) program {
     _uniformSampler = glGetUniformLocation(program, "s_texture");
 }
 
-- (void) updateFrame: (KxVideoFrame *) frame
-{
+- (void) updateFrame: (KxVideoFrame *) frame {
     KxVideoFrameRGB *rgbFrame = (KxVideoFrameRGB *)frame;
     
-    if (rgbFrame.hasAlpha)
-    {
+    if (rgbFrame.hasAlpha) {
         assert(rgbFrame.rgb.length == rgbFrame.width * rgbFrame.height * 4);
-    }
-    else
-    {
+    } else {
         assert(rgbFrame.rgb.length == rgbFrame.width * rgbFrame.height * 3);
     }
-  
+    
 //    // Create a CVOpenGLESTexture from a CVPixelBufferRef
 //    CVOpenGLESTextureRef texture = NULL;
 //    CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage( kCFAllocatorDefault,
@@ -237,8 +231,7 @@ static void mat4f_LoadOrtho(float left, float right, float bottom, float top, fl
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     GLint internalformat = rgbFrame.hasAlpha ? GL_RGBA : GL_RGB;
     GLint format = rgbFrame.hasAlpha ? GL_BGRA: GL_RGB;
-    if (0 == _texture)
-    {
+    if (0 == _texture) {
         glGenTextures(1, &_texture);
     }
     glBindTexture(GL_TEXTURE_2D, _texture);
@@ -251,15 +244,13 @@ static void mat4f_LoadOrtho(float left, float right, float bottom, float top, fl
                  format,
                  GL_UNSIGNED_BYTE,
                  rgbFrame.rgb.bytes);
-    
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-- (BOOL) prepareRender
-{
+- (BOOL) prepareRender {
     if (_texture == 0)
         return NO;
     
@@ -270,8 +261,7 @@ static void mat4f_LoadOrtho(float left, float right, float bottom, float top, fl
     return YES;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     if (_texture) {
         glDeleteTextures(1, &_texture);
         _texture = 0;
@@ -281,39 +271,35 @@ static void mat4f_LoadOrtho(float left, float right, float bottom, float top, fl
 @end
 
 @interface KxMovieGLRenderer_YUV : NSObject<KxMovieGLRenderer> {
-    
     GLint _uniformSamplers[3];
     GLuint _textures[3];
 }
+
 @end
 
 @implementation KxMovieGLRenderer_YUV
 
-- (BOOL) isValid
-{
+- (BOOL) isValid {
     return (_textures[0] != 0);
 }
 
-- (NSString *) fragmentShader
-{
+- (NSString *) fragmentShader {
     return yuvFragmentShaderString;
 }
 
-- (void) resolveUniforms: (GLuint) program
-{
+- (void) resolveUniforms: (GLuint) program {
     _uniformSamplers[0] = glGetUniformLocation(program, "s_texture_y");
     _uniformSamplers[1] = glGetUniformLocation(program, "s_texture_u");
     _uniformSamplers[2] = glGetUniformLocation(program, "s_texture_v");
 }
 
-- (void) updateFrame: (KxVideoFrame *) frame
-{
+- (void) updateFrame: (KxVideoFrame *) frame {
     KxVideoFrameYUV *yuvFrame = (KxVideoFrameYUV *)frame;
     
     assert(yuvFrame.luma.length == yuvFrame.width * yuvFrame.height);
     assert(yuvFrame.chromaB.length == (yuvFrame.width * yuvFrame.height) / 4);
     assert(yuvFrame.chromaR.length == (yuvFrame.width * yuvFrame.height) / 4);
-
+    
     const NSUInteger frameWidth = frame.width;
     const NSUInteger frameHeight = frame.height;    
     
@@ -321,15 +307,13 @@ static void mat4f_LoadOrtho(float left, float right, float bottom, float top, fl
     
     if (0 == _textures[0])
         glGenTextures(3, _textures);
-
+    
     const UInt8 *pixels[3] = { yuvFrame.luma.bytes, yuvFrame.chromaB.bytes, yuvFrame.chromaR.bytes };
     const NSUInteger widths[3]  = { frameWidth, frameWidth / 2, frameWidth / 2 };
     const NSUInteger heights[3] = { frameHeight, frameHeight / 2, frameHeight / 2 };
     
     for (int i = 0; i < 3; ++i) {
-        
         glBindTexture(GL_TEXTURE_2D, _textures[i]);
-        
         glTexImage2D(GL_TEXTURE_2D,
                      0,
                      GL_LUMINANCE,
@@ -339,7 +323,6 @@ static void mat4f_LoadOrtho(float left, float right, float bottom, float top, fl
                      GL_LUMINANCE,
                      GL_UNSIGNED_BYTE,
                      pixels[i]);
-        
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -347,8 +330,7 @@ static void mat4f_LoadOrtho(float left, float right, float bottom, float top, fl
     }     
 }
 
-- (BOOL) prepareRender
-{
+- (BOOL) prepareRender {
     if (_textures[0] == 0)
         return NO;
     
@@ -361,8 +343,7 @@ static void mat4f_LoadOrtho(float left, float right, float bottom, float top, fl
     return YES;
 }
 
-- (void) dealloc
-{
+- (void) dealloc {
     if (_textures[0])
         glDeleteTextures(3, _textures);
 }
@@ -379,7 +360,6 @@ enum {
 };
 
 @implementation KxMovieGLView {
-    
     EAGLContext     *_context;
     GLuint          _framebuffer;
     GLuint          _renderbuffer;
@@ -400,8 +380,7 @@ enum {
     NSUInteger srcHeight;
 }
 
-+ (Class) layerClass
-{
++ (Class) layerClass {
 	return [CAEAGLLayer class];
 }
 
@@ -409,12 +388,8 @@ static NSDictionary *SCContextCreateCIContextOptions() {
     return @{kCIContextWorkingColorSpace : [NSNull null], kCIContextOutputColorSpace : [NSNull null]};
 }
 
-- (id) initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
-        
-       
+- (id) initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
         CAEAGLLayer *eaglLayer = (CAEAGLLayer*) self.layer;
         eaglLayer.opaque = YES;
         eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -425,30 +400,23 @@ static NSDictionary *SCContextCreateCIContextOptions() {
         _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
         _ciContext = [CIContext contextWithEAGLContext:_context options:SCContextCreateCIContextOptions()];
         self.contentScaleFactor = [UIScreen mainScreen].scale;
-        if (!_context ||
-            ![EAGLContext setCurrentContext:_context]) {
-       
+        if (!_context || ![EAGLContext setCurrentContext:_context]) {
             self = nil;
             return nil;
         }
         srcWidth = 0;
         srcHeight = 0;
-        
         format = KxVideoFrameFormatRGB;
-        
         [self createDisplayFramebuffer];
         
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE) {
-            
-           
             self = nil;
             return nil;
         }
         
         GLenum glError = glGetError();
         if (GL_NO_ERROR != glError) {
-      
             self = nil;
             return nil;
         }
@@ -466,8 +434,7 @@ static NSDictionary *SCContextCreateCIContextOptions() {
     return self;
 }
 
-- (void)createDisplayFramebuffer
-{
+- (void)createDisplayFramebuffer {
     [EAGLContext setCurrentContext:_context];
     
     glGenFramebuffers(1, &_framebuffer);
@@ -480,41 +447,35 @@ static NSDictionary *SCContextCreateCIContextOptions() {
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &_backingWidth);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &_backingHeight);
     
-    if ( (_backingWidth == 0) || (_backingHeight == 0) )
-    {
+    if ((_backingWidth == 0) || (_backingHeight == 0)) {
         [self destroyDisplayFramebuffer];
         return;
     }
     
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _renderbuffer);
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
         NSLog(@"Failure with display framebuffer generation for display of size: %d %d", _backingWidth, _backingHeight);
     }
     boundsSizeAtFrameBufferEpoch = self.bounds.size;
 }
 
-- (void)destroyDisplayFramebuffer;
-{
+- (void)destroyDisplayFramebuffer; {
     [EAGLContext setCurrentContext:_context];
-    if (_framebuffer)
-    {
+    if (_framebuffer) {
         glDeleteFramebuffers(1, &_framebuffer);
         _framebuffer = 0;
     }
     
-    if (_renderbuffer)
-    {
+    if (_renderbuffer) {
         glDeleteRenderbuffers(1, &_renderbuffer);
         _renderbuffer = 0;
     }
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     _renderer = nil;
-
+    
     if (_framebuffer) {
         glDeleteFramebuffers(1, &_framebuffer);
         _framebuffer = 0;
@@ -537,8 +498,7 @@ static NSDictionary *SCContextCreateCIContextOptions() {
 	_context = nil;
 }
 
-- (void)layoutSubviews
-{
+- (void)layoutSubviews {
     // The frame buffer needs to be trashed and re-created when the view size changes.
     if (!CGSizeEqualToSize(self.bounds.size, boundsSizeAtFrameBufferEpoch) &&
         !CGSizeEqualToSize(self.bounds.size, CGSizeZero)) {
@@ -547,29 +507,25 @@ static NSDictionary *SCContextCreateCIContextOptions() {
     }
 }
 
-- (void)setContentMode:(UIViewContentMode)contentMode
-{
+- (void)setContentMode:(UIViewContentMode)contentMode {
     [super setContentMode:contentMode];
-    //[self updateVertices];
+    // [self updateVertices];
     if (_renderer.isValid)
         [self render:nil];
 }
 
-- (void)flush
-{
+- (void)flush {
     [self render:nil];
     _renderer = nil;
     srcWidth = 0;
     srcHeight = 0;
-    
-    if ( _textureCache ) {
+    if (_textureCache) {
         CFRelease( _textureCache );
         _textureCache = 0;
     }
 }
 
-- (UIImage *)curImage
-{
+- (UIImage *)curImage {
     glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
     
     NSInteger dataLength = _backingWidth * _backingHeight * 4;
@@ -591,13 +547,12 @@ static NSDictionary *SCContextCreateCIContextOptions() {
                                         providerRef, NULL, true, kCGRenderingIntentDefault);
     
     NSInteger widthInPoints, heightInPoints;
-    CGFloat scale = [[UIScreen mainScreen] scale];
+//    CGFloat scale = [[UIScreen mainScreen] scale];
     widthInPoints = srcWidth;
     heightInPoints = srcHeight;
     UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, 1);
     
     CGContextRef cgcontext = UIGraphicsGetCurrentContext();
-    
     // UIKit coordinate system is upside down to GL/Quartz coordinate system
     // Flip the CGImage by rendering it to the flipped bitmap context
     // The size of the destination area is measured in POINTS
@@ -608,7 +563,7 @@ static NSDictionary *SCContextCreateCIContextOptions() {
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     
     UIGraphicsEndImageContext();
-
+    
     free(data);
     CGImageRelease(imageRef);
     CGDataProviderRelease(providerRef);
@@ -617,20 +572,21 @@ static NSDictionary *SCContextCreateCIContextOptions() {
     return image;
 }
 
-- (BOOL)loadShaders
-{
+- (BOOL)loadShaders {
     BOOL result = NO;
     GLuint vertShader = 0, fragShader = 0;
     
 	_program = glCreateProgram();
 	
     vertShader = compileShader(GL_VERTEX_SHADER, vertexShaderString);
-	if (!vertShader)
+    if (!vertShader) {
         goto exit;
+    }
     
 	fragShader = compileShader(GL_FRAGMENT_SHADER, _renderer.fragmentShader);
-    if (!fragShader)
+    if (!fragShader) {
         goto exit;
+    }
     
 	glAttachShader(_program, vertShader);
 	glAttachShader(_program, fragShader);
@@ -642,28 +598,24 @@ static NSDictionary *SCContextCreateCIContextOptions() {
     GLint status;
     glGetProgramiv(_program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE) {
-		//LoggerVideo(0, @"Failed to link program %d", _program);
+		// LoggerVideo(0, @"Failed to link program %d", _program);
         goto exit;
     }
     
     result = validateProgram(_program);
-        
+    
     _uniformMatrix = glGetUniformLocation(_program, "modelViewProjectionMatrix");
     [_renderer resolveUniforms:_program];
 	
 exit:
-    
     if (vertShader)
         glDeleteShader(vertShader);
     if (fragShader)
         glDeleteShader(fragShader);
     
     if (result) {
-        
-        //LoggerVideo(1, @"OK setup GL programm");
-        
+        // LoggerVideo(1, @"OK setup GL programm");
     } else {
-        
         glDeleteProgram(_program);
         _program = 0;
     }
@@ -671,8 +623,7 @@ exit:
     return result;
 }
 
-- (void)updateVertices
-{
+- (void)updateVertices {
     const BOOL fit      = YES;//(self.contentMode == UIViewContentModeScaleAspectFit);
     const float width   = 1920;
     const float height  = 1080;
@@ -692,8 +643,7 @@ exit:
     _vertices[7] =   h;
 }
 
-- (void)render: (KxVideoFrame *) frame
-{
+- (void)render:(KxVideoFrame *)frame {
     static const GLfloat texCoords[] = {
         0.0f, 1.0f,
         1.0f, 1.0f,
@@ -708,38 +658,28 @@ exit:
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
-    if (frame != nil)
-    {
-        if (format != frame.format)
-        {
+    if (frame != nil) {
+        if (format != frame.format) {
             _renderer = nil;
-        }
-        else if (srcWidth != frame.width || srcHeight != frame.height)
-        {
+        } else if (srcWidth != frame.width || srcHeight != frame.height) {
             srcWidth = frame.width;
             srcHeight = frame.height;
             _renderer = nil;
         }
         
-        if (_renderer == nil)
-        {
-            if (_program)
-            {
+        if (_renderer == nil) {
+            if (_program) {
                 glDeleteProgram(_program);
                 _program = 0;
             }
             
-            if (frame.format == KxVideoFrameFormatRGB)
-            {
+            if (frame.format == KxVideoFrameFormatRGB) {
                 _renderer = [[KxMovieGLRenderer_RGB alloc] init];
-            }
-            else
-            {
+            } else {
                 _renderer = [[KxMovieGLRenderer_YUV alloc] init];
             }
             
-            if (![self loadShaders])
-            {
+            if (![self loadShaders]) {
                 NSLog(@"load shaders failed");
             }
         }
@@ -747,44 +687,34 @@ exit:
         glUseProgram(_program);
         [_renderer updateFrame:frame];
         
-        if ([_renderer prepareRender])
-        {
+        if ([_renderer prepareRender]) {
             glVertexAttribPointer(ATTRIBUTE_VERTEX, 2, GL_FLOAT, 0, 0, _vertices);
             glEnableVertexAttribArray(ATTRIBUTE_VERTEX);
             glVertexAttribPointer(ATTRIBUTE_TEXCOORD, 2, GL_FLOAT, 0, 0, texCoords);
             glEnableVertexAttribArray(ATTRIBUTE_TEXCOORD);
-            
 #if 0
-            if (!validateProgram(_program))
-            {
+            if (!validateProgram(_program)) {
                 LoggerVideo(0, @"Failed to validate program");
                 return;
             }
 #endif
-            
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         }
-    }
-    else
-    {
+    } else {
         NSLog(@"flush");
     }
     
-//    if (_textureCache == nil)
-//    {
+//    if (_textureCache == nil) {
 //        //  Create a new CVOpenGLESTexture cache
-//        CVReturn err = CVOpenGLESTextureCacheCreate( kCFAllocatorDefault, NULL, _context, NULL, &_textureCache );
-//        if ( err )
-//        {
+//        CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, _context, NULL, &_textureCache);
+//        if (err) {
 //            NSLog( @"Error at CVOpenGLESTextureCacheCreate %d", err );
 //        }
 //    }
 
 //    KxVideoFrameRGB *rgbFra = (KxVideoFrameRGB *)frame;
-    
 //    CGColorSpaceRef colorSpace;
 //    colorSpace = CGColorSpaceCreateDeviceRGB();
-//    
 //    CGDataProviderRef provider = CGDataProviderCreateWithCFData((CFDataRef)rgbFra.rgb);
 //    CGImageRef imageRef = CGImageCreate(rgbFra.width,          //width
 //                                        rgbFra.height,         //height
@@ -802,12 +732,11 @@ exit:
 //    CIImage *cimage = [CIImage imageWithCGImage:imageRef];
 //    [_ciContext drawImage:cimage inRect:CGRectMake(0, 0, _backingWidth, _backingHeight) fromRect:cimage.extent];
 //    CGColorSpaceRelease(colorSpace);
-
+    
     glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
     [_context presentRenderbuffer:GL_RENDERBUFFER];
     GLenum err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
+    if (err != GL_NO_ERROR) {
         printf("GL_ERROR=======>%d\n", err);
     }
 }

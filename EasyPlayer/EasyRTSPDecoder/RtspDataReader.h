@@ -16,6 +16,8 @@
 @property (nonatomic)BOOL enableAudio;
 @property (nonatomic)BOOL useHWDecoder; // 是否启用硬解码
 
+@property (nonatomic, copy) NSString *recordFilePath;   // 录像地址
+
 // 获得媒体类型
 @property (nonatomic, copy) void (^fetchMediaInfoSuccessBlock)(void);
 

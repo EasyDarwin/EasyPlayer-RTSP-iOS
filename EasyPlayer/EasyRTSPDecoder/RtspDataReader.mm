@@ -3,9 +3,11 @@
 #include <pthread.h>
 #include <vector>
 #import <string.h>
+
+#import "HWVideoDecoder.h"
+#include "MuxerToVideo.h"
 #include "VideoDecode.h"
 #include "EasyAudioDecoder.h"
-#import "HWVideoDecoder.h"
 
 struct FrameInfo {
     FrameInfo() : pBuf(NULL), frameLen(0), type(0), timeStamp(0), width(0), height(0){}
@@ -27,6 +29,9 @@ struct FrameInfo {
     
     void *_videoDecHandle;  // 视频解码句柄
     void *_audioDecHandle;  // 音频解码句柄
+    
+    void *_recordVideoHandle;   // 录像视频句柄
+    void *_recordAudioHandle;   // 录像音频句柄
     
     EASY_MEDIA_INFO_T _mediaInfo;   // 媒体信息
     
@@ -104,7 +109,7 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
         
         _videoDecHandle = NULL;
         _audioDecHandle = NULL;
-
+        
         self.url = url;
         
         // 初始化硬解码器
@@ -195,10 +200,14 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
             } else {
                 [self decodeVideoFrame:frame];
             }
+            
+            [self recordVideo:frame];
         } else {
             if (self.enableAudio) {
                 [self decodeAudioFrame:frame];
             }
+            
+            [self recordAudio:frame];
         }
         
         delete []frame->pBuf;
@@ -222,7 +231,8 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     }
 }
 
-// 解码视频帧
+#pragma mark - 解码视频帧
+
 - (void)decodeVideoFrame:(FrameInfo *)video {
     if (_videoDecHandle == NULL) {
         DEC_CREATE_PARAM param;
@@ -251,9 +261,9 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
             KxVideoFrameRGB *frame = [[KxVideoFrameRGB alloc] init];
             frame.width = param.nOutWidth;
             frame.height = param.nOutHeight;
-            frame.linesize = param.nOutWidth * 3;;
+            frame.linesize = param.nOutWidth * 3;
             frame.hasAlpha = NO;
-            frame.rgb = [NSData dataWithBytes:param.pImgRGB length:param.nLineSize  * param.nOutHeight];
+            frame.rgb = [NSData dataWithBytes:param.pImgRGB length:param.nLineSize * param.nOutHeight];
             frame.position = video->timeStamp;
             
             if (_lastVideoFramePosition == 0) {
@@ -275,7 +285,8 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     }
 }
 
-// 解码音频帧
+#pragma mark - 解码音频帧
+
 - (void)decodeAudioFrame:(FrameInfo *)audio {
     if (_audioDecHandle == NULL) {
         _audioDecHandle = EasyAudioDecodeCreate(_mediaInfo.u32AudioCodec,
@@ -321,6 +332,39 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     NSLog(@"Reader %8@ removeCach", self);
 }
 
+#pragma mark - 录像
+
+- (void) recordVideo:(FrameInfo *)video {
+    if (_recordVideoHandle == NULL) {
+        Muxer_Video_CREATE_PARAM param;
+        param.nMaxImgWidth = video->width;
+        param.nMaxImgHeight = video->height;
+        param.coderID = Muxer_Video_Coder_H264;
+        param.method = Muxer_Video_IDM_SW;
+        _recordVideoHandle = muxer_Video_COMPONENT_Create(&param);
+    }
+    
+    Muxer_Video_PARAM param;
+    param.pStream = video->pBuf;
+    param.nLen = video->frameLen;
+    param.need_sps_head = false;
+    
+    // 录像：视频
+    convertVideoToAVPacket([self.recordFilePath UTF8String], _recordVideoHandle, &param);
+}
+
+- (void) recordAudio:(FrameInfo *)audio {
+    if (_recordAudioHandle == NULL) {
+        _recordAudioHandle = muxer_Audio_Handle_Create(_mediaInfo.u32AudioCodec,
+                                                       _mediaInfo.u32AudioSamplerate,
+                                                       _mediaInfo.u32AudioChannel,
+                                                       16);
+    }
+    
+    // 录像：音频
+    convertAudioToAVPacket([self.recordFilePath UTF8String], _recordAudioHandle, audio->pBuf, audio->frameLen);
+}
+
 #pragma mark - private method
 
 // 获得媒体类型
@@ -339,9 +383,10 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
         return;
     }
     
-    if (type == EASY_SDK_AUDIO_FRAME_FLAG && !self.enableAudio) {
-        return;
-    }
+    // 录像的时候 即使关闭音频，也会录制音频
+//    if (type == EASY_SDK_AUDIO_FRAME_FLAG && !self.enableAudio) {
+//        return;
+//    }
     
     FrameInfo *frameInfo = (FrameInfo *)malloc(sizeof(FrameInfo));
     frameInfo->type = type;
@@ -367,6 +412,18 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
 }
 
 -(void) getDecodePixelData:(CVImageBufferRef)frame {
+    NSLog(@" --> %@", frame);
+}
+
+#pragma mark - H264HWDecoderDelegate
+
+- (void) displayDecodePictureData:(KxVideoFrame *)frame {
+    if (self.frameOutputBlock) {
+        self.frameOutputBlock(frame);
+    }
+}
+
+- (void) displayDecodedFrame:(CVImageBufferRef)frame {
     NSLog(@" --> %@", frame);
 }
 
