@@ -32,8 +32,6 @@ typedef enum {
 @property (nonatomic, assign) BOOL showAllRegon;        //
 @property (nonatomic, assign) BOOL showActiveStatus;    //
 
-@property (nonatomic, assign) int screenShotCount;      // 截屏
-
 - (void)beginTransform;
 - (void)endTransform;
 

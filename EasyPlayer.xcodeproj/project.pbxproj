@@ -20,6 +20,8 @@
 		6635A76C1FF77CF500C25760 /* RecordListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A76B1FF77CF500C25760 /* RecordListViewController.m */; };
 		6635A76F1FF7837A00C25760 /* FileListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A76E1FF7837A00C25760 /* FileListViewController.m */; };
 		6635A7821FF7997200C25760 /* ScreenShotListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A7811FF7997200C25760 /* ScreenShotListCell.m */; };
+		6654F4CE2011BF6F00795BC9 /* DC_AlertManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6654F4CB2011BF6F00795BC9 /* DC_AlertManager.m */; };
+		6654F4CF2011BF6F00795BC9 /* UIView+Toast.m in Sources */ = {isa = PBXBuildFile; fileRef = 6654F4CC2011BF6F00795BC9 /* UIView+Toast.m */; };
 		6674DCBD1FFB24780011DA0A /* cuc_ieschool.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 6674DCB91FFB24780011DA0A /* cuc_ieschool.mp3 */; };
 		6674DCBE1FFB24780011DA0A /* MuxerToMP4.c in Sources */ = {isa = PBXBuildFile; fileRef = 6674DCBA1FFB24780011DA0A /* MuxerToMP4.c */; };
 		6674DCBF1FFB24780011DA0A /* cuc_ieschool.h264 in Resources */ = {isa = PBXBuildFile; fileRef = 6674DCBB1FFB24780011DA0A /* cuc_ieschool.h264 */; };
@@ -87,6 +89,10 @@
 		6635A76E1FF7837A00C25760 /* FileListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileListViewController.m; sourceTree = "<group>"; };
 		6635A7801FF7997200C25760 /* ScreenShotListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenShotListCell.h; sourceTree = "<group>"; };
 		6635A7811FF7997200C25760 /* ScreenShotListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenShotListCell.m; sourceTree = "<group>"; };
+		6654F4CA2011BF6F00795BC9 /* UIView+Toast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Toast.h"; sourceTree = "<group>"; };
+		6654F4CB2011BF6F00795BC9 /* DC_AlertManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DC_AlertManager.m; sourceTree = "<group>"; };
+		6654F4CC2011BF6F00795BC9 /* UIView+Toast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Toast.m"; sourceTree = "<group>"; };
+		6654F4CD2011BF6F00795BC9 /* DC_AlertManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DC_AlertManager.h; sourceTree = "<group>"; };
 		6674DCB91FFB24780011DA0A /* cuc_ieschool.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = cuc_ieschool.mp3; sourceTree = "<group>"; };
 		6674DCBA1FFB24780011DA0A /* MuxerToMP4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MuxerToMP4.c; sourceTree = "<group>"; };
 		6674DCBB1FFB24780011DA0A /* cuc_ieschool.h264 */ = {isa = PBXFileReference; lastKnownFileType = file; path = cuc_ieschool.h264; sourceTree = "<group>"; };
@@ -247,12 +253,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				368B0B601FCBFFB600172BDB /* CoreMedia.framework in Frameworks */,
-				368B0B5E1FCBFFA300172BDB /* VideoToolbox.framework in Frameworks */,
 				E1A6BCB51FBAC77C0000213E /* libbz2.tbd in Frameworks */,
 				E1A6BCB31FBAC7760000213E /* libz.tbd in Frameworks */,
 				E1A6BCB11FBAC7710000213E /* libiconv.tbd in Frameworks */,
 				E1A6BCAF1FBAC7690000213E /* libstdc++.tbd in Frameworks */,
+				368B0B601FCBFFB600172BDB /* CoreMedia.framework in Frameworks */,
+				368B0B5E1FCBFFA300172BDB /* VideoToolbox.framework in Frameworks */,
 				E1A6BCA91FBAC7330000213E /* libavutil.a in Frameworks */,
 				E1A6BCAB1FBAC7330000213E /* libswscale.a in Frameworks */,
 				E1A6BCA71FBAC7330000213E /* libavfilter.a in Frameworks */,
@@ -290,6 +296,17 @@
 				6635A76B1FF77CF500C25760 /* RecordListViewController.m */,
 			);
 			path = Record;
+			sourceTree = "<group>";
+		};
+		6654F4C92011BF5F00795BC9 /* Tool */ = {
+			isa = PBXGroup;
+			children = (
+				6654F4CD2011BF6F00795BC9 /* DC_AlertManager.h */,
+				6654F4CB2011BF6F00795BC9 /* DC_AlertManager.m */,
+				6654F4CA2011BF6F00795BC9 /* UIView+Toast.h */,
+				6654F4CC2011BF6F00795BC9 /* UIView+Toast.m */,
+			);
+			path = Tool;
 			sourceTree = "<group>";
 		};
 		6674DCB81FFB24780011DA0A /* demo */ = {
@@ -376,6 +393,7 @@
 				6635A7811FF7997200C25760 /* ScreenShotListCell.m */,
 				E1A6BD031FBAD6800000213E /* VideoPanel.h */,
 				E1A6BD041FBAD6800000213E /* VideoPanel.mm */,
+				6654F4C92011BF5F00795BC9 /* Tool */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -814,6 +832,7 @@
 				368B0B5B1FCBFE9200172BDB /* HWVideoDecoder.m in Sources */,
 				E19AC7C11FBBE987008E2FA7 /* EasyAudioDecoder.c in Sources */,
 				6635A7821FF7997200C25760 /* ScreenShotListCell.m in Sources */,
+				6654F4CE2011BF6F00795BC9 /* DC_AlertManager.m in Sources */,
 				E19AC7C31FBBE987008E2FA7 /* g711.c in Sources */,
 				6635A76C1FF77CF500C25760 /* RecordListViewController.m in Sources */,
 				6635A7691FF77CEB00C25760 /* ScreenShotListViewController.m in Sources */,
@@ -829,6 +848,7 @@
 				E1A6BCFE1FBAD5EA0000213E /* UIColor+HexColor.m in Sources */,
 				E1A6BC231FBAC6EC0000213E /* AppDelegate.m in Sources */,
 				E1A6BC201FBAC6EC0000213E /* main.m in Sources */,
+				6654F4CF2011BF6F00795BC9 /* UIView+Toast.m in Sources */,
 				363E00B01FBDB1F4008690E7 /* RootViewController.m in Sources */,
 				66B5389E1FF38F53001EE17B /* MuxerToVideo.c in Sources */,
 				E1A6BCEB1FBAD1E40000213E /* VideoView.m in Sources */,
@@ -975,6 +995,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = NO;
 				DEVELOPMENT_TEAM = 33USAS7KQX;
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"$(inherited)",
+				);
 				GCC_NO_COMMON_BLOCKS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
@@ -994,7 +1018,7 @@
 					"$(PROJECT_DIR)/libEasyRTSPClient",
 				);
 				ORDER_FILE = "";
-				PRODUCT_BUNDLE_IDENTIFIER = com.hlcc.Hmp022;
+				PRODUCT_BUNDLE_IDENTIFIER = org.easydarwin.easyplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1013,6 +1037,10 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = NO;
 				DEVELOPMENT_TEAM = 33USAS7KQX;
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"$(inherited)",
+				);
 				GCC_NO_COMMON_BLOCKS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
@@ -1032,7 +1060,7 @@
 				);
 				ORDER_FILE = "";
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				PRODUCT_BUNDLE_IDENTIFIER = com.hlcc.Hmp022;
+				PRODUCT_BUNDLE_IDENTIFIER = org.easydarwin.easyplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

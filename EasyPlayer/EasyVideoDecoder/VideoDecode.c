@@ -165,7 +165,10 @@ unsigned int DecodeVideo(void *DecHandle, DEC_DECODE_PARAM *pDecodeParam, DVDVid
     int nRet = 0;
     if (packet.size > 0) {
         // [9]、解码一帧数据,输入一个压缩编码的结构体AVPacket-->输出一个解码后的结构体AVFrame
-        nRet = avcodec_decode_video2(pComponent->pCodecCtx, pComponent->pFrame, &got_picture, &packet);
+        nRet = avcodec_decode_video2(pComponent->pCodecCtx,
+                                     pComponent->pFrame,
+                                     &got_picture,
+                                     &packet);
         if (nRet == -1) {
             return nRet;
         }

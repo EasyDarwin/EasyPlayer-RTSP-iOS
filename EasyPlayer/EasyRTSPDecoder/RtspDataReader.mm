@@ -4,10 +4,10 @@
 #include <vector>
 #import <string.h>
 
-#import "HWVideoDecoder.h"
-#include "MuxerToVideo.h"
-#include "VideoDecode.h"
 #include "EasyAudioDecoder.h"
+#import "HWVideoDecoder.h"
+#include "VideoDecode.h"
+#include "MuxerToVideo.h"
 
 struct FrameInfo {
     FrameInfo() : pBuf(NULL), frameLen(0), type(0), timeStamp(0), width(0), height(0){}
@@ -134,6 +134,10 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
 }
 
 - (void)stop {
+    if (!_running) {
+        return;
+    }
+    
     pthread_mutex_lock(&mutexChan);
     if (rtspHandle != NULL) {
         EasyRTSP_SetCallback(rtspHandle, NULL);
@@ -335,34 +339,34 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
 #pragma mark - 录像
 
 - (void) recordVideo:(FrameInfo *)video {
-    if (_recordVideoHandle == NULL) {
-        Muxer_Video_CREATE_PARAM param;
-        param.nMaxImgWidth = video->width;
-        param.nMaxImgHeight = video->height;
-        param.coderID = Muxer_Video_Coder_H264;
-        param.method = Muxer_Video_IDM_SW;
-        _recordVideoHandle = muxer_Video_COMPONENT_Create(&param);
-    }
-    
-    Muxer_Video_PARAM param;
-    param.pStream = video->pBuf;
-    param.nLen = video->frameLen;
-    param.need_sps_head = false;
-    
-    // 录像：视频
-    convertVideoToAVPacket([self.recordFilePath UTF8String], _recordVideoHandle, &param);
+//    if (_recordVideoHandle == NULL) {
+//        Muxer_Video_CREATE_PARAM param;
+//        param.nMaxImgWidth = video->width;
+//        param.nMaxImgHeight = video->height;
+//        param.coderID = Muxer_Video_Coder_H264;
+//        param.method = Muxer_Video_IDM_SW;
+//        _recordVideoHandle = muxer_Video_COMPONENT_Create(&param);
+//    }
+//
+//    Muxer_Video_PARAM param;
+//    param.pStream = video->pBuf;
+//    param.nLen = video->frameLen;
+//    param.need_sps_head = false;
+//
+//    // 录像：视频
+//    convertVideoToAVPacket([self.recordFilePath UTF8String], _recordVideoHandle, &param);
 }
 
 - (void) recordAudio:(FrameInfo *)audio {
-    if (_recordAudioHandle == NULL) {
-        _recordAudioHandle = muxer_Audio_Handle_Create(_mediaInfo.u32AudioCodec,
-                                                       _mediaInfo.u32AudioSamplerate,
-                                                       _mediaInfo.u32AudioChannel,
-                                                       16);
-    }
-    
-    // 录像：音频
-    convertAudioToAVPacket([self.recordFilePath UTF8String], _recordAudioHandle, audio->pBuf, audio->frameLen);
+//    if (_recordAudioHandle == NULL) {
+//        _recordAudioHandle = muxer_Audio_Handle_Create(_mediaInfo.u32AudioCodec,
+//                                                       _mediaInfo.u32AudioSamplerate,
+//                                                       _mediaInfo.u32AudioChannel,
+//                                                       16);
+//    }
+//
+//    // 录像：音频
+//    convertAudioToAVPacket([self.recordFilePath UTF8String], _recordAudioHandle, audio->pBuf, audio->frameLen);
 }
 
 #pragma mark - private method

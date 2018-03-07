@@ -59,7 +59,7 @@ int openOutPut(const char *out_filename) {
     if (avFormatContext_out) {
         return 2;
     } else {
-        if (videoCodec != NULL && (audioCodec != NULL || audioCodec == 0)) {
+        if (videoCodec != NULL && audioCodec != NULL && audioCodec == 0) {
             av_register_all();
             
             // 初始化输出文件 Output
@@ -72,28 +72,26 @@ int openOutPut(const char *out_filename) {
             }
             ofmt = avFormatContext_out->oformat;
             
-            if (videoCodec) {
-                AVStream *video_out_stream = avformat_new_stream(avFormatContext_out, videoCodec);
-                // 赋值AVCodecContext的参数 Copy the settings of AVCodecContext
-                if (avcodec_copy_context(video_out_stream->codec, videoCodecCtx) < 0) {
-                    printf( "Failed to copy context from input to output stream codec context\n");
-                    return closeOutPut();
-                }
-                if (avFormatContext_out->oformat->flags & AVFMT_GLOBALHEADER) {
-                    video_out_stream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
-                    videoCodecCtx->flags |= CODEC_FLAG_GLOBAL_HEADER;
-                }
+            // videoCodec
+            AVStream *video_out_stream = avformat_new_stream(avFormatContext_out, videoCodec);
+            // 赋值AVCodecContext的参数 Copy the settings of AVCodecContext
+            if (avcodec_copy_context(video_out_stream->codec, videoCodecCtx) < 0) {
+                printf( "Failed to copy context from input to output stream codec context\n");
+                return closeOutPut();
+            }
+            if (avFormatContext_out->oformat->flags & AVFMT_GLOBALHEADER) {
+                video_out_stream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
+                videoCodecCtx->flags |= CODEC_FLAG_GLOBAL_HEADER;
             }
             
-            if (audioCodec) {
-                AVStream *audio_out_stream = avformat_new_stream(avFormatContext_out, audioCodec);
-                if (avcodec_copy_context(audio_out_stream->codec, audioCodecCtx) < 0) {
-                    printf( "Failed to copy context from input to output stream codec context\n");
-                    return closeOutPut();
-                }
-                if (avFormatContext_out->oformat->flags & AVFMT_GLOBALHEADER) {
-                    audioCodecCtx->flags |= CODEC_FLAG_GLOBAL_HEADER;
-                }
+            // audioCodec
+            AVStream *audio_out_stream = avformat_new_stream(avFormatContext_out, audioCodec);
+            if (avcodec_copy_context(audio_out_stream->codec, audioCodecCtx) < 0) {
+                printf( "Failed to copy context from input to output stream codec context\n");
+                return closeOutPut();
+            }
+            if (avFormatContext_out->oformat->flags & AVFMT_GLOBALHEADER) {
+                audioCodecCtx->flags |= CODEC_FLAG_GLOBAL_HEADER;
             }
             
             printf("==========Output Information==========\n");
@@ -128,22 +126,17 @@ int openOutPut(const char *out_filename) {
 #pragma mark - avpacket写入文件
 
 int writeData(const char *out_filename, AVPacket pkt) {
-    
-    printf(" --->>> %p, %p <<<--- \n", videoCodec, audioCodec);
-    printf(" --->>> %p, %p <<<--- \n", videoCodecCtx, audioCodecCtx);
-    
     if (out_filename == NULL) {
         return closeOutPut();
     } else {
         if (openOutPut(out_filename) == 2) {
             
             // av_compare_ts()：比较时间戳，决定写入视频还是写入音频 Get an AVPacket
-            
             printf("Write 1 Packet. size:%5d\tpts:%lld\n", pkt.size, pkt.pts);
             
             // av_interleaved_write_frame()：写入一个AVPacket到输出文件
             if (av_interleaved_write_frame(avFormatContext_out, &pkt) < 0) {
-                printf( "Error muxing packet\n");
+                printf("Error muxing packet\n");
             }
             
             av_free_packet(&pkt);
@@ -191,7 +184,7 @@ int convertVideoToAVPacket(const char *out_filename, void *recordHandle, Muxer_V
 
 int convertAudioToAVPacket(const char *out_filename, void *audioDecHandle, unsigned char *pData, int nLen) {
     Muxer_Audio_Handle *pComponent = (Muxer_Audio_Handle *)audioDecHandle;
-    
+
     Muxer_Audio_PARAM *aacFFmpeg = (Muxer_Audio_PARAM *)pComponent->pContext;
     if (aacFFmpeg != NULL) {
         audioCodec = aacFFmpeg->avCodec;
@@ -200,13 +193,13 @@ int convertAudioToAVPacket(const char *out_filename, void *audioDecHandle, unsig
         audioCodec = 0;
         audioCodecCtx = 0;
     }
-    
+
     AVPacket packet;
     av_init_packet(&packet);
-    
+
     packet.size = nLen;
     packet.data = pData;
-    
+
     writeData(out_filename, packet);
     
     return 0;

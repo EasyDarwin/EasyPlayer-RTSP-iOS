@@ -66,20 +66,20 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     switch (indexPath.row) {
-        case 4:{ // 截图记录
+        case 4:{ // 关于我们
+            AboutViewController *controller = [[AboutViewController alloc] initWithStoryboard];
+            [self.navigationController pushViewController:controller animated:YES];
+        }
+            break;
+        case 5:{ // 截图记录
             FileListViewController *controller = [[FileListViewController alloc] init];
             controller.isScreenShopList = YES;
             [self.navigationController pushViewController:controller animated:YES];
         }
             break;
-        case 5:{ // 录像记录
+        case 6:{ // 录像记录
             FileListViewController *controller = [[FileListViewController alloc] init];
             controller.isScreenShopList = NO;
-            [self.navigationController pushViewController:controller animated:YES];
-        }
-            break;
-        case 6:{ // 关于我们
-            AboutViewController *controller = [[AboutViewController alloc] initWithStoryboard];
             [self.navigationController pushViewController:controller animated:YES];
         }
             break;

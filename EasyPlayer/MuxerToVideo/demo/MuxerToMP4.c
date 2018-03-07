@@ -68,13 +68,13 @@ int muxer(char *in_filename_v, char *in_filename_a, char *out_filename) {
         printf( "Failed to retrieve input stream information");
         goto end;
     }
-
+    
     printf("===========Input Information==========\n");
     av_dump_format(avFormatContext_video, 0, in_filename_v, 0);
     printf("--------------------------------------\n");
     av_dump_format(avFormatContext_audio, 0, in_filename_a, 0);
     printf("======================================\n");
-
+    
     // 初始化输出文件 Output
     avformat_alloc_output_context2(&avFormatContext_out, NULL, NULL, out_filename);
     if (!avFormatContext_out) {

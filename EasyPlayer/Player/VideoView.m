@@ -9,6 +9,7 @@
 #import "AudioManager.h"
 #import "PathUnit.h"
 #import "NSUserDefaultsUnit.h"
+#import "DC_AlertManager.h"
 
 @interface VideoView() <UIScrollViewDelegate> {
     BOOL firstFrame;
@@ -23,7 +24,7 @@
     
     BOOL needChangeViewFrame;
     
-    dispatch_queue_t requestQueue;
+//    dispatch_queue_t requestQueue;
     
     KxMovieGLView *kxGlView;
     
@@ -143,20 +144,9 @@
     [audioButton addTarget:self action:@selector(audioButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     audioButton.enabled = NO;
     
-    recordButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [statusView addSubview:recordButton];
-    [recordButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:size * 2];
-    [recordButton autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:.0];
-    [recordButton autoSetDimensionsToSize:CGSizeMake(size, size)];
-    [recordButton setImage:[UIImage imageNamed:@"ic_action_record"] forState:UIControlStateDisabled];
-    [recordButton setImage:[UIImage imageNamed:@"ic_action_record_enabled"] forState:UIControlStateNormal];
-    [recordButton setImage:[UIImage imageNamed:@"ic_action_record_pressed"] forState:UIControlStateSelected];
-    [recordButton addTarget:self action:@selector(recordButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-    recordButton.enabled = NO;
-    
     screenshotButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [statusView addSubview:screenshotButton];
-    [screenshotButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:size * 3];
+    [screenshotButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:size * 2];
     [screenshotButton autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:.0];
     [screenshotButton autoSetDimensionsToSize:CGSizeMake(size, size)];
     [screenshotButton setImage:[UIImage imageNamed:@"ic_action_camera"] forState:UIControlStateDisabled];
@@ -164,6 +154,17 @@
     [screenshotButton setImage:[UIImage imageNamed:@"ic_action_camera_pressed"] forState:UIControlStateFocused];
     [screenshotButton addTarget:self action:@selector(screenshotButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     screenshotButton.enabled = NO;
+    
+    recordButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [statusView addSubview:recordButton];
+    [recordButton autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:size * 3];
+    [recordButton autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:.0];
+    [recordButton autoSetDimensionsToSize:CGSizeMake(size, size)];
+    [recordButton setImage:[UIImage imageNamed:@"ic_action_record"] forState:UIControlStateDisabled];
+    [recordButton setImage:[UIImage imageNamed:@"ic_action_record_enabled"] forState:UIControlStateNormal];
+    [recordButton setImage:[UIImage imageNamed:@"ic_action_record_pressed"] forState:UIControlStateSelected];
+    [recordButton addTarget:self action:@selector(recordButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+    recordButton.enabled = NO;
     
     playButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [statusView addSubview:playButton];
@@ -255,8 +256,6 @@
         return;
     }
     
-    _screenShotCount = 0;
-    
     _tickCorrectionTime = 0;
     _tickCorretionPosition = 0;
     _moviePosition = 0;
@@ -304,6 +303,8 @@
         _reader.recordFilePath = nil;
     }
     
+    [self screenShotName:YES];
+    
     [self hideActivity];
     
     [displayLink invalidate];
@@ -350,14 +351,6 @@
             
             [rgbFrameArray addObject:frame];
             _bufferdDuration = frame.position - ((KxVideoFrameRGB *)rgbFrameArray.firstObject).position;
-            
-            // 截屏的时机:截取第23帧图像
-            if (_screenShotCount < 30) {
-                _screenShotCount++;
-            }
-            if (_screenShotCount == 23) {
-                [self screenShotName:YES];
-            }
         }
     } else if (frame.type == KxMovieFrameTypeAudio) {
         @synchronized(_audioFrames) {
@@ -461,16 +454,6 @@
     
     [kxGlView render:frame];
     _moviePosition = frame.position;
-    
-    // 截屏
-    if (_screenShotPath) {
-        // 当前图片
-        UIImage *image = [kxGlView curImage];
-        // 把图片直接保存到指定的路径（同时应该把图片的路径imagePath存起来，下次就可以直接用来取）
-        [UIImagePNGRepresentation(image) writeToFile:_screenShotPath atomically:YES];
-        
-        _screenShotPath = nil;
-    }
     
     return frame.duration;
 }
@@ -668,7 +651,7 @@
 
 #pragma mark - getter
 
-- (NSString *) screenShotName:(BOOL)isSnapshot {
+- (void) screenShotName:(BOOL)isSnapshot {
     // 保存图片到沙盒
     if (isSnapshot) {
         _screenShotPath = [PathUnit snapshotWithURL:_url];
@@ -676,7 +659,16 @@
         _screenShotPath = [PathUnit screenShotWithURL:_url];
     }
     
-    return _screenShotPath;
+    // 截屏
+    if (_screenShotPath) {
+        // 把图片直接保存到指定的路径（同时应该把图片的路径imagePath存起来，下次就可以直接用来取）
+        [UIImagePNGRepresentation([kxGlView curImage]) writeToFile:_screenShotPath atomically:YES];
+        _screenShotPath = nil;
+        
+        if (!isSnapshot) {
+            [DC_AlertManager showHudWithMessage:@"截图保存成功"];
+        }
+    }
 }
 
 #pragma mark - UIScrollViewDelegate

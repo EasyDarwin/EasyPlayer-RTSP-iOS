@@ -30,8 +30,8 @@
     self.window.rootViewController = nav;
     [self.window makeKeyAndVisible];
     
-//    NSString *pname = [[NSProcessInfo processInfo] processName];
-//    NSLog(@"----->>>>  %@", pname);
+    NSString *pname = [[NSProcessInfo processInfo] processName];
+    NSLog(@"----->>>>  %@", pname);
     
     return YES;
 }
