@@ -405,12 +405,12 @@
     NSTimeInterval dTime = now - _tickCorrectionTime;
     NSTimeInterval correction = dPos - dTime;
     if (correction > 0) {
-        NSLog(@"tick correction reset %0.2f", correction);
+//        NSLog(@"tick correction reset %0.2f", correction);
         correction = 0;
     }
     
     if (_bufferdDuration >= 0.3) {
-        NSLog(@"bufferdDuration = %f play faster", _bufferdDuration);
+//        NSLog(@"bufferdDuration = %f play faster", _bufferdDuration);
         correction = -1;
     }
     
@@ -473,7 +473,7 @@
                         [_audioFrames removeObjectAtIndex:0];
                         
                         if (differ > 5 && count > 1) {
-                            NSLog(@"audio skip movPos = %.4f audioPos = %.4f", _moviePosition, frame.position);
+//                            NSLog(@"audio skip movPos = %.4f audioPos = %.4f", _moviePosition, frame.position);
                             continue;
                         }
                         

@@ -1,16 +1,21 @@
 
 #import "RtspDataReader.h"
+#import "PathUnit.h"
+
 #include <pthread.h>
 #include <vector>
-#import <string.h>
+#include <set>
+#include <string.h>
 
-#include "EasyAudioDecoder.h"
 #import "HWVideoDecoder.h"
 #include "VideoDecode.h"
-#include "MuxerToVideo.h"
+#include "EasyAudioDecoder.h"
+
+#include "Muxer.h"
 
 struct FrameInfo {
     FrameInfo() : pBuf(NULL), frameLen(0), type(0), timeStamp(0), width(0), height(0){}
+    
     unsigned char *pBuf;
     int frameLen;
     int type;
@@ -19,6 +24,20 @@ struct FrameInfo {
     int height;
 };
 
+class com {
+public:
+    bool operator ()(FrameInfo *lhs, FrameInfo *rhs) const {
+        if (lhs == NULL || rhs == NULL) {
+            return true;
+        }
+        
+        return lhs->timeStamp < rhs->timeStamp;
+    }
+};
+
+std::multiset<FrameInfo *, com> videoFrameSet;
+std::multiset<FrameInfo *, com> audioFrameSet;
+
 @interface RtspDataReader()<HWVideoDecoderDelegate> {
     // RTSP拉流句柄
     Easy_RTSP_Handle rtspHandle;
@@ -26,16 +45,14 @@ struct FrameInfo {
     // 互斥锁
     pthread_mutex_t mutexFrame;
     pthread_mutex_t mutexChan;
+    pthread_mutex_t mutexRecordFrame;
     
     void *_videoDecHandle;  // 视频解码句柄
     void *_audioDecHandle;  // 音频解码句柄
     
-    void *_recordVideoHandle;   // 录像视频句柄
-    void *_recordAudioHandle;   // 录像音频句柄
-    
     EASY_MEDIA_INFO_T _mediaInfo;   // 媒体信息
     
-    std::vector<FrameInfo *> vctFrame;
+    std::multiset<FrameInfo *, com> frameSet;
     CGFloat _lastVideoFramePosition;
     
     // 视频硬解码器
@@ -59,7 +76,7 @@ struct FrameInfo {
  _pBuf:         回调的数据部分，具体用法看Demo
  _frameInfo:    帧结构数据
  */
-int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf, RTSP_FRAME_INFO *frameInfo) {
+int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf, RTSP_FRAME_INFO *frameInfo) {
     if (channelPtr == NULL) {
         return 0;
     }
@@ -80,7 +97,7 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     } else {
         if (frameType == EASY_SDK_MEDIA_INFO_FLAG) {// EASY_SDK_MEDIA_INFO_FLAG媒体类型标志
             EASY_MEDIA_INFO_T mediaInfo = *((EASY_MEDIA_INFO_T *)pBuf);
-            NSLog(@"RTSP DESCRIBE Get Media Info: video:%u fps:%u audio:%u channel:%u sampleRate:%u \n",
+            NSLog(@"RTMP DESCRIBE Get Media Info: video:%u fps:%u audio:%u channel:%u sampleRate:%u \n",
                   mediaInfo.u32VideoCodec,
                   mediaInfo.u32VideoFps,
                   mediaInfo.u32AudioCodec,
@@ -106,6 +123,7 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
         // 动态方式是采用pthread_mutex_init()函数来初始化互斥锁
         pthread_mutex_init(&mutexFrame, 0);
         pthread_mutex_init(&mutexChan, 0);
+        pthread_mutex_init(&mutexRecordFrame, 0);
         
         _videoDecHandle = NULL;
         _audioDecHandle = NULL;
@@ -163,7 +181,7 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
                 NSLog(@"EasyRTSP_Init err %d", ret);
             } else {
                 /* 设置数据回调 */
-                EasyRTSP_SetCallback(rtspHandle, __RTSPDataCallBack);
+                EasyRTSP_SetCallback(rtspHandle, RTSPDataCallBack);
                 
                 /* 打开网络流 */
                 ret = EasyRTSP_OpenStream(rtspHandle,
@@ -186,15 +204,17 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
         
         // ------------ 加锁mutexFrame ------------
         pthread_mutex_lock(&mutexFrame);
-        int count = (int)vctFrame.size();
+        
+        int count = (int) frameSet.size();
         if (count == 0) {
             pthread_mutex_unlock(&mutexFrame);
             usleep(5 * 1000);
             continue;
         }
         
-        FrameInfo *frame = vctFrame[0];
-        vctFrame.erase(vctFrame.begin());
+        FrameInfo *frame = *(frameSet.begin());
+        frameSet.erase(frameSet.begin());// erase()函数的功能是用来删除容器中的元素
+        
         pthread_mutex_unlock(&mutexFrame);
         // ------------ 解锁mutexFrame ------------
         
@@ -204,14 +224,10 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
             } else {
                 [self decodeVideoFrame:frame];
             }
-            
-            [self recordVideo:frame];
         } else {
             if (self.enableAudio) {
                 [self decodeAudioFrame:frame];
             }
-            
-            [self recordAudio:frame];
         }
         
         delete []frame->pBuf;
@@ -320,53 +336,110 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
 }
 
 - (void)removeCach {
+    // ------------------ frameSet ------------------
     pthread_mutex_lock(&mutexFrame);
     
-    std::vector<FrameInfo *>::iterator it = vctFrame.begin();
-    while (it != vctFrame.end()) {
+    std::set<FrameInfo *>::iterator it = frameSet.begin();
+    while (it != frameSet.end()) {
         FrameInfo *frameInfo = *it;
         delete []frameInfo->pBuf;
         delete frameInfo;
-        it++;
+        
+        it++;   // 很关键, 主动前移指针
     }
-    vctFrame.clear();
+    frameSet.clear();
     
     pthread_mutex_unlock(&mutexFrame);
     
-    NSLog(@"Reader %8@ removeCach", self);
+    // ------------------ videoFrameSet ------------------
+    pthread_mutex_lock(&mutexRecordFrame);
+    std::set<FrameInfo *>::iterator videoItem = videoFrameSet.begin();
+    while (videoItem != videoFrameSet.end()) {
+        FrameInfo *frameInfo = *videoItem;
+        delete []frameInfo->pBuf;
+        delete frameInfo;
+        videoItem++;
+    }
+    videoFrameSet.clear();
+    pthread_mutex_unlock(&mutexRecordFrame);
+    
+    // ------------------ audioFrameSet ------------------
+    pthread_mutex_lock(&mutexRecordFrame);
+    std::set<FrameInfo *>::iterator audioItem = audioFrameSet.begin();
+    while (audioItem != audioFrameSet.end()) {
+        FrameInfo *frameInfo = *audioItem;
+        delete []frameInfo->pBuf;
+        delete frameInfo;
+        audioItem++;
+    }
+    audioFrameSet.clear();
+    pthread_mutex_unlock(&mutexRecordFrame);
 }
 
 #pragma mark - 录像
 
-- (void) recordVideo:(FrameInfo *)video {
-//    if (_recordVideoHandle == NULL) {
-//        Muxer_Video_CREATE_PARAM param;
-//        param.nMaxImgWidth = video->width;
-//        param.nMaxImgHeight = video->height;
-//        param.coderID = Muxer_Video_Coder_H264;
-//        param.method = Muxer_Video_IDM_SW;
-//        _recordVideoHandle = muxer_Video_COMPONENT_Create(&param);
-//    }
-//
-//    Muxer_Video_PARAM param;
-//    param.pStream = video->pBuf;
-//    param.nLen = video->frameLen;
-//    param.need_sps_head = false;
-//
-//    // 录像：视频
-//    convertVideoToAVPacket([self.recordFilePath UTF8String], _recordVideoHandle, &param);
+/**
+ 注册av_read_frame的回调函数
+ 
+ @param opaque URLContext结构体
+ @param buf buf
+ @param buf_size buf_size
+ @return 0
+ */
+int read_video_packet(void *opaque, uint8_t *buf, int buf_size) {
+    int count = (int) audioFrameSet.size();
+    if (count == 0) {
+        printf("video is 0 \n");
+        return 0;
+    }
+    
+    FrameInfo *frame = *(audioFrameSet.begin());
+    audioFrameSet.erase(audioFrameSet.begin());
+    
+    if (frame == NULL || frame->pBuf == NULL) {
+        return 0;
+    }
+    
+    int frameLen = frame->frameLen;
+    memcpy(buf, frame->pBuf, frameLen);
+    
+    delete []frame->pBuf;
+    delete frame;
+    
+    NSLog(@"--->>> video size is %lu", audioFrameSet.size());
+    return frameLen;
 }
 
-- (void) recordAudio:(FrameInfo *)audio {
-//    if (_recordAudioHandle == NULL) {
-//        _recordAudioHandle = muxer_Audio_Handle_Create(_mediaInfo.u32AudioCodec,
-//                                                       _mediaInfo.u32AudioSamplerate,
-//                                                       _mediaInfo.u32AudioChannel,
-//                                                       16);
-//    }
-//
-//    // 录像：音频
-//    convertAudioToAVPacket([self.recordFilePath UTF8String], _recordAudioHandle, audio->pBuf, audio->frameLen);
+/**
+ 注册av_read_frame的回调函数
+ 
+ @param opaque URLContext结构体
+ @param buf buf
+ @param buf_size buf_size
+ @return 0
+ */
+int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
+    int count = (int) audioFrameSet.size();
+    if (count == 0) {
+        printf("audio is 0 \n");
+        return 0;
+    }
+    
+    FrameInfo *frame = *(audioFrameSet.begin());
+    audioFrameSet.erase(audioFrameSet.begin());
+    
+    if (frame == NULL || frame->pBuf == NULL) {
+        return 0;
+    }
+    
+    int frameLen = frame->frameLen;
+    memcpy(buf, frame->pBuf, frameLen);
+    
+    delete []frame->pBuf;
+    delete frame;
+    
+    NSLog(@"--->>> audio size is %lu", audioFrameSet.size());
+    return frameLen;
 }
 
 #pragma mark - private method
@@ -383,14 +456,9 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
 }
 
 - (void)pushFrame:(char *)pBuf frameInfo:(RTSP_FRAME_INFO *)info type:(int)type {
-    if (!_running) {
+    if (!_running || pBuf == NULL) {
         return;
     }
-    
-    // 录像的时候 即使关闭音频，也会录制音频
-//    if (type == EASY_SDK_AUDIO_FRAME_FLAG && !self.enableAudio) {
-//        return;
-//    }
     
     FrameInfo *frameInfo = (FrameInfo *)malloc(sizeof(FrameInfo));
     frameInfo->type = type;
@@ -398,13 +466,41 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     frameInfo->pBuf = new unsigned char[info->length];
     frameInfo->width = info->width;
     frameInfo->height = info->height;
-    frameInfo->timeStamp = info->timestamp_sec + (float)(info->timestamp_usec / 1000) / 1000.0;
+    // 1秒=1000毫秒 1秒=1000000微秒
+    frameInfo->timeStamp = info->timestamp_sec + (float)(info->timestamp_usec / 1000.0) / 1000.0;
     
     memcpy(frameInfo->pBuf, pBuf, info->length);
     
     pthread_mutex_lock(&mutexFrame);    // 加锁
-    vctFrame.push_back(frameInfo);
+    frameSet.insert(frameInfo);// 根据时间戳排序
     pthread_mutex_unlock(&mutexFrame);  // 解锁
+    
+    // 录像：保存视频的内容
+    if (_recordFilePath) {
+        FrameInfo *frame = (FrameInfo *)malloc(sizeof(FrameInfo));
+        frame->type = type;
+        frame->frameLen = info->length;
+        frame->pBuf = new unsigned char[info->length];
+        frame->width = info->width;
+        frame->height = info->height;
+        // 1秒=1000毫秒 1秒=1000000微秒
+        frame->timeStamp = info->timestamp_sec + (float)(info->timestamp_usec / 1000.0) / 1000.0;
+        
+        memcpy(frame->pBuf, pBuf, info->length);
+        
+        if (type == EASY_SDK_AUDIO_FRAME_FLAG) {
+            pthread_mutex_lock(&mutexRecordFrame);    // 加锁
+            audioFrameSet.insert(frame);// 根据时间戳排序
+            pthread_mutex_unlock(&mutexRecordFrame);  // 解锁
+        }
+        
+        if (type == EASY_SDK_VIDEO_FRAME_FLAG &&    // EASY_SDK_VIDEO_FRAME_FLAG视频帧标志
+            info->codec == EASY_SDK_VIDEO_CODEC_H264) { // H264视频编码
+            pthread_mutex_lock(&mutexRecordFrame);    // 加锁
+            videoFrameSet.insert(frame);// 根据时间戳排序
+            pthread_mutex_unlock(&mutexRecordFrame);  // 解锁
+        }
+    }
 }
 
 #pragma mark - HWVideoDecoderDelegate
@@ -416,7 +512,7 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
 }
 
 -(void) getDecodePixelData:(CVImageBufferRef)frame {
-    NSLog(@" --> %@", frame);
+    NSLog(@"--> %@", frame);
 }
 
 #pragma mark - H264HWDecoderDelegate
@@ -439,6 +535,7 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     // 注销互斥锁
     pthread_mutex_destroy(&mutexFrame);
     pthread_mutex_destroy(&mutexChan);
+    pthread_mutex_destroy(&mutexRecordFrame);
     
     if (rtspHandle != NULL) {
         /* 释放RTSPClient 参数为RTSPClient句柄 */
@@ -447,10 +544,33 @@ int __RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBu
     }
 }
 
-#pragma mark - getter
+#pragma mark - getter/setter
 
 - (EASY_MEDIA_INFO_T)mediaInfo {
     return _mediaInfo;
 }
 
+// 设置录像的路径
+- (void) setRecordFilePath:(NSString *)recordFilePath {
+    if ((!_recordFilePath) && (recordFilePath)) {
+        _recordFilePath = recordFilePath;
+        
+        dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC));
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, NULL);
+        dispatch_after(time, queue, ^{
+            // 开始录像
+            muxer([recordFilePath UTF8String], read_video_packet, read_audio_packet);
+        });
+    }
+    
+    if ((_recordFilePath) && (!recordFilePath)) {
+        _recordFilePath = recordFilePath;
+        
+        muxer(NULL, read_video_packet, read_audio_packet);
+    }
+    
+    _recordFilePath = recordFilePath;
+}
+
 @end
+

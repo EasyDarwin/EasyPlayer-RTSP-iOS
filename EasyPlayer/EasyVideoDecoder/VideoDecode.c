@@ -5,7 +5,7 @@
 static IDECODE_METHODE s_uiDecodeMethod = IDM_SW;
 
 unsigned char H264_SPS_PPS_NEW[] = {
-    48,   0,   0,   0,   
+    48,   0,   0,   0,
     9,   0,   0,   0, 103,  88,   0,  21, 150,  86,  11,   4, 162,   9,   0,   0,   0,
     103,  88,   0,  21,  69, 149, 133, 137, 136,  10,   0,   0,   0, 103,  88,   0,  21,
     101, 149, 129,  96,  36, 136,   9,   0,   0,   0, 103,  88,   0,  21,  33, 101,  97,
@@ -39,12 +39,12 @@ unsigned char H264_SPS_PPS_NEW[] = {
 };
 
 void setupScaler(DEC_COMPONENT *pComponent, int nWidth, int nHeight) {
-	// Allocate RGB picture
-	avpicture_alloc(&pComponent->picture, PIX_FMT_RGB24, nWidth, nHeight);
-	
-	// Setup scaler
-	static int sws_flags =  SWS_FAST_BILINEAR;
-	
+    // Allocate RGB picture
+    avpicture_alloc(&pComponent->picture, AV_PIX_FMT_RGB24, nWidth, nHeight);
+    
+    // Setup scaler
+    static int sws_flags =  SWS_FAST_BILINEAR;
+    
     /** 设置SwsContext
      该函数包含以下参数：
      srcW：源图像的宽
@@ -61,7 +61,7 @@ void setupScaler(DEC_COMPONENT *pComponent, int nWidth, int nHeight) {
                                                 pComponent->pCodecCtx->pix_fmt,
                                                 nWidth,
                                                 nHeight,
-                                                PIX_FMT_RGB24,
+                                                AV_PIX_FMT_RGB24,
                                                 sws_flags, NULL, NULL, NULL);
 }
 
@@ -78,7 +78,7 @@ void *DecodeCreate(DEC_CREATE_PARAM *pCreateParam) {
     s_uiDecodeMethod = pCreateParam->method;
     
     // [5]、avcodec_find_decoder()查找解码器
-    AVCodec *pCodec = avcodec_find_decoder(CODEC_ID_H264);
+    AVCodec *pCodec = avcodec_find_decoder(AV_CODEC_ID_H264);
     if (pCodec == NULL) {
         printf("avcodec_find_decoder codec error\r\n");
         return 0;
@@ -90,7 +90,7 @@ void *DecodeCreate(DEC_CREATE_PARAM *pCreateParam) {
     pComponent->pCodecCtx = avcodec_alloc_context3(pCodec);
     pComponent->pCodecCtx->width = pCreateParam->nMaxImgWidth;
     pComponent->pCodecCtx->height = pCreateParam->nMaxImgHeight;
-    pComponent->pCodecCtx->pix_fmt = PIX_FMT_YUV420P;
+    pComponent->pCodecCtx->pix_fmt = AV_PIX_FMT_YUV420P;
     
     // [6]、如果找到了解码器，则打开解码器
     AVDictionary *options = NULL;
@@ -110,29 +110,29 @@ void *DecodeCreate(DEC_CREATE_PARAM *pCreateParam) {
     
     // add sps pps head
     unsigned char *p1, *ps;
-	int * ptmplen;
-	int k, m, n;
-	int spsppslen = 0;
-	p1 = H264_SPS_PPS_NEW;
-	ptmplen = (int *)p1;
-	m = *ptmplen;
-	ps = pComponent->pNewStream;
-	
-	p1 += 4;
-	for (k = 0; k < m; k++) {
-		memcpy(&n, p1, 4);
-        
-		ps[0] = 0;
-		ps[1] = 0;
-		ps[2] = 1;
-		memcpy(ps + 3, p1 + 4, n);
-		ps += 3 + n;
-		spsppslen += (3 + n);
-        
-		p1 += (4 + n);
-	}
+    int * ptmplen;
+    int k, m, n;
+    int spsppslen = 0;
+    p1 = H264_SPS_PPS_NEW;
+    ptmplen = (int *)p1;
+    m = *ptmplen;
+    ps = pComponent->pNewStream;
     
-	pComponent->newStreamLen = spsppslen;
+    p1 += 4;
+    for (k = 0; k < m; k++) {
+        memcpy(&n, p1, 4);
+        
+        ps[0] = 0;
+        ps[1] = 0;
+        ps[2] = 1;
+        memcpy(ps + 3, p1 + 4, n);
+        ps += 3 + n;
+        spsppslen += (3 + n);
+        
+        p1 += (4 + n);
+    }
+    
+    pComponent->newStreamLen = spsppslen;
     pComponent->uiOriginLen = pComponent->newStreamLen;
     pComponent->bScaleCreated = 0;
     
@@ -157,10 +157,10 @@ unsigned int DecodeVideo(void *DecHandle, DEC_DECODE_PARAM *pDecodeParam, DVDVid
         packet.size = pComponent->newStreamLen;
         packet.data = pComponent->pNewStream;
     } else {
-        packet.size = pDecodeParam->nLen;
-        packet.data = pDecodeParam->pStream;
+        packet.size = pDecodeParam->nLen;       // data的大小
+        packet.data = pDecodeParam->pStream;    // 压缩编码的数据
     }
-
+    
     int got_picture = 0;
     int nRet = 0;
     if (packet.size > 0) {
@@ -169,16 +169,28 @@ unsigned int DecodeVideo(void *DecHandle, DEC_DECODE_PARAM *pDecodeParam, DVDVid
                                      pComponent->pFrame,
                                      &got_picture,
                                      &packet);
+        
+        
+        //        int re = avcodec_send_packet(pComponent->pCodecCtx, &packet);
+        //        if (re != 0) {
+        //            return -1;
+        //        }
+        //        while (avcodec_receive_frame(pComponent->pCodecCtx, pComponent->pFrame) == 0) {
+        //            //读取到一帧音频或者视频
+        //            //处理解码后音视频 frame
+        //        }
+        
+        
         if (nRet == -1) {
             return nRet;
         }
     }
     
     // 释放packet
-    av_free_packet(&packet);
+    av_packet_unref(&packet);
     
     pComponent->newStreamLen = pComponent->uiOriginLen;
-    
+    //    printf("帧类型AVPictureType：%d\n", pComponent->pFrame->pict_type);
     if (pComponent->pFrame->data[0] == NULL) {
         return 0;
     }
@@ -197,7 +209,7 @@ unsigned int DecodeVideo(void *DecHandle, DEC_DECODE_PARAM *pDecodeParam, DVDVid
             // data解码后的图像像素数据
             sws_scale(pComponent->pImgConvertCtx,
                       (const uint8_t* const*)pComponent->pFrame->data,
-                      pComponent->pFrame->linesize, // linesize对视频来说是一行像素的大小
+                      pComponent->pFrame->linesize, // linesize对视频来说是一行像素的大小。data中“一行”数据的大小。注意：未必等于图像的宽，一般大于图像的宽。
                       0,
                       pComponent->pCodecCtx->height,
                       pComponent->picture.data,
@@ -211,8 +223,10 @@ unsigned int DecodeVideo(void *DecHandle, DEC_DECODE_PARAM *pDecodeParam, DVDVid
             picture->color_primaries = pComponent->pCodecCtx->color_primaries;
             picture->color_transfer = pComponent->pCodecCtx->color_trc;
             
-            // TODO
+            // qscale_table:QP表。QP表指向一块内存，里面存储的是每个宏块的QP值。宏块的标号是从左往右，一行一行的来的。每个宏块对应1个QP。
             picture->qscale_table = pComponent->pFrame->qscale_table;
+            
+            //
             picture->qscale_stride = pComponent->pFrame->qstride;
             
             for (int i = 0; i < 4; i++) {
@@ -221,7 +235,7 @@ unsigned int DecodeVideo(void *DecHandle, DEC_DECODE_PARAM *pDecodeParam, DVDVid
             }
         }
     }
-
+    
     return got_picture != 0;
 }
 
@@ -230,7 +244,7 @@ void DecodeClose(void *DecHandle) {
     
     if (pComponent != NULL) {
         if (pComponent->pImgConvertCtx != NULL) {
-            sws_freeContext(pComponent->pImgConvertCtx);	
+            sws_freeContext(pComponent->pImgConvertCtx);
             pComponent->pImgConvertCtx = NULL;
         }
         
@@ -258,3 +272,4 @@ void DecodeClose(void *DecHandle) {
         s_uiDecodeMethod = IDM_SW;
     }
 }
+
