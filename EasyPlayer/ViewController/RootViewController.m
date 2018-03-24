@@ -92,7 +92,7 @@
 - (void)clickAddBtn {
 //    @"rtsp://admin:admin@112.27.201.103/33"
 //    @"rtsp://cloud.easydarwin.org:554/946813.sdp
-    [_alertView textFieldAtIndex:0].text = @"rtsp://";
+    [_alertView textFieldAtIndex:0].text = @"rtsp://admin:admin@112.27.201.103/11";
     _alertView.tag = -1;
     [_alertView show];
 }
@@ -171,7 +171,7 @@
     NSString *url = _dataArray[indexPath.row];
     
     NSString *path = [PathUnit snapshotWithURL:url];
-    if([[NSFileManager defaultManager] fileExistsAtPath:path]){
+    if([[NSFileManager defaultManager] fileExistsAtPath:path]) {
         cell.imageView.image = [UIImage imageWithContentsOfFile:path];
     } else {
         cell.imageView.image = [UIImage imageNamed:@"ImagePlaceholder"];
