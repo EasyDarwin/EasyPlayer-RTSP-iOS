@@ -39,6 +39,7 @@ std::multiset<FrameInfo *, com> videoFrameSet;
 std::multiset<FrameInfo *, com> audioFrameSet;
 
 int isKeyFrame = 0; // 是否到了I帧
+int *stopRecord = (int *)malloc(sizeof(int));// 停止录像
 
 @interface RtspDataReader()<HWVideoDecoderDelegate> {
     // RTSP拉流句柄
@@ -481,16 +482,14 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
         if (isKeyFrame == 0) {
             if (info->type == EASY_SDK_VIDEO_FRAME_I) {// 视频帧类型
                 isKeyFrame = 1;
-                NSLog(@"IIIIII");
                 
                 dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC));
                 dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, NULL);
                 dispatch_after(time, queue, ^{
                     // 开始录像
-                    muxer([_recordFilePath UTF8String], read_video_packet, read_audio_packet);
+                    *stopRecord = 0;
+                    muxer([_recordFilePath UTF8String], stopRecord, read_video_packet, read_audio_packet);
                 });
-            } else {
-                NSLog(@"PPPP");
             }
         }
         
@@ -507,9 +506,13 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
             memcpy(frame->pBuf, pBuf, info->length);
             
             if (type == EASY_SDK_AUDIO_FRAME_FLAG) {
-                pthread_mutex_lock(&mutexRecordFrame);    // 加锁
-                audioFrameSet.insert(frame);// 根据时间戳排序
-                pthread_mutex_unlock(&mutexRecordFrame);  // 解锁
+//                pthread_mutex_lock(&mutexRecordFrame);    // 加锁
+//                audioFrameSet.insert(frame);// 根据时间戳排序
+//                pthread_mutex_unlock(&mutexRecordFrame);  // 解锁
+                
+                // 暂时不录制音频
+                delete []frame->pBuf;
+                delete frame;
             }
             
             if (type == EASY_SDK_VIDEO_FRAME_FLAG &&    // EASY_SDK_VIDEO_FRAME_FLAG视频帧标志
@@ -575,7 +578,8 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
     if ((_recordFilePath) && (!recordFilePath)) {
         _recordFilePath = recordFilePath;
         
-        muxer(NULL, read_video_packet, read_audio_packet);
+        *stopRecord = 1;
+        muxer(NULL, stopRecord, read_video_packet, read_audio_packet);
         isKeyFrame = 0;
     }
     
