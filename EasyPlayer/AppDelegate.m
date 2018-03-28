@@ -24,9 +24,9 @@
     [[UINavigationBar appearance] setTitleTextAttributes:dic2];
     [[UINavigationBar appearance] setTintColor:[UIColor whiteColor]];
     
-    self.window = [[UIWindow alloc]initWithFrame:[[UIScreen mainScreen]bounds]];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen]bounds]];
     self.window.backgroundColor = [UIColor whiteColor];
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:[[RootViewController alloc]init]];
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:[[RootViewController alloc] init]];
     self.window.rootViewController = nav;
     [self.window makeKeyAndVisible];
     
