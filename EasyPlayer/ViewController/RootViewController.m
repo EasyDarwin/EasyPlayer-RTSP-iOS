@@ -7,11 +7,7 @@
 #import "NSUserDefaultsUnit.h"
 #import <CommonCrypto/CommonDigest.h>
 
-@interface RootViewController()<UICollectionViewDelegate,UICollectionViewDataSource,UIActionSheetDelegate> {
-    UIAlertView* _alertView;
-    UIAlertView* _deleteAlertView;
-    UIActionSheet* _actionSheet;
-}
+@interface RootViewController()<UICollectionViewDelegate, UICollectionViewDataSource>
 
 @end
 
@@ -39,13 +35,6 @@
     self.collectionView.backgroundColor = [UIColor whiteColor];
     [self.collectionView registerClass:[VideoCell class] forCellWithReuseIdentifier:@"VideoCell"];
     [self.view addSubview:self.collectionView];
-    
-    _alertView = [[UIAlertView alloc] initWithTitle:@"请输入播放地址" message: nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
-    [_alertView setAlertViewStyle:UIAlertViewStylePlainTextInput];
-    [_alertView textFieldAtIndex:0].keyboardType = UIKeyboardTypeURL;
-    
-    _deleteAlertView = [[UIAlertView alloc] initWithTitle:@"确定删除?" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
-    _actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:@"删除" otherButtonTitles:@"修改", nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -90,70 +79,12 @@
 }
 
 - (void)clickAddBtn {
-//    rtsp://admin:admin@112.27.201.103/11
-//    rtsp://cloud.easydarwin.org:554/946813.sdp
-//    rtsp://admin:Hf123456@120.209.197.71/Streaming/Channels/102
-    
-    [_alertView textFieldAtIndex:0].text = @"rtsp://";
-    _alertView.tag = -1;
-    [_alertView show];
+    [self editAlert:-1];
 }
 
 - (void) setting {
     SettingViewController *controller = [[SettingViewController alloc] initWithStoryboard];
     [self.navigationController pushViewController:controller animated:YES];
-}
-
-#pragma mark - UIActionSheetDelegate
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if(alertView == _alertView && buttonIndex == 1) {
-        UITextField *tf = [_alertView textFieldAtIndex:0];
-        NSString* url = [tf.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        if(_alertView.tag < 0) {
-            [_dataArray insertObject:url atIndex:0];
-        } else {
-            [_dataArray removeObjectAtIndex:_alertView.tag];
-            [_dataArray insertObject:url atIndex:_alertView.tag];
-        }
-        
-        [NSUserDefaultsUnit updateURL:_dataArray];
-        
-        [self.collectionView reloadData];
-    }
-    
-    if(alertView == _deleteAlertView && buttonIndex == 1) {
-        NSString* url = [_dataArray objectAtIndex:_deleteAlertView.tag];
-        [PathUnit deleteBaseRecordPathWithURL:url];
-        [PathUnit deleteBaseShotPathWithURL:url];
-        
-        [_dataArray removeObjectAtIndex:_deleteAlertView.tag];
-        [NSUserDefaultsUnit updateURL:_dataArray];
-        [self.collectionView reloadData];
-    }
-}
-
-#pragma mark - UIActionSheetDelegate
-
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if(actionSheet == _actionSheet) {
-        switch (buttonIndex) {
-            case 0: { // delete
-                _deleteAlertView.tag = _actionSheet.tag;
-                [_deleteAlertView show];
-                break;
-            }
-            case 1: { // edit
-                _alertView.tag = _actionSheet.tag;
-                UITextField *tf = [_alertView textFieldAtIndex:0];
-                tf.text = [_dataArray objectAtIndex:_alertView.tag];
-                [_alertView show];
-                break;
-            }
-            default:
-                break;
-        }
-    }
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -206,9 +137,91 @@
     CGPoint pointTouch = [ges locationInView:self.collectionView];
     if(ges.state == UIGestureRecognizerStateBegan) {
         NSIndexPath *indexPath = [self.collectionView indexPathForItemAtPoint:pointTouch];
-        _actionSheet.tag = indexPath.row;
-        [_actionSheet showInView:self.view];
+        [self showActionSheet:(int)indexPath.row];
     }
+}
+
+#pragma mark - 对话框
+
+- (void)showActionSheet:(int)index {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alertController addAction:cancelAction];
+    
+    UIAlertAction *OKAction = [UIAlertAction actionWithTitle:@"修改" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self editAlert:index];
+    }];
+    [alertController addAction:OKAction];
+    
+    UIAlertAction *moreAction = [UIAlertAction actionWithTitle:@"删除" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        [self delelteAlert:index];
+    }];
+    [alertController addAction:moreAction];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)delelteAlert:(int)index {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"确认删除吗？" message:@"" preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDefault handler:nil];
+    [alertController addAction:cancelAction];
+    
+    //添加确定到UIAlertController中
+    UIAlertAction *OKAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSString* url = [_dataArray objectAtIndex:index];
+        [PathUnit deleteBaseRecordPathWithURL:url];
+        [PathUnit deleteBaseShotPathWithURL:url];
+        
+        [_dataArray removeObjectAtIndex:index];
+        [NSUserDefaultsUnit updateURL:_dataArray];
+        [self.collectionView reloadData];
+    }];
+    [alertController addAction:OKAction];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)editAlert:(int)index {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"请输入播放地址" message:@"" preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDefault handler:nil];
+    [alertController addAction:cancelAction];
+    
+    //添加确定到UIAlertController中
+    UIAlertAction *OKAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UITextField *tf = alertController.textFields.firstObject;
+        NSString* url = [tf.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if(index < 0) {
+            [_dataArray insertObject:url atIndex:0];
+        } else {
+            [_dataArray removeObjectAtIndex:index];
+            [_dataArray insertObject:url atIndex:index];
+        }
+        
+        [NSUserDefaultsUnit updateURL:_dataArray];
+        
+        [self.collectionView reloadData];
+    }];
+    [alertController addAction:OKAction];
+    
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"rtsp://";
+        
+        if(index < 0) {
+//        rtsp://admin:admin@112.27.201.103/11
+//        rtsp://cloud.easydarwin.org:554/946813.sdp
+//        rtsp://admin:Hf123456@120.209.197.71/Streaming/Channels/102
+            
+            textField.text = @"rtsp://cloud.easydarwin.org:554/946813.sdp";
+        } else {
+            NSString *url = _dataArray[index];
+            textField.text = url;
+        }
+    }];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 @end
