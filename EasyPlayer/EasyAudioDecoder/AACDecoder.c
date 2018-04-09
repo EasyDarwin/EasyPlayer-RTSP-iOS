@@ -123,7 +123,7 @@ int aac_decode_frame(void *pParam,
         *outLen = dst_len;
     }
     
-    av_free_packet(&packet);
+    av_packet_unref(&packet);
 	
     return (dst_len > 0) ? 0 : -1;
 }

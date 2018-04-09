@@ -179,6 +179,7 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
     pthread_mutex_unlock(&mutexChan);
     
     _running = false;
+    
     [self.videoThread cancel];
     [self.audioThread cancel];
 }
@@ -273,7 +274,7 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
         FrameInfo *frame = *(videoFrameSet.begin());
         videoFrameSet.erase(videoFrameSet.begin());// erase()函数的功能是用来删除容器中的元素
         
-        beforeDecoderTimeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
+        beforeDecoderTimeStamp = [[NSDate date] timeIntervalSince1970] * 1000;// 毫秒数
         
         pthread_mutex_unlock(&mutexVideoFrame);
         // ------------ 解锁mutexFrame ------------
@@ -289,13 +290,11 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
         // 帧里面有个timestamp 是当前帧的时间戳， 先获取下系统时间A，然后解码播放，解码后获取系统时间B， B-A就是本次的耗时。sleep的时长就是 当期帧的timestamp  减去 上一个视频帧的timestamp 再减去 这次的耗时
         afterDecoderTimeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
         if (lastFrameTimeStamp != 0) {
-            float t = frame->timeStamp - lastFrameTimeStamp - (afterDecoderTimeStamp - beforeDecoderTimeStamp);
+            float t = frame->timeStamp * 1000.0 - lastFrameTimeStamp - (afterDecoderTimeStamp - beforeDecoderTimeStamp);
             usleep(t);
-            
-//            NSLog(@" --->> %f :  %f, %f ", t, frame->timeStamp - lastFrameTimeStamp, afterDecoderTimeStamp - beforeDecoderTimeStamp);
         }
         
-        lastFrameTimeStamp = frame->timeStamp;
+        lastFrameTimeStamp = frame->timeStamp * 1000.0;
         
         delete frame;
     }
@@ -416,17 +415,17 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
 
 - (void)removeAudioFrameSet {
     pthread_mutex_lock(&mutexAudioFrame);
-
+    
     std::set<FrameInfo *>::iterator it = audioFrameSet.begin();
     while (it != audioFrameSet.end()) {
         FrameInfo *frameInfo = *it;
         delete []frameInfo->pBuf;
         delete frameInfo;
-
+        
         it++;   // 很关键, 主动前移指针
     }
     audioFrameSet.clear();
-
+    
     pthread_mutex_unlock(&mutexAudioFrame);
 }
 
@@ -542,9 +541,10 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
     frameInfo->pBuf = new unsigned char[info->length];
     frameInfo->width = info->width;
     frameInfo->height = info->height;
-    // 毫秒为单位(1秒=1000毫秒 1秒=1000000微秒)
-//    frame->timeStamp = info->timestamp_sec + (float)(info->timestamp_usec / 1000.0) / 1000.0;
-    frameInfo->timeStamp = info->timestamp_sec * 1000 + info->timestamp_usec / 1000.0;
+    
+    // 秒为单位(1秒=1000毫秒 1秒=1000000微秒)
+    frameInfo->timeStamp = info->timestamp_sec + (float)(info->timestamp_usec / 1000.0) / 1000.0;
+//    frameInfo->timeStamp = info->timestamp_sec * 1000 + info->timestamp_usec / 1000.0;
     
     memcpy(frameInfo->pBuf, pBuf, info->length);
     
@@ -578,14 +578,13 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
         
         if (isKeyFrame == 1) {
             FrameInfo *frame = (FrameInfo *)malloc(sizeof(FrameInfo));
-            frame->type = type;
             frame->frameLen = info->length;
             frame->pBuf = new unsigned char[info->length];
+            frame->type = type;
             frame->width = info->width;
             frame->height = info->height;
-            // 毫秒为单位(1秒=1000毫秒 1秒=1000000微秒)
-//            frame->timeStamp = info->timestamp_sec + (float)(info->timestamp_usec / 1000.0) / 1000.0;
-            frameInfo->timeStamp = info->timestamp_sec * 1000 + info->timestamp_usec / 1000.0;
+            // 秒为单位(1秒=1000毫秒 1秒=1000000微秒)
+            frame->timeStamp = info->timestamp_sec + (float)(info->timestamp_usec / 1000.0) / 1000.0;
             
             memcpy(frame->pBuf, pBuf, info->length);
             
