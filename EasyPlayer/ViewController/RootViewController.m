@@ -214,7 +214,7 @@
 //        rtsp://cloud.easydarwin.org:554/946813.sdp
 //        rtsp://admin:Hf123456@120.209.197.71/Streaming/Channels/102
             
-            textField.text = @"rtsp://cloud.easydarwin.org:554/946813.sdp";
+            textField.text = @"rtsp://admin:Hf123456@120.209.197.71/Streaming/Channels/102";
         } else {
             NSString *url = _dataArray[index];
             textField.text = url;
