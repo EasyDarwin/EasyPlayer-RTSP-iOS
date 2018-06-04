@@ -265,7 +265,7 @@ int muxer(const char *out_filename,
                 if (*stopRecord == 1) {
                     break;
                 } else {
-                    usleep(2 * 1000);
+                    usleep(3 * 1000);
                 }
             }
         } else if(write_video == 0) {
@@ -329,7 +329,7 @@ int muxer(const char *out_filename,
                 if (*stopRecord == 1) {
                     break;
                 } else {
-                    usleep(2 * 1000);
+                    usleep(3 * 1000);
                 }
             }
         }
@@ -339,22 +339,22 @@ int muxer(const char *out_filename,
     av_write_trailer(outFmtCtx);
     
 end:
-    // close output
-    if (outFmtCtx && !(outFmt->flags & AVFMT_NOFILE)) {
-        avio_close(outFmtCtx->pb);
-    }
-    
-    if (outFmtCtx) {
-        avformat_free_context(outFmtCtx);
-    }
-    
-    if (video_inFmtCtx) {
-        avformat_free_context(video_inFmtCtx);
-    }
-    
-    if (audio_inFmtCtx) {
-        avformat_free_context(audio_inFmtCtx);
-    }
+    //    // close output
+    //    if (outFmtCtx && !(outFmt->flags & AVFMT_NOFILE)) {
+    //        avio_close(outFmtCtx->pb);
+    //    }
+    //
+    //    if (outFmtCtx) {
+    //        avformat_free_context(outFmtCtx);
+    //    }
+    //
+    //    if (video_inFmtCtx) {
+    //        avformat_free_context(video_inFmtCtx);
+    //    }
+    //
+    //    if (audio_inFmtCtx) {
+    //        avformat_free_context(audio_inFmtCtx);
+    //    }
     
     return 0;
 }

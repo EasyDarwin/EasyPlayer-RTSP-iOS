@@ -64,9 +64,9 @@ void didDecompress(void *decompressionOutputRefCon,
                 frame.hasAlpha = YES;
                 frame.rgb = [NSData dataWithBytes:base length:bytesPerRow * height];
                 frame.duration = 0.04;
+                
                 [weakSelf.hwDelegate getDecodePictureData:frame];
             }
-            
             CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 #else
             [weakSelf.hwDelegate getDecodePixelData:imageBuffer];
@@ -90,6 +90,7 @@ void didDecompress(void *decompressionOutputRefCon,
 #pragma mark - 初始化
 
 - (void) initH264DecoderVideoData:(unsigned char *)pData len:(int)len {
+    // 1、提取sps和pps生成format description
     if (videoFormatDescr == NULL) {
         int spsIndex = 0;
         int spsLength = 0;
@@ -157,10 +158,16 @@ void didDecompress(void *decompressionOutputRefCon,
 //        VTSessionSetProperty(decompressSession,
 //                             kVTDecompressionPropertyKey_ThreadCount,
 //                             (__bridge CFTypeRef)[NSNumber numberWithInt:1]);
+//
 //        // 设置实时解码输出（避免延迟）
 //        VTSessionSetProperty(decompressSession,
 //                             kVTDecompressionPropertyKey_RealTime,
 //                             kCFBooleanTrue);
+//
+//        // h264 profile, 直播一般使用baseline，可减少由于b帧带来的延时
+//        VTSessionSetProperty(decompressSession,
+//                             kVTCompressionPropertyKey_ProfileLevel,
+//                             kVTProfileLevel_H264_Baseline_AutoLevel);
     }
 }
 

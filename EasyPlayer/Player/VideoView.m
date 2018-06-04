@@ -186,7 +186,9 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    _addButton.frame = CGRectMake((self.bounds.size.width - 30) / 2, (self.bounds.size.height - 30) / 2, 30, 30);
+    
+    CGFloat wh = 44;
+    _addButton.frame = CGRectMake((self.bounds.size.width - wh) / 2, (self.bounds.size.height - wh) / 2, wh, wh);
     
     if (_landspaceButton.selected) {
         kxGlView.frame = scrollView.bounds;
@@ -236,7 +238,7 @@
     [[AudioManager sharedInstance] play];
     __weak VideoView *weakSelf = self;
     [AudioManager sharedInstance].source = self;
-    [AudioManager sharedInstance].outputBlock = ^(SInt16 *outData, UInt32 numFrames, UInt32 numChannels){
+    [AudioManager sharedInstance].outputBlock = ^(SInt16 *outData, UInt32 numFrames, UInt32 numChannels) {
         [weakSelf fillAudioData:outData numFrames:numFrames numChannels:numChannels];
     };
 }
@@ -307,8 +309,12 @@
     displayLink = nil;
     
     self.videoStatus = Stopped;
-    [self stopAudio];
-    [_reader stop];
+    
+    dispatch_queue_t queue = dispatch_queue_create("stop_all_video", NULL);
+    dispatch_async(queue, ^{
+        [self stopAudio];
+        [_reader stop];
+    });
     
     @synchronized(rgbFrameArray) {
         [rgbFrameArray removeAllObjects];
@@ -469,7 +475,7 @@
                         [_audioFrames removeObjectAtIndex:0];
                         
                         if (differ > 5 && count > 1) {
-//                            NSLog(@"audio skip movPos = %.4f audioPos = %.4f", _moviePosition, frame.position);
+                            NSLog(@"audio skip movPos = %.4f audioPos = %.4f", _moviePosition, frame.position);
                             continue;
                         }
                         
@@ -613,7 +619,10 @@
     _audioPlaying = audioPlaying;
     
     _reader.enableAudio = _audioPlaying;
-    audioButton.selected = _audioPlaying;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        audioButton.selected = _audioPlaying;
+    });
 }
 
 - (void)setUrl:(NSString *)url {
@@ -626,13 +635,6 @@
     } else {
         statusView.hidden = YES;
     }
-}
-
-- (void)setActive:(BOOL)active {
-    _active = active;
-    
-//    self.layer.borderWidth = _active && _showActiveStatus ? 1 : 0;
-//    self.layer.borderColor = [UIColor colorFromHex:0xc19948].CGColor;
 }
 
 - (void)setShowActiveStatus:(BOOL)showActiveStatus {

@@ -757,7 +757,7 @@
 					E1A6BC1A1FBAC6EC0000213E = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = 33USAS7KQX;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -1017,6 +1017,8 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CLANG_WARN_EMPTY_BODY = NO;
 				CLANG_WARN_SUSPICIOUS_MOVE = NO;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 33USAS7KQX;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1044,6 +1046,8 @@
 				ORDER_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = org.easydarwin.easyplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "7d7a80f8-c1b6-418a-b1a4-e492b09b40b2";
+				PROVISIONING_PROFILE_SPECIFIER = "EasyPlayer-RTSP";
 			};
 			name = Debug;
 		};
@@ -1059,6 +1063,8 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CLANG_WARN_EMPTY_BODY = NO;
 				CLANG_WARN_SUSPICIOUS_MOVE = NO;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = 33USAS7KQX;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1086,6 +1092,8 @@
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PRODUCT_BUNDLE_IDENTIFIER = org.easydarwin.easyplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "44a3b8c2-731c-4786-9271-07204f0e6dfa";
+				PROVISIONING_PROFILE_SPECIFIER = "EasyPlayer-RTSP";
 			};
 			name = Release;
 		};

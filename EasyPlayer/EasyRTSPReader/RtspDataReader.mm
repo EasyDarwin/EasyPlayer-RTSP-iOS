@@ -1,6 +1,5 @@
 
 #import "RtspDataReader.h"
-#import "PathUnit.h"
 
 #include <pthread.h>
 #include <vector>
@@ -47,7 +46,12 @@ int *stopRecord = (int *)malloc(sizeof(int));// 停止录像
     // 互斥锁
     pthread_mutex_t mutexVideoFrame;
     pthread_mutex_t mutexAudioFrame;
-    pthread_mutex_t mutexChan;
+    
+    pthread_mutex_t mutexCloseAudio;
+    pthread_mutex_t mutexCloseVideo;
+    
+    pthread_mutex_t mutexInit;
+    pthread_mutex_t mutexStop;
     
     void *_videoDecHandle;  // 视频解码句柄
     void *_audioDecHandle;  // 音频解码句柄
@@ -106,12 +110,18 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
     } else {
         if (frameType == EASY_SDK_MEDIA_INFO_FLAG) {// EASY_SDK_MEDIA_INFO_FLAG媒体类型标志
             EASY_MEDIA_INFO_T mediaInfo = *((EASY_MEDIA_INFO_T *)pBuf);
-            NSLog(@"RTMP DESCRIBE Get Media Info: video:%u fps:%u audio:%u channel:%u sampleRate:%u \n",
+            
+            NSLog(@"\n Media Info:video:%u fps:%u audio:%u channel:%u sampleRate:%u \n",
                   mediaInfo.u32VideoCodec,
                   mediaInfo.u32VideoFps,
                   mediaInfo.u32AudioCodec,
                   mediaInfo.u32AudioChannel,
                   mediaInfo.u32AudioSamplerate);
+            
+            if (mediaInfo.u32AudioChannel <= 0 || mediaInfo.u32AudioChannel > 2) {
+                mediaInfo.u32AudioChannel = 1;
+            }
+            
             [reader recvMediaInfo:&mediaInfo];
         }
     }
@@ -132,9 +142,15 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
         // 动态方式是采用pthread_mutex_init()函数来初始化互斥锁
         pthread_mutex_init(&mutexVideoFrame, 0);
         pthread_mutex_init(&mutexAudioFrame, 0);
-        pthread_mutex_init(&mutexChan, 0);
+        
         pthread_mutex_init(&mutexRecordVideoFrame, 0);
         pthread_mutex_init(&mutexRecordAudioFrame, 0);
+        
+        pthread_mutex_init(&mutexCloseAudio, 0);
+        pthread_mutex_init(&mutexCloseVideo, 0);
+        
+        pthread_mutex_init(&mutexInit, 0);
+        pthread_mutex_init(&mutexStop, 0);
         
         _videoDecHandle = NULL;
         _audioDecHandle = NULL;
@@ -166,27 +182,52 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
 }
 
 - (void)stop {
+    pthread_mutex_lock(&mutexStop);
+    
     if (!_running) {
+        pthread_mutex_unlock(&mutexStop);
         return;
     }
     
-    pthread_mutex_lock(&mutexChan);
     if (rtspHandle != NULL) {
         EasyRTSP_SetCallback(rtspHandle, NULL);
         EasyRTSP_CloseStream(rtspHandle);// 关闭网络流
     }
-    pthread_mutex_unlock(&mutexChan);
     
     _running = false;
     [self.videoThread cancel];
     [self.audioThread cancel];
+    
+    pthread_mutex_unlock(&mutexStop);
+}
+
+#pragma mark - dealloc
+
+- (void)dealloc {
+    
+    [self stop];
+    
+    [self removeVideoFrameSet];
+    [self removeAudioFrameSet];
+    [self removeRecordFrameSet];
+    
+    // 注销互斥锁
+    pthread_mutex_destroy(&mutexVideoFrame);
+    pthread_mutex_destroy(&mutexAudioFrame);
+    pthread_mutex_destroy(&mutexInit);
+    pthread_mutex_destroy(&mutexRecordVideoFrame);
+    pthread_mutex_destroy(&mutexRecordAudioFrame);
+    
+    pthread_mutex_destroy(&mutexCloseVideo);
+    pthread_mutex_destroy(&mutexCloseAudio);
+    pthread_mutex_destroy(&mutexStop);
 }
 
 #pragma mark - 子线程方法
 
 - (void) initRtspHandle {
-    // ------------ 加锁mutexChan ------------
-    pthread_mutex_lock(&mutexChan);
+    // ------------ 加锁mutexInit ------------
+    pthread_mutex_lock(&mutexInit);
     if (rtspHandle == NULL) {
         int ret = EasyRTSP_Init(&rtspHandle);
         if (ret != 0) {
@@ -211,8 +252,8 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
             NSLog(@"EasyRTSP_OpenStream ret = %d", ret);
         }
     }
-    pthread_mutex_unlock(&mutexChan);
-    // ------------ 解锁mutexChan ------------
+    pthread_mutex_unlock(&mutexInit);
+    // ------------ 解锁mutexInit ------------
 }
 
 - (void)audioThreadFunc {
@@ -248,10 +289,12 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
     
     [self removeAudioFrameSet];
     
+    pthread_mutex_lock(&mutexCloseAudio);
     if (_audioDecHandle != NULL) {
         EasyAudioDecodeClose((EasyAudioHandle *)_audioDecHandle);
         _audioDecHandle = NULL;
     }
+    pthread_mutex_unlock(&mutexCloseAudio);
 }
 
 - (void)videoThreadFunc {
@@ -299,13 +342,17 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
     
     [self removeVideoFrameSet];
     
+    pthread_mutex_lock(&mutexCloseVideo);
     if (_videoDecHandle != NULL) {
         DecodeClose(_videoDecHandle);
         _videoDecHandle = NULL;
     }
+    pthread_mutex_unlock(&mutexCloseVideo);
     
     if (self.useHWDecoder) {
+        pthread_mutex_lock(&mutexCloseVideo);
         [_hwDec closeDecoder];
+        pthread_mutex_unlock(&mutexCloseVideo);
     }
 }
 
@@ -319,6 +366,10 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
         param.coderID = CODER_H264;
         param.method = IDM_SW;
         _videoDecHandle = DecodeCreate(&param);
+    }
+    
+    if (_videoDecHandle == NULL) {
+        return;
     }
     
     DEC_DECODE_PARAM param;
@@ -376,6 +427,10 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
                                                 _mediaInfo.u32AudioSamplerate,
                                                 _mediaInfo.u32AudioChannel,
                                                 16);
+    }
+    
+    if (_audioDecHandle == NULL) {
+        return;
     }
     
     unsigned char pcmBuf[10 * 1024] = { 0 };
@@ -573,7 +628,7 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
                 dispatch_after(time, queue, ^{
                     // 开始录像
                     *stopRecord = 0;
-                    muxer([_recordFilePath UTF8String], stopRecord, read_video_packet, read_audio_packet);
+                    muxer([self.recordFilePath UTF8String], stopRecord, read_video_packet, read_audio_packet);
                 });
             }
         }
@@ -590,13 +645,9 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
             memcpy(frame->pBuf, pBuf, info->length);
             
             if (type == EASY_SDK_AUDIO_FRAME_FLAG) {
-//                pthread_mutex_lock(&mutexRecordAudioFrame);    // 加锁
-//                recordAudioFrameSet.insert(frame);// 根据时间戳排序
-//                pthread_mutex_unlock(&mutexRecordAudioFrame);  // 解锁
-                
-                // 暂时不录制音频
-                delete []frame->pBuf;
-                delete frame;
+                pthread_mutex_lock(&mutexRecordAudioFrame);    // 加锁
+                recordAudioFrameSet.insert(frame);// 根据时间戳排序
+                pthread_mutex_unlock(&mutexRecordAudioFrame);  // 解锁
             }
             
             if (type == EASY_SDK_VIDEO_FRAME_FLAG &&    // EASY_SDK_VIDEO_FRAME_FLAG视频帧标志
@@ -621,27 +672,6 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
 
 -(void) getDecodePixelData:(CVImageBufferRef)frame {
     NSLog(@"--> %@", frame);
-}
-
-#pragma mark - dealloc
-
-- (void)dealloc {
-    [self removeVideoFrameSet];
-    [self removeAudioFrameSet];
-    [self removeRecordFrameSet];
-    
-    // 注销互斥锁
-    pthread_mutex_destroy(&mutexVideoFrame);
-    pthread_mutex_destroy(&mutexAudioFrame);
-    pthread_mutex_destroy(&mutexChan);
-    pthread_mutex_destroy(&mutexRecordVideoFrame);
-    pthread_mutex_destroy(&mutexRecordAudioFrame);
-    
-    if (rtspHandle != NULL) {
-        /* 释放RTSPClient 参数为RTSPClient句柄 */
-        EasyRTSP_Deinit(&rtspHandle);
-        rtspHandle = NULL;
-    }
 }
 
 #pragma mark - getter/setter
