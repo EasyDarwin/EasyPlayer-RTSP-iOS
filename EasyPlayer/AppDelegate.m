@@ -16,7 +16,7 @@
     [RtspDataReader startUp];
     
     int err = EasyRTSP_Activate(
-"79393674362F2B32734B79417A37356170554576792F564659584E355547786865575679726C634D5671442F532B424859585A7062695A4359574A76633246414D6A41784E6B566863336C4559584A33615735555A5746745A57467A65513D3D");
+"79393674362F2B32734B79414E2F7462704154494A66564659584E3555477868655756793456634D5671442F70654E4659584E355247467964326C755647566862556C7A5647686C516D567A644541794D4445345A57467A65513D3D");
     NSLog(@"---->>>  %d", err);
     
     [[UINavigationBar appearance] setBarTintColor:MAIN_COLOR];
@@ -30,8 +30,8 @@
     self.window.rootViewController = nav;
     [self.window makeKeyAndVisible];
     
-//    NSString *pname = [[NSProcessInfo processInfo] processName];
-//    NSLog(@"----->>>>  %@", pname);
+    NSString *pname = [[NSProcessInfo processInfo] processName];
+    NSLog(@"----->>>>  %@", pname);
     
     return YES;
 }

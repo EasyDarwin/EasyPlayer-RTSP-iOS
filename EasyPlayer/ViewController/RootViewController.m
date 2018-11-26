@@ -210,10 +210,7 @@
         textField.placeholder = @"rtsp://";
         
         if(index < 0) {
-//        rtsp://admin:admin@112.27.201.103/11
-//        rtsp://cloud.easydarwin.org:554/946813.sdp
-//        rtsp://admin:Hf123456@120.209.197.71/Streaming/Channels/102
-            textField.text = @"rtsp://admin:hfrc123456@112.122.243.162/h264/ch1/sub/av_stream";
+            textField.text = @"rtsp://";
         } else {
             NSString *url = _dataArray[index];
             textField.text = url;
