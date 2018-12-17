@@ -75,6 +75,9 @@ int *stopRecord = (int *)malloc(sizeof(int));// 停止录像
 @property (nonatomic, strong) NSThread *videoThread;
 @property (nonatomic, strong) NSThread *audioThread;
 
+@property (nonatomic, assign) int lastWidth;
+@property (nonatomic, assign) int lastHeight;
+
 - (void)pushFrame:(char *)pBuf frameInfo:(RTSP_FRAME_INFO *)info type:(int)type;
 - (void)recvMediaInfo:(EASY_MEDIA_INFO_T *)info;
 
@@ -105,6 +108,12 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
             [reader pushFrame:pBuf frameInfo:frameInfo type:frameType];
         } else if (frameType == EASY_SDK_VIDEO_FRAME_FLAG &&    // EASY_SDK_VIDEO_FRAME_FLAG视频帧标志
                    frameInfo->codec == EASY_SDK_VIDEO_CODEC_H264) { // H264视频编码
+            
+            // TODO width height变化了，需要重新初始化解码器
+            if (frameInfo->type == EASY_SDK_VIDEO_FRAME_I) {// 视频帧类型
+                
+            }
+            
             [reader pushFrame:pBuf frameInfo:frameInfo type:frameType];
         }
     } else {
@@ -332,6 +341,9 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
         afterDecoderTimeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
         if (lastFrameTimeStamp != 0) {
             float t = frame->timeStamp - lastFrameTimeStamp - (afterDecoderTimeStamp - beforeDecoderTimeStamp);
+            
+            // TODO 设置缓存的时间戳  来这种计算t
+            
             usleep(t);
         }
         
@@ -359,7 +371,10 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
 #pragma mark - 解码视频帧
 
 - (void)decodeVideoFrame:(FrameInfo *)video {
-    if (_videoDecHandle == NULL) {
+    if (_videoDecHandle == NULL || self.lastWidth != video->width || self.lastHeight != video->height) {
+        self.lastWidth = video->width;
+        self.lastHeight = video->height;
+        
         DEC_CREATE_PARAM param;
         param.nMaxImgWidth = video->width;
         param.nMaxImgHeight = video->height;
@@ -618,7 +633,6 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
     
     // 录像：保存视频的内容
     if (_recordFilePath) {
-        
         if (isKeyFrame == 0) {
             if (info->type == EASY_SDK_VIDEO_FRAME_I) {// 视频帧类型
                 isKeyFrame = 1;
