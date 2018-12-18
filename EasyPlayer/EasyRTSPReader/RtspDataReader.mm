@@ -108,12 +108,6 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
             [reader pushFrame:pBuf frameInfo:frameInfo type:frameType];
         } else if (frameType == EASY_SDK_VIDEO_FRAME_FLAG &&    // EASY_SDK_VIDEO_FRAME_FLAG视频帧标志
                    frameInfo->codec == EASY_SDK_VIDEO_CODEC_H264) { // H264视频编码
-            
-            // TODO width height变化了，需要重新初始化解码器
-            if (frameInfo->type == EASY_SDK_VIDEO_FRAME_I) {// 视频帧类型
-                
-            }
-            
             [reader pushFrame:pBuf frameInfo:frameInfo type:frameType];
         }
     } else {
@@ -329,10 +323,19 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
         pthread_mutex_unlock(&mutexVideoFrame);
         // ------------ 解锁mutexVideoFrame ------------
         
+        // 视频的分辨率改变了，则需要重新初始化解码器
+        BOOL isInit = NO;
+        if (frame->type == EASY_SDK_VIDEO_FRAME_I && (self.lastWidth != frame->width || self.lastHeight != frame->height)) {// 视频帧类型
+            isInit = YES;
+            
+            self.lastWidth = frame->width;
+            self.lastHeight = frame->height;
+        }
+        
         if (self.useHWDecoder) {
-            [_hwDec decodeVideoData:frame->pBuf len:frame->frameLen];
+            [_hwDec decodeVideoData:frame->pBuf len:frame->frameLen isInit:isInit];
         } else {
-            [self decodeVideoFrame:frame];
+            [self decodeVideoFrame:frame isInit:isInit];
         }
         
         delete []frame->pBuf;
@@ -370,11 +373,8 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
 
 #pragma mark - 解码视频帧
 
-- (void)decodeVideoFrame:(FrameInfo *)video {
-    if (_videoDecHandle == NULL || self.lastWidth != video->width || self.lastHeight != video->height) {
-        self.lastWidth = video->width;
-        self.lastHeight = video->height;
-        
+- (void)decodeVideoFrame:(FrameInfo *)video isInit:(BOOL)isInit {
+    if (_videoDecHandle == NULL || isInit) {
         DEC_CREATE_PARAM param;
         param.nMaxImgWidth = video->width;
         param.nMaxImgHeight = video->height;

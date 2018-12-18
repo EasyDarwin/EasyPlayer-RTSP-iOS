@@ -210,7 +210,7 @@
         textField.placeholder = @"rtsp://";
         
         if(index < 0) {
-            textField.text = @"rtsp://";
+            textField.text = @"rtsp://cloud.easydarwin.org:554/523825.sdp";
         } else {
             NSString *url = _dataArray[index];
             textField.text = url;
