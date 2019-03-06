@@ -405,14 +405,6 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
     
     if (nRet) {
         @autoreleasepool {
-            KxVideoFrameRGB *frame = [[KxVideoFrameRGB alloc] init];
-            frame.width = param.nOutWidth;
-            frame.height = param.nOutHeight;
-            frame.linesize = param.nOutWidth * 3;
-            frame.hasAlpha = NO;
-            frame.rgb = [NSData dataWithBytes:param.pImgRGB length:param.nLineSize * param.nOutHeight];
-            frame.position = video->timeStamp / 1000.0;
-            
             if (_lastVideoFramePosition == 0) {
                 _lastVideoFramePosition = video->timeStamp;
             }
@@ -421,10 +413,25 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
             if (duration >= 1.0 || duration <= -1.0) {
                 duration = 0.02;
             }
+            
+            // 第一种显示方式：KxVideoFrameYUV
+            KxVideoFrameYUV *frame = [KxVideoFrameYUV handleVideoFrame:param.pFrame videoCodecCtx:param.pCodecCtx];
+            frame.width = param.nOutWidth;
+            frame.height = param.nOutHeight;
+            frame.position = video->timeStamp / 1000.0;
             frame.duration = duration;
             
-            _lastVideoFramePosition = video->timeStamp;
+            // 第二种显示方式：KxVideoFrameRGB
+//            KxVideoFrameRGB *frame = [[KxVideoFrameRGB alloc] init];
+//            frame.width = param.nOutWidth;
+//            frame.height = param.nOutHeight;
+//            frame.linesize = param.nOutWidth * 3;
+//            frame.hasAlpha = NO;
+//            frame.rgb = [NSData dataWithBytes:param.pImgRGB length:param.nLineSize * param.nOutHeight];
+//            frame.position = video->timeStamp / 1000.0;
+//            frame.duration = duration;
             
+            _lastVideoFramePosition = video->timeStamp;
             afterDecoderTimeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
             
             if (self.frameOutputBlock) {

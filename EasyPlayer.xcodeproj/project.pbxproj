@@ -31,6 +31,9 @@
 		664FAC8D206396D800A2C767 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 664FAC86206396D800A2C767 /* libswscale.a */; };
 		6654F4CE2011BF6F00795BC9 /* DC_AlertManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6654F4CB2011BF6F00795BC9 /* DC_AlertManager.m */; };
 		6654F4CF2011BF6F00795BC9 /* UIView+Toast.m in Sources */ = {isa = PBXBuildFile; fileRef = 6654F4CC2011BF6F00795BC9 /* UIView+Toast.m */; };
+		665D6A65222FADFA00A0F922 /* KxMovieGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 665D6A62222FADFA00A0F922 /* KxMovieGLView.m */; };
+		665D6A66222FADFA00A0F922 /* KxMovieDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 665D6A64222FADFA00A0F922 /* KxMovieDecoder.m */; };
+		665D6A6D222FAE1E00A0F922 /* libEasyRTSPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 665D6A6C222FAE1E00A0F922 /* libEasyRTSPClient.a */; };
 		A8D224466E1F6D0FAB22A506 /* libPods-EasyPlayer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 556EDF00404392012F37A88D /* libPods-EasyPlayer.a */; };
 		E19AC7B51FBBE686008E2FA7 /* AudioManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = E19AC7B41FBBE686008E2FA7 /* AudioManager.mm */; };
 		E19AC7C01FBBE987008E2FA7 /* AACDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = E19AC7B71FBBE987008E2FA7 /* AACDecoder.c */; };
@@ -41,15 +44,12 @@
 		E1A6BC291FBAC6EC0000213E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1A6BC271FBAC6EC0000213E /* Main.storyboard */; };
 		E1A6BC2B1FBAC6EC0000213E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1A6BC2A1FBAC6EC0000213E /* Assets.xcassets */; };
 		E1A6BC2E1FBAC6EC0000213E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1A6BC2C1FBAC6EC0000213E /* LaunchScreen.storyboard */; };
-		E1A6BCAC1FBAC7330000213E /* libEasyRTSPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A6BCA41FBAC7330000213E /* libEasyRTSPClient.a */; };
 		E1A6BCAF1FBAC7690000213E /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A6BCAE1FBAC7690000213E /* libstdc++.tbd */; };
 		E1A6BCB11FBAC7710000213E /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A6BCB01FBAC7710000213E /* libiconv.tbd */; };
 		E1A6BCB31FBAC7760000213E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A6BCB21FBAC7760000213E /* libz.tbd */; };
 		E1A6BCB51FBAC77C0000213E /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A6BCB41FBAC77C0000213E /* libbz2.tbd */; };
 		E1A6BCB81FBAC7920000213E /* RtspDataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCB71FBAC7920000213E /* RtspDataReader.mm */; };
 		E1A6BCBB1FBAC7D90000213E /* VideoDecode.c in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCB91FBAC7D90000213E /* VideoDecode.c */; };
-		E1A6BCE61FBACE820000213E /* KxMovieDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCE31FBACE820000213E /* KxMovieDecoder.m */; };
-		E1A6BCE71FBACE820000213E /* KxMovieGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCE51FBACE820000213E /* KxMovieGLView.m */; };
 		E1A6BCEB1FBAD1E40000213E /* VideoView.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCEA1FBAD1E40000213E /* VideoView.m */; };
 		E1A6BCF61FBAD2210000213E /* ALView+PureLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCEE1FBAD2210000213E /* ALView+PureLayout.m */; };
 		E1A6BCF71FBAD2210000213E /* NSArray+PureLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCF01FBAD2210000213E /* NSArray+PureLayout.m */; };
@@ -211,6 +211,14 @@
 		6654F4CB2011BF6F00795BC9 /* DC_AlertManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DC_AlertManager.m; sourceTree = "<group>"; };
 		6654F4CC2011BF6F00795BC9 /* UIView+Toast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Toast.m"; sourceTree = "<group>"; };
 		6654F4CD2011BF6F00795BC9 /* DC_AlertManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DC_AlertManager.h; sourceTree = "<group>"; };
+		665D6A61222FADFA00A0F922 /* KxMovieDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieDecoder.h; sourceTree = "<group>"; };
+		665D6A62222FADFA00A0F922 /* KxMovieGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieGLView.m; sourceTree = "<group>"; };
+		665D6A63222FADFA00A0F922 /* KxMovieGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieGLView.h; sourceTree = "<group>"; };
+		665D6A64222FADFA00A0F922 /* KxMovieDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieDecoder.m; sourceTree = "<group>"; };
+		665D6A69222FAE1E00A0F922 /* EasyTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyTypes.h; sourceTree = "<group>"; };
+		665D6A6A222FAE1E00A0F922 /* trace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trace.h; sourceTree = "<group>"; };
+		665D6A6B222FAE1E00A0F922 /* EasyRTSPClientAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyRTSPClientAPI.h; sourceTree = "<group>"; };
+		665D6A6C222FAE1E00A0F922 /* libEasyRTSPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libEasyRTSPClient.a; sourceTree = "<group>"; };
 		91A61A234C659B3130EECFE7 /* Pods-EasyPlayer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasyPlayer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EasyPlayer/Pods-EasyPlayer.debug.xcconfig"; sourceTree = "<group>"; };
 		C7C030FE36C447773FBA3A82 /* Pods-EasyPlayer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasyPlayer.release.xcconfig"; path = "Pods/Target Support Files/Pods-EasyPlayer/Pods-EasyPlayer.release.xcconfig"; sourceTree = "<group>"; };
 		E19AC7B31FBBE686008E2FA7 /* AudioManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioManager.h; sourceTree = "<group>"; };
@@ -229,10 +237,6 @@
 		E1A6BC2A1FBAC6EC0000213E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E1A6BC2D1FBAC6EC0000213E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E1A6BC2F1FBAC6EC0000213E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E1A6BCA11FBAC7330000213E /* EasyRTSPClientAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyRTSPClientAPI.h; sourceTree = "<group>"; };
-		E1A6BCA21FBAC7330000213E /* EasyTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyTypes.h; sourceTree = "<group>"; };
-		E1A6BCA31FBAC7330000213E /* trace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trace.h; sourceTree = "<group>"; };
-		E1A6BCA41FBAC7330000213E /* libEasyRTSPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libEasyRTSPClient.a; sourceTree = "<group>"; };
 		E1A6BCAE1FBAC7690000213E /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
 		E1A6BCB01FBAC7710000213E /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
 		E1A6BCB21FBAC7760000213E /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -241,10 +245,6 @@
 		E1A6BCB71FBAC7920000213E /* RtspDataReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RtspDataReader.mm; sourceTree = "<group>"; };
 		E1A6BCB91FBAC7D90000213E /* VideoDecode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = VideoDecode.c; sourceTree = "<group>"; };
 		E1A6BCBA1FBAC7D90000213E /* VideoDecode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoDecode.h; sourceTree = "<group>"; };
-		E1A6BCE21FBACE820000213E /* KxMovieDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieDecoder.h; sourceTree = "<group>"; };
-		E1A6BCE31FBACE820000213E /* KxMovieDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieDecoder.m; sourceTree = "<group>"; };
-		E1A6BCE41FBACE820000213E /* KxMovieGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieGLView.h; sourceTree = "<group>"; };
-		E1A6BCE51FBACE820000213E /* KxMovieGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieGLView.m; sourceTree = "<group>"; };
 		E1A6BCE91FBAD1E40000213E /* VideoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoView.h; sourceTree = "<group>"; };
 		E1A6BCEA1FBAD1E40000213E /* VideoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoView.m; sourceTree = "<group>"; };
 		E1A6BCED1FBAD2210000213E /* ALView+PureLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ALView+PureLayout.h"; sourceTree = "<group>"; };
@@ -280,8 +280,8 @@
 				664FAC88206396D800A2C767 /* libavfilter.a in Frameworks */,
 				368B0B5E1FCBFFA300172BDB /* VideoToolbox.framework in Frameworks */,
 				664FAC89206396D800A2C767 /* libavcodec.a in Frameworks */,
-				E1A6BCAC1FBAC7330000213E /* libEasyRTSPClient.a in Frameworks */,
 				664FAC8B206396D800A2C767 /* libavdevice.a in Frameworks */,
+				665D6A6D222FAE1E00A0F922 /* libEasyRTSPClient.a in Frameworks */,
 				664FAC8C206396D800A2C767 /* libswresample.a in Frameworks */,
 				A8D224466E1F6D0FAB22A506 /* libPods-EasyPlayer.a in Frameworks */,
 			);
@@ -522,6 +522,36 @@
 			path = Tool;
 			sourceTree = "<group>";
 		};
+		665D6A60222FADFA00A0F922 /* kxmovie */ = {
+			isa = PBXGroup;
+			children = (
+				665D6A61222FADFA00A0F922 /* KxMovieDecoder.h */,
+				665D6A62222FADFA00A0F922 /* KxMovieGLView.m */,
+				665D6A63222FADFA00A0F922 /* KxMovieGLView.h */,
+				665D6A64222FADFA00A0F922 /* KxMovieDecoder.m */,
+			);
+			path = kxmovie;
+			sourceTree = "<group>";
+		};
+		665D6A67222FAE1E00A0F922 /* libEasyRTSPClient */ = {
+			isa = PBXGroup;
+			children = (
+				665D6A68222FAE1E00A0F922 /* include */,
+				665D6A6C222FAE1E00A0F922 /* libEasyRTSPClient.a */,
+			);
+			path = libEasyRTSPClient;
+			sourceTree = "<group>";
+		};
+		665D6A68222FAE1E00A0F922 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				665D6A69222FAE1E00A0F922 /* EasyTypes.h */,
+				665D6A6A222FAE1E00A0F922 /* trace.h */,
+				665D6A6B222FAE1E00A0F922 /* EasyRTSPClientAPI.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
 		668665451FCE957200956A52 /* EasyVideoDecoder */ = {
 			isa = PBXGroup;
 			children = (
@@ -529,8 +559,6 @@
 				368B0B591FCBFE9100172BDB /* HWVideoDecoder.m */,
 				E1A6BCBA1FBAC7D90000213E /* VideoDecode.h */,
 				E1A6BCB91FBAC7D90000213E /* VideoDecode.c */,
-				E1A6BCE21FBACE820000213E /* KxMovieDecoder.h */,
-				E1A6BCE31FBACE820000213E /* KxMovieDecoder.m */,
 			);
 			path = EasyVideoDecoder;
 			sourceTree = "<group>";
@@ -553,8 +581,6 @@
 				E19AC7B41FBBE686008E2FA7 /* AudioManager.mm */,
 				E1A6BCFC1FBAD5EA0000213E /* UIColor+HexColor.h */,
 				E1A6BCFD1FBAD5EA0000213E /* UIColor+HexColor.m */,
-				E1A6BCE41FBACE820000213E /* KxMovieGLView.h */,
-				E1A6BCE51FBACE820000213E /* KxMovieGLView.m */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -645,11 +671,12 @@
 				66D62EEB1FEE899A00C3B5C7 /* ViewController */,
 				66D62EEC1FEE89A800C3B5C7 /* View */,
 				668665471FCE95A600956A52 /* Player */,
+				665D6A60222FADFA00A0F922 /* kxmovie */,
 				668665461FCE959400956A52 /* EasyRTSPReader */,
 				66D62EE41FED219F00C3B5C7 /* MuxerToVideo */,
 				668665451FCE957200956A52 /* EasyVideoDecoder */,
 				E19AC7B61FBBE987008E2FA7 /* EasyAudioDecoder */,
-				E1A6BC9F1FBAC7330000213E /* libEasyRTSPClient */,
+				665D6A67222FAE1E00A0F922 /* libEasyRTSPClient */,
 				664FAC09206396D800A2C767 /* ffmpeg */,
 				E1A6BCEC1FBAD2210000213E /* PureLayout */,
 				6635A75C1FF767AA00C25760 /* Util */,
@@ -670,25 +697,6 @@
 				E1A6BC1F1FBAC6EC0000213E /* main.m */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		E1A6BC9F1FBAC7330000213E /* libEasyRTSPClient */ = {
-			isa = PBXGroup;
-			children = (
-				E1A6BCA01FBAC7330000213E /* include */,
-				E1A6BCA41FBAC7330000213E /* libEasyRTSPClient.a */,
-			);
-			path = libEasyRTSPClient;
-			sourceTree = SOURCE_ROOT;
-		};
-		E1A6BCA01FBAC7330000213E /* include */ = {
-			isa = PBXGroup;
-			children = (
-				E1A6BCA11FBAC7330000213E /* EasyRTSPClientAPI.h */,
-				E1A6BCA21FBAC7330000213E /* EasyTypes.h */,
-				E1A6BCA31FBAC7330000213E /* trace.h */,
-			);
-			path = include;
 			sourceTree = "<group>";
 		};
 		E1A6BCAD1FBAC7690000213E /* Frameworks */ = {
@@ -756,7 +764,7 @@
 				TargetAttributes = {
 					E1A6BC1A1FBAC6EC0000213E = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = 33USAS7KQX;
+						DevelopmentTeam = GZ5MDHTHF6;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -852,7 +860,6 @@
 				E1A6BD071FBAD6800000213E /* VideoPanel.mm in Sources */,
 				363E00B11FBDB1F4008690E7 /* VideoCell.m in Sources */,
 				6635A76F1FF7837A00C25760 /* FileListViewController.m in Sources */,
-				E1A6BCE61FBACE820000213E /* KxMovieDecoder.m in Sources */,
 				E1A6BCF81FBAD2210000213E /* NSLayoutConstraint+PureLayout.m in Sources */,
 				368B0B5B1FCBFE9200172BDB /* HWVideoDecoder.m in Sources */,
 				E19AC7C11FBBE987008E2FA7 /* EasyAudioDecoder.c in Sources */,
@@ -861,6 +868,7 @@
 				6654F4CE2011BF6F00795BC9 /* DC_AlertManager.m in Sources */,
 				E19AC7C31FBBE987008E2FA7 /* g711.c in Sources */,
 				6635A76C1FF77CF500C25760 /* RecordListViewController.m in Sources */,
+				665D6A66222FADFA00A0F922 /* KxMovieDecoder.m in Sources */,
 				6635A7691FF77CEB00C25760 /* ScreenShotListViewController.m in Sources */,
 				E1A6BCB81FBAC7920000213E /* RtspDataReader.mm in Sources */,
 				E1A6BCBB1FBAC7D90000213E /* VideoDecode.c in Sources */,
@@ -875,11 +883,11 @@
 				E1A6BC201FBAC6EC0000213E /* main.m in Sources */,
 				6654F4CF2011BF6F00795BC9 /* UIView+Toast.m in Sources */,
 				363E00B01FBDB1F4008690E7 /* RootViewController.m in Sources */,
+				665D6A65222FADFA00A0F922 /* KxMovieGLView.m in Sources */,
 				E1A6BCEB1FBAD1E40000213E /* VideoView.m in Sources */,
 				E19AC7C01FBBE987008E2FA7 /* AACDecoder.c in Sources */,
 				E1A6BCF71FBAD2210000213E /* NSArray+PureLayout.m in Sources */,
 				6635A7651FF77BFB00C25760 /* AboutViewController.m in Sources */,
-				E1A6BCE71FBACE820000213E /* KxMovieGLView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1019,7 +1027,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = GZ5MDHTHF6;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
@@ -1042,6 +1050,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/libEasyRTSPClient",
 					"$(PROJECT_DIR)/EasyPlayer/ffmpeg/lib",
+					"$(PROJECT_DIR)/EasyPlayer/libEasyRTSPClient",
 				);
 				ORDER_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = org.easydarwin.easyplayer;
@@ -1065,7 +1074,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = GZ5MDHTHF6;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
@@ -1087,6 +1096,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/libEasyRTSPClient",
 					"$(PROJECT_DIR)/EasyPlayer/ffmpeg/lib",
+					"$(PROJECT_DIR)/EasyPlayer/libEasyRTSPClient",
 				);
 				ORDER_FILE = "";
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
