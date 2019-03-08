@@ -170,12 +170,12 @@
     
     //添加确定到UIAlertController中
     UIAlertAction *OKAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        NSString* url = [_dataArray objectAtIndex:index];
+        NSString* url = [self.dataArray objectAtIndex:index];
         [PathUnit deleteBaseRecordPathWithURL:url];
         [PathUnit deleteBaseShotPathWithURL:url];
         
-        [_dataArray removeObjectAtIndex:index];
-        [NSUserDefaultsUnit updateURL:_dataArray];
+        [self.dataArray removeObjectAtIndex:index];
+        [NSUserDefaultsUnit updateURL:self.dataArray];
         [self.collectionView reloadData];
     }];
     [alertController addAction:OKAction];
@@ -194,13 +194,13 @@
         UITextField *tf = alertController.textFields.firstObject;
         NSString* url = [tf.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if(index < 0) {
-            [_dataArray insertObject:url atIndex:0];
+            [self.dataArray insertObject:url atIndex:0];
         } else {
-            [_dataArray removeObjectAtIndex:index];
-            [_dataArray insertObject:url atIndex:index];
+            [self.dataArray removeObjectAtIndex:index];
+            [self.dataArray insertObject:url atIndex:index];
         }
         
-        [NSUserDefaultsUnit updateURL:_dataArray];
+        [NSUserDefaultsUnit updateURL:self.dataArray];
         
         [self.collectionView reloadData];
     }];
@@ -210,9 +210,9 @@
         textField.placeholder = @"rtsp://";
         
         if(index < 0) {
-            textField.text = @"rtsp://cloud.easydarwin.org:554/523825.sdp";
+            textField.text = @"rtsp://113.136.42.45:554/PLTV/88888888/224/3221226087/10000100000000060000000001759104_0.smil";
         } else {
-            NSString *url = _dataArray[index];
+            NSString *url = self.dataArray[index];
             textField.text = url;
         }
     }];

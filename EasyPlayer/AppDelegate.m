@@ -7,7 +7,8 @@
 //
 
 #import "AppDelegate.h"
-#import "RtspDataReader.h"
+//#import "RtspDataReader.h"
+#import <EasyPlayerRTSPLibrary/RtspDataReader.h>
 #import "RootViewController.h"
 
 @implementation AppDelegate
