@@ -1,5 +1,5 @@
 platform:ios ,’8.0’
-target ‘EasyPlayer’ do
+target ‘EasyPlayerRTSP’ do
 pod 'Masonry'
 
 end
