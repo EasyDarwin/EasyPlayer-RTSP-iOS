@@ -217,7 +217,6 @@
 		665D6A63222FADFA00A0F922 /* KxMovieGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieGLView.h; sourceTree = "<group>"; };
 		665D6A64222FADFA00A0F922 /* KxMovieDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieDecoder.m; sourceTree = "<group>"; };
 		665D6A69222FAE1E00A0F922 /* EasyTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyTypes.h; sourceTree = "<group>"; };
-		665D6A6A222FAE1E00A0F922 /* trace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trace.h; sourceTree = "<group>"; };
 		665D6A6B222FAE1E00A0F922 /* EasyRTSPClientAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyRTSPClientAPI.h; sourceTree = "<group>"; };
 		665D6A6C222FAE1E00A0F922 /* libEasyRTSPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libEasyRTSPClient.a; sourceTree = "<group>"; };
 		91A61A234C659B3130EECFE7 /* Pods-EasyPlayer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasyPlayer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EasyPlayer/Pods-EasyPlayer.debug.xcconfig"; sourceTree = "<group>"; };
@@ -548,7 +547,6 @@
 			isa = PBXGroup;
 			children = (
 				665D6A69222FAE1E00A0F922 /* EasyTypes.h */,
-				665D6A6A222FAE1E00A0F922 /* trace.h */,
 				665D6A6B222FAE1E00A0F922 /* EasyRTSPClientAPI.h */,
 			);
 			path = include;

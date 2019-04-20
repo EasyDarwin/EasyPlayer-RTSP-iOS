@@ -42,7 +42,7 @@ int *stopRecord = (int *)malloc(sizeof(int));// 停止录像
 
 @interface RtspDataReader()<HWVideoDecoderDelegate> {
     // RTSP拉流句柄
-    Easy_RTSP_Handle rtspHandle;
+    Easy_Handle rtspHandle;
     
     // 互斥锁
     pthread_mutex_t mutexVideoFrame;
@@ -80,7 +80,7 @@ int *stopRecord = (int *)malloc(sizeof(int));// 停止录像
 @property (nonatomic, assign) int lastWidth;
 @property (nonatomic, assign) int lastHeight;
 
-- (void)pushFrame:(char *)pBuf frameInfo:(RTSP_FRAME_INFO *)info type:(int)type;
+- (void)pushFrame:(char *)pBuf frameInfo:(EASY_FRAME_INFO *)info type:(int)type;
 - (void)recvMediaInfo:(EASY_MEDIA_INFO_T *)info;
 
 @end
@@ -94,7 +94,7 @@ int *stopRecord = (int *)malloc(sizeof(int));// 停止录像
  _pBuf:         回调的数据部分，具体用法看Demo
  _frameInfo:    帧结构数据
  */
-int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf, RTSP_FRAME_INFO *frameInfo) {
+int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf, EASY_FRAME_INFO *frameInfo) {
     if (channelPtr == NULL) {
         return 0;
     }
@@ -629,7 +629,7 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
     });
 }
 
-- (void)pushFrame:(char *)pBuf frameInfo:(RTSP_FRAME_INFO *)info type:(int)type {
+- (void)pushFrame:(char *)pBuf frameInfo:(EASY_FRAME_INFO *)info type:(int)type {
     if (!_running || pBuf == NULL || info->length == 0) {
         return;
     }
