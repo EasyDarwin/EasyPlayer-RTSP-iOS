@@ -1,6 +1,6 @@
 //
 //  Muxer.c
-//  EasyPlayerRTMP
+//  EasyPlayerRTSP
 //
 //  Created by liyy on 2018/3/19.
 //  Copyright © 2018年 cs. All rights reserved.
@@ -339,22 +339,22 @@ int muxer(const char *out_filename,
     av_write_trailer(outFmtCtx);
     
 end:
-    //    // close output
-    //    if (outFmtCtx && !(outFmt->flags & AVFMT_NOFILE)) {
-    //        avio_close(outFmtCtx->pb);
-    //    }
-    //
-    //    if (outFmtCtx) {
-    //        avformat_free_context(outFmtCtx);
-    //    }
-    //
-    //    if (video_inFmtCtx) {
-    //        avformat_free_context(video_inFmtCtx);
-    //    }
-    //
-    //    if (audio_inFmtCtx) {
-    //        avformat_free_context(audio_inFmtCtx);
-    //    }
+//    // close output
+//    if (outFmtCtx && !(outFmt->flags & AVFMT_NOFILE)) {
+//        avio_close(outFmtCtx->pb);
+//    }
+//
+//    if (outFmtCtx) {
+//        avformat_free_context(outFmtCtx);
+//    }
+//
+//    if (video_inFmtCtx) {
+//        avformat_free_context(video_inFmtCtx);
+//    }
+//
+//    if (audio_inFmtCtx) {
+//        avformat_free_context(audio_inFmtCtx);
+//    }
     
     return 0;
 }

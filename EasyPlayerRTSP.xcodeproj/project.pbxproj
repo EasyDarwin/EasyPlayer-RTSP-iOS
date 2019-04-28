@@ -7,21 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		363E00B01FBDB1F4008690E7 /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E00AD1FBDB1F3008690E7 /* RootViewController.m */; };
-		363E00B11FBDB1F4008690E7 /* VideoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E00AE1FBDB1F4008690E7 /* VideoCell.m */; };
-		368B0B5B1FCBFE9200172BDB /* HWVideoDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 368B0B591FCBFE9100172BDB /* HWVideoDecoder.m */; };
 		368B0B5E1FCBFFA300172BDB /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 368B0B5D1FCBFF8D00172BDB /* VideoToolbox.framework */; };
 		368B0B601FCBFFB600172BDB /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 368B0B5F1FCBFFB000172BDB /* CoreMedia.framework */; };
-		6635A75B1FF75C1600C25760 /* SettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A75A1FF75C1600C25760 /* SettingViewController.m */; };
-		6635A75F1FF767C600C25760 /* PathUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A75E1FF767C600C25760 /* PathUnit.m */; };
-		6635A7621FF777A000C25760 /* NSUserDefaultsUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A7611FF777A000C25760 /* NSUserDefaultsUnit.m */; };
-		6635A7651FF77BFB00C25760 /* AboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A7641FF77BFB00C25760 /* AboutViewController.m */; };
-		6635A7691FF77CEB00C25760 /* ScreenShotListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A7681FF77CEB00C25760 /* ScreenShotListViewController.m */; };
-		6635A76C1FF77CF500C25760 /* RecordListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A76B1FF77CF500C25760 /* RecordListViewController.m */; };
-		6635A76F1FF7837A00C25760 /* FileListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A76E1FF7837A00C25760 /* FileListViewController.m */; };
-		6635A7821FF7997200C25760 /* ScreenShotListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6635A7811FF7997200C25760 /* ScreenShotListCell.m */; };
-		664FAB8020638D8B00A2C767 /* Muxer.c in Sources */ = {isa = PBXBuildFile; fileRef = 664FAB7E20638D8A00A2C767 /* Muxer.c */; };
-		664FAC08206393CD00A2C767 /* PlayRecordViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 664FAC06206393CC00A2C767 /* PlayRecordViewController.m */; };
 		664FAC87206396D800A2C767 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 664FAC80206396D800A2C767 /* libavutil.a */; };
 		664FAC88206396D800A2C767 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 664FAC81206396D800A2C767 /* libavfilter.a */; };
 		664FAC89206396D800A2C767 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 664FAC82206396D800A2C767 /* libavcodec.a */; };
@@ -29,69 +16,60 @@
 		664FAC8B206396D800A2C767 /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 664FAC84206396D800A2C767 /* libavdevice.a */; };
 		664FAC8C206396D800A2C767 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 664FAC85206396D800A2C767 /* libswresample.a */; };
 		664FAC8D206396D800A2C767 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 664FAC86206396D800A2C767 /* libswscale.a */; };
-		6654F4CE2011BF6F00795BC9 /* DC_AlertManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6654F4CB2011BF6F00795BC9 /* DC_AlertManager.m */; };
-		6654F4CF2011BF6F00795BC9 /* UIView+Toast.m in Sources */ = {isa = PBXBuildFile; fileRef = 6654F4CC2011BF6F00795BC9 /* UIView+Toast.m */; };
-		665D6A65222FADFA00A0F922 /* KxMovieGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 665D6A62222FADFA00A0F922 /* KxMovieGLView.m */; };
-		665D6A66222FADFA00A0F922 /* KxMovieDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 665D6A64222FADFA00A0F922 /* KxMovieDecoder.m */; };
-		665D6A6D222FAE1E00A0F922 /* libEasyRTSPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 665D6A6C222FAE1E00A0F922 /* libEasyRTSPClient.a */; };
-		A57CAB0D3342E691E03D2778 /* libPods-EasyPlayerRTSP.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EF49487F4091290C1E51034 /* libPods-EasyPlayerRTSP.a */; };
-		E19AC7B51FBBE686008E2FA7 /* AudioManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = E19AC7B41FBBE686008E2FA7 /* AudioManager.mm */; };
-		E19AC7C01FBBE987008E2FA7 /* AACDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = E19AC7B71FBBE987008E2FA7 /* AACDecoder.c */; };
-		E19AC7C11FBBE987008E2FA7 /* EasyAudioDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = E19AC7BA1FBBE987008E2FA7 /* EasyAudioDecoder.c */; };
-		E19AC7C31FBBE987008E2FA7 /* g711.c in Sources */ = {isa = PBXBuildFile; fileRef = E19AC7BF1FBBE987008E2FA7 /* g711.c */; };
-		E1A6BC201FBAC6EC0000213E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BC1F1FBAC6EC0000213E /* main.m */; };
-		E1A6BC231FBAC6EC0000213E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BC221FBAC6EC0000213E /* AppDelegate.m */; };
-		E1A6BC291FBAC6EC0000213E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1A6BC271FBAC6EC0000213E /* Main.storyboard */; };
-		E1A6BC2B1FBAC6EC0000213E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1A6BC2A1FBAC6EC0000213E /* Assets.xcassets */; };
-		E1A6BC2E1FBAC6EC0000213E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1A6BC2C1FBAC6EC0000213E /* LaunchScreen.storyboard */; };
+		669677AA22753F5B00E92A8A /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696774422753F5A00E92A8A /* RootViewController.m */; };
+		669677AB22753F5B00E92A8A /* RecordListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696774722753F5A00E92A8A /* RecordListViewController.m */; };
+		669677AC22753F5B00E92A8A /* RecordViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696774822753F5A00E92A8A /* RecordViewController.m */; };
+		669677AD22753F5B00E92A8A /* PlayRecordViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696774B22753F5A00E92A8A /* PlayRecordViewController.m */; };
+		669677AE22753F5B00E92A8A /* ScreenShotListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696774C22753F5A00E92A8A /* ScreenShotListViewController.m */; };
+		669677AF22753F5B00E92A8A /* EditURLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696774E22753F5A00E92A8A /* EditURLViewController.m */; };
+		669677B022753F5B00E92A8A /* ScanViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696774F22753F5A00E92A8A /* ScanViewController.m */; };
+		669677B122753F5B00E92A8A /* AboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696775422753F5A00E92A8A /* AboutViewController.m */; };
+		669677B222753F5B00E92A8A /* SettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696775722753F5A00E92A8A /* SettingViewController.m */; };
+		669677B322753F5B00E92A8A /* SplitScreenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696775922753F5A00E92A8A /* SplitScreenViewController.m */; };
+		669677B422753F5B00E92A8A /* VideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696775A22753F5A00E92A8A /* VideoPlayerController.m */; };
+		669677B522753F5B00E92A8A /* BaseTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696775E22753F5A00E92A8A /* BaseTableViewController.m */; };
+		669677B622753F5B00E92A8A /* BaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696775F22753F5A00E92A8A /* BaseViewController.m */; };
+		669677B822753F5B00E92A8A /* MuxerToMP4.c in Sources */ = {isa = PBXBuildFile; fileRef = 6696776722753F5A00E92A8A /* MuxerToMP4.c */; };
+		669677B922753F5B00E92A8A /* Muxer.c in Sources */ = {isa = PBXBuildFile; fileRef = 6696776822753F5A00E92A8A /* Muxer.c */; };
+		669677BA22753F5B00E92A8A /* NewIcon.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6696776A22753F5A00E92A8A /* NewIcon.xcassets */; };
+		669677BB22753F5B00E92A8A /* PathUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696776E22753F5A00E92A8A /* PathUnit.m */; };
+		669677BC22753F5B00E92A8A /* URLUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696776F22753F5A00E92A8A /* URLUnit.m */; };
+		669677BD22753F5B00E92A8A /* URLModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777222753F5A00E92A8A /* URLModel.m */; };
+		669677BE22753F5B00E92A8A /* NSUserDefaultsUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777322753F5A00E92A8A /* NSUserDefaultsUnit.m */; };
+		669677BF22753F5B00E92A8A /* HRGBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777522753F5A00E92A8A /* HRGBaseModel.m */; };
+		669677C022753F5B00E92A8A /* libEasyRTSPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6696777A22753F5A00E92A8A /* libEasyRTSPClient.a */; };
+		669677C122753F5B00E92A8A /* RecordListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777C22753F5A00E92A8A /* RecordListCell.m */; };
+		669677C222753F5B00E92A8A /* ScreenShotListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777D22753F5A00E92A8A /* ScreenShotListCell.m */; };
+		669677C322753F5B00E92A8A /* VideoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777E22753F5A00E92A8A /* VideoCell.m */; };
+		669677C422753F5B00E92A8A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6696777F22753F5A00E92A8A /* LaunchScreen.storyboard */; };
+		669677C522753F5B00E92A8A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6696778122753F5A00E92A8A /* Main.storyboard */; };
+		669677C622753F5B00E92A8A /* VideoPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6696778522753F5A00E92A8A /* VideoPanel.mm */; };
+		669677C722753F5B00E92A8A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696778A22753F5A00E92A8A /* main.m */; };
+		669677C822753F5B00E92A8A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696778B22753F5A00E92A8A /* AppDelegate.m */; };
+		669677CA22753F5B00E92A8A /* g711.c in Sources */ = {isa = PBXBuildFile; fileRef = 6696779022753F5A00E92A8A /* g711.c */; };
+		669677CB22753F5B00E92A8A /* AACDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 6696779122753F5A00E92A8A /* AACDecoder.c */; };
+		669677CC22753F5B00E92A8A /* EasyAudioDecoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 6696779222753F5A00E92A8A /* EasyAudioDecoder.c */; };
+		669677CD22753F5B00E92A8A /* KxMovieGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696779722753F5B00E92A8A /* KxMovieGLView.m */; };
+		669677CE22753F5B00E92A8A /* KxMovieDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696779922753F5B00E92A8A /* KxMovieDecoder.m */; };
+		669677CF22753F5B00E92A8A /* PlayerDataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6696779B22753F5B00E92A8A /* PlayerDataReader.mm */; };
+		669677D022753F5B00E92A8A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6696779D22753F5B00E92A8A /* Assets.xcassets */; };
+		669677D122753F5B00E92A8A /* UIColor+HexColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 669677A022753F5B00E92A8A /* UIColor+HexColor.m */; };
+		669677D222753F5B00E92A8A /* VideoView.m in Sources */ = {isa = PBXBuildFile; fileRef = 669677A122753F5B00E92A8A /* VideoView.m */; };
+		669677D322753F5B00E92A8A /* AudioManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 669677A222753F5B00E92A8A /* AudioManager.mm */; };
+		669677D422753F5B00E92A8A /* HWVideoDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 669677A622753F5B00E92A8A /* HWVideoDecoder.m */; };
+		669677D522753F5B00E92A8A /* VideoDecode.c in Sources */ = {isa = PBXBuildFile; fileRef = 669677A922753F5B00E92A8A /* VideoDecode.c */; };
 		E1A6BCAF1FBAC7690000213E /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A6BCAE1FBAC7690000213E /* libstdc++.tbd */; };
 		E1A6BCB11FBAC7710000213E /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A6BCB01FBAC7710000213E /* libiconv.tbd */; };
 		E1A6BCB31FBAC7760000213E /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A6BCB21FBAC7760000213E /* libz.tbd */; };
 		E1A6BCB51FBAC77C0000213E /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E1A6BCB41FBAC77C0000213E /* libbz2.tbd */; };
-		E1A6BCB81FBAC7920000213E /* RtspDataReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCB71FBAC7920000213E /* RtspDataReader.mm */; };
-		E1A6BCBB1FBAC7D90000213E /* VideoDecode.c in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCB91FBAC7D90000213E /* VideoDecode.c */; };
-		E1A6BCEB1FBAD1E40000213E /* VideoView.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCEA1FBAD1E40000213E /* VideoView.m */; };
-		E1A6BCF61FBAD2210000213E /* ALView+PureLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCEE1FBAD2210000213E /* ALView+PureLayout.m */; };
-		E1A6BCF71FBAD2210000213E /* NSArray+PureLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCF01FBAD2210000213E /* NSArray+PureLayout.m */; };
-		E1A6BCF81FBAD2210000213E /* NSLayoutConstraint+PureLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCF21FBAD2210000213E /* NSLayoutConstraint+PureLayout.m */; };
-		E1A6BCFE1FBAD5EA0000213E /* UIColor+HexColor.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BCFD1FBAD5EA0000213E /* UIColor+HexColor.m */; };
-		E1A6BD071FBAD6800000213E /* VideoPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BD041FBAD6800000213E /* VideoPanel.mm */; };
-		E1A6BD0A1FBAD7700000213E /* VideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = E1A6BD091FBAD7700000213E /* VideoPlayerController.m */; };
+		FF52F4CA116520D03C44AEC8 /* Pods_EasyPlayerRTSP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BB8A4E103221CB3A011DF9F /* Pods_EasyPlayerRTSP.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		02E19BEBCD451349B8CB5207 /* Pods-EasyPlayerRTSP.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasyPlayerRTSP.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EasyPlayerRTSP/Pods-EasyPlayerRTSP.debug.xcconfig"; sourceTree = "<group>"; };
-		1EF49487F4091290C1E51034 /* libPods-EasyPlayerRTSP.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EasyPlayerRTSP.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		363E00AC1FBDB1F3008690E7 /* VideoCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoCell.h; sourceTree = "<group>"; };
-		363E00AD1FBDB1F3008690E7 /* RootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
-		363E00AE1FBDB1F4008690E7 /* VideoCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoCell.m; sourceTree = "<group>"; };
-		363E00AF1FBDB1F4008690E7 /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
-		363E00B21FBDB2E3008690E7 /* EasyPlayer_Defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EasyPlayer_Defs.h; sourceTree = "<group>"; };
-		368B0B591FCBFE9100172BDB /* HWVideoDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HWVideoDecoder.m; sourceTree = "<group>"; };
-		368B0B5A1FCBFE9100172BDB /* HWVideoDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HWVideoDecoder.h; sourceTree = "<group>"; };
 		368B0B5C1FCBFF8D00172BDB /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		368B0B5D1FCBFF8D00172BDB /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		368B0B5F1FCBFFB000172BDB /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		6635A7591FF75C1600C25760 /* SettingViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingViewController.h; sourceTree = "<group>"; };
-		6635A75A1FF75C1600C25760 /* SettingViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingViewController.m; sourceTree = "<group>"; };
-		6635A75D1FF767C600C25760 /* PathUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PathUnit.h; sourceTree = "<group>"; };
-		6635A75E1FF767C600C25760 /* PathUnit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PathUnit.m; sourceTree = "<group>"; };
-		6635A7601FF777A000C25760 /* NSUserDefaultsUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSUserDefaultsUnit.h; sourceTree = "<group>"; };
-		6635A7611FF777A000C25760 /* NSUserDefaultsUnit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSUserDefaultsUnit.m; sourceTree = "<group>"; };
-		6635A7631FF77BFB00C25760 /* AboutViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AboutViewController.h; sourceTree = "<group>"; };
-		6635A7641FF77BFB00C25760 /* AboutViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AboutViewController.m; sourceTree = "<group>"; };
-		6635A7671FF77CEB00C25760 /* ScreenShotListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScreenShotListViewController.h; sourceTree = "<group>"; };
-		6635A7681FF77CEB00C25760 /* ScreenShotListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScreenShotListViewController.m; sourceTree = "<group>"; };
-		6635A76A1FF77CF500C25760 /* RecordListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RecordListViewController.h; sourceTree = "<group>"; };
-		6635A76B1FF77CF500C25760 /* RecordListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RecordListViewController.m; sourceTree = "<group>"; };
-		6635A76D1FF7837A00C25760 /* FileListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileListViewController.h; sourceTree = "<group>"; };
-		6635A76E1FF7837A00C25760 /* FileListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileListViewController.m; sourceTree = "<group>"; };
-		6635A7801FF7997200C25760 /* ScreenShotListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenShotListCell.h; sourceTree = "<group>"; };
-		6635A7811FF7997200C25760 /* ScreenShotListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenShotListCell.m; sourceTree = "<group>"; };
-		664FAB7E20638D8A00A2C767 /* Muxer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Muxer.c; sourceTree = "<group>"; };
-		664FAB7F20638D8A00A2C767 /* Muxer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Muxer.h; sourceTree = "<group>"; };
-		664FAC06206393CC00A2C767 /* PlayRecordViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayRecordViewController.m; sourceTree = "<group>"; };
-		664FAC07206393CD00A2C767 /* PlayRecordViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayRecordViewController.h; sourceTree = "<group>"; };
 		664FAC0C206396D800A2C767 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		664FAC0D206396D800A2C767 /* buffersrc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = buffersrc.h; sourceTree = "<group>"; };
 		664FAC0E206396D800A2C767 /* buffersink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = buffersink.h; sourceTree = "<group>"; };
@@ -208,60 +186,96 @@
 		664FAC84206396D800A2C767 /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavdevice.a; sourceTree = "<group>"; };
 		664FAC85206396D800A2C767 /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswresample.a; sourceTree = "<group>"; };
 		664FAC86206396D800A2C767 /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswscale.a; sourceTree = "<group>"; };
-		6654F4CA2011BF6F00795BC9 /* UIView+Toast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Toast.h"; sourceTree = "<group>"; };
-		6654F4CB2011BF6F00795BC9 /* DC_AlertManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DC_AlertManager.m; sourceTree = "<group>"; };
-		6654F4CC2011BF6F00795BC9 /* UIView+Toast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Toast.m"; sourceTree = "<group>"; };
-		6654F4CD2011BF6F00795BC9 /* DC_AlertManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DC_AlertManager.h; sourceTree = "<group>"; };
-		665D6A61222FADFA00A0F922 /* KxMovieDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieDecoder.h; sourceTree = "<group>"; };
-		665D6A62222FADFA00A0F922 /* KxMovieGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieGLView.m; sourceTree = "<group>"; };
-		665D6A63222FADFA00A0F922 /* KxMovieGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieGLView.h; sourceTree = "<group>"; };
-		665D6A64222FADFA00A0F922 /* KxMovieDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieDecoder.m; sourceTree = "<group>"; };
-		665D6A69222FAE1E00A0F922 /* EasyTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyTypes.h; sourceTree = "<group>"; };
-		665D6A6B222FAE1E00A0F922 /* EasyRTSPClientAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyRTSPClientAPI.h; sourceTree = "<group>"; };
-		665D6A6C222FAE1E00A0F922 /* libEasyRTSPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libEasyRTSPClient.a; sourceTree = "<group>"; };
+		6696774422753F5A00E92A8A /* RootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
+		6696774622753F5A00E92A8A /* PlayRecordViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayRecordViewController.h; sourceTree = "<group>"; };
+		6696774722753F5A00E92A8A /* RecordListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecordListViewController.m; sourceTree = "<group>"; };
+		6696774822753F5A00E92A8A /* RecordViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecordViewController.m; sourceTree = "<group>"; };
+		6696774922753F5A00E92A8A /* ScreenShotListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenShotListViewController.h; sourceTree = "<group>"; };
+		6696774A22753F5A00E92A8A /* RecordListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecordListViewController.h; sourceTree = "<group>"; };
+		6696774B22753F5A00E92A8A /* PlayRecordViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayRecordViewController.m; sourceTree = "<group>"; };
+		6696774C22753F5A00E92A8A /* ScreenShotListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenShotListViewController.m; sourceTree = "<group>"; };
+		6696774D22753F5A00E92A8A /* RecordViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecordViewController.h; sourceTree = "<group>"; };
+		6696774E22753F5A00E92A8A /* EditURLViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditURLViewController.m; sourceTree = "<group>"; };
+		6696774F22753F5A00E92A8A /* ScanViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScanViewController.m; sourceTree = "<group>"; };
+		6696775022753F5A00E92A8A /* EditURLViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditURLViewController.h; sourceTree = "<group>"; };
+		6696775122753F5A00E92A8A /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
+		6696775222753F5A00E92A8A /* ScanViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScanViewController.h; sourceTree = "<group>"; };
+		6696775422753F5A00E92A8A /* AboutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutViewController.m; sourceTree = "<group>"; };
+		6696775522753F5A00E92A8A /* SettingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingViewController.h; sourceTree = "<group>"; };
+		6696775622753F5A00E92A8A /* AboutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutViewController.h; sourceTree = "<group>"; };
+		6696775722753F5A00E92A8A /* SettingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingViewController.m; sourceTree = "<group>"; };
+		6696775922753F5A00E92A8A /* SplitScreenViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplitScreenViewController.m; sourceTree = "<group>"; };
+		6696775A22753F5A00E92A8A /* VideoPlayerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerController.m; sourceTree = "<group>"; };
+		6696775B22753F5A00E92A8A /* VideoPlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayerController.h; sourceTree = "<group>"; };
+		6696775C22753F5A00E92A8A /* SplitScreenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitScreenViewController.h; sourceTree = "<group>"; };
+		6696775E22753F5A00E92A8A /* BaseTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseTableViewController.m; sourceTree = "<group>"; };
+		6696775F22753F5A00E92A8A /* BaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseViewController.m; sourceTree = "<group>"; };
+		6696776022753F5A00E92A8A /* BaseTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseTableViewController.h; sourceTree = "<group>"; };
+		6696776122753F5A00E92A8A /* BaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseViewController.h; sourceTree = "<group>"; };
+		6696776622753F5A00E92A8A /* Muxer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Muxer.h; sourceTree = "<group>"; };
+		6696776722753F5A00E92A8A /* MuxerToMP4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MuxerToMP4.c; sourceTree = "<group>"; };
+		6696776822753F5A00E92A8A /* Muxer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Muxer.c; sourceTree = "<group>"; };
+		6696776922753F5A00E92A8A /* MuxerToMP4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MuxerToMP4.h; sourceTree = "<group>"; };
+		6696776A22753F5A00E92A8A /* NewIcon.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = NewIcon.xcassets; sourceTree = "<group>"; };
+		6696776C22753F5A00E92A8A /* NSUserDefaultsUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSUserDefaultsUnit.h; sourceTree = "<group>"; };
+		6696776D22753F5A00E92A8A /* URLModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLModel.h; sourceTree = "<group>"; };
+		6696776E22753F5A00E92A8A /* PathUnit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathUnit.m; sourceTree = "<group>"; };
+		6696776F22753F5A00E92A8A /* URLUnit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLUnit.m; sourceTree = "<group>"; };
+		6696777022753F5A00E92A8A /* HRGBaseModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HRGBaseModel.h; sourceTree = "<group>"; };
+		6696777122753F5A00E92A8A /* PathUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathUnit.h; sourceTree = "<group>"; };
+		6696777222753F5A00E92A8A /* URLModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLModel.m; sourceTree = "<group>"; };
+		6696777322753F5A00E92A8A /* NSUserDefaultsUnit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSUserDefaultsUnit.m; sourceTree = "<group>"; };
+		6696777422753F5A00E92A8A /* URLUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLUnit.h; sourceTree = "<group>"; };
+		6696777522753F5A00E92A8A /* HRGBaseModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HRGBaseModel.m; sourceTree = "<group>"; };
+		6696777822753F5A00E92A8A /* EasyTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyTypes.h; sourceTree = "<group>"; };
+		6696777922753F5A00E92A8A /* EasyRTSPClientAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyRTSPClientAPI.h; sourceTree = "<group>"; };
+		6696777A22753F5A00E92A8A /* libEasyRTSPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libEasyRTSPClient.a; sourceTree = "<group>"; };
+		6696777C22753F5A00E92A8A /* RecordListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecordListCell.m; sourceTree = "<group>"; };
+		6696777D22753F5A00E92A8A /* ScreenShotListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenShotListCell.m; sourceTree = "<group>"; };
+		6696777E22753F5A00E92A8A /* VideoCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoCell.m; sourceTree = "<group>"; };
+		6696778022753F5A00E92A8A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		6696778222753F5A00E92A8A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		6696778322753F5A00E92A8A /* ScreenShotListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenShotListCell.h; sourceTree = "<group>"; };
+		6696778422753F5A00E92A8A /* RecordListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecordListCell.h; sourceTree = "<group>"; };
+		6696778522753F5A00E92A8A /* VideoPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VideoPanel.mm; sourceTree = "<group>"; };
+		6696778622753F5A00E92A8A /* VideoCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoCell.h; sourceTree = "<group>"; };
+		6696778722753F5A00E92A8A /* VideoPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPanel.h; sourceTree = "<group>"; };
+		6696778922753F5A00E92A8A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		6696778A22753F5A00E92A8A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		6696778B22753F5A00E92A8A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		6696778C22753F5A00E92A8A /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		6696778D22753F5A00E92A8A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6696778F22753F5A00E92A8A /* EasyAudioDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyAudioDecoder.h; sourceTree = "<group>"; };
+		6696779022753F5A00E92A8A /* g711.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = g711.c; sourceTree = "<group>"; };
+		6696779122753F5A00E92A8A /* AACDecoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AACDecoder.c; sourceTree = "<group>"; };
+		6696779222753F5A00E92A8A /* EasyAudioDecoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = EasyAudioDecoder.c; sourceTree = "<group>"; };
+		6696779322753F5A00E92A8A /* g711.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = g711.h; sourceTree = "<group>"; };
+		6696779422753F5A00E92A8A /* AACDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AACDecoder.h; sourceTree = "<group>"; };
+		6696779622753F5B00E92A8A /* KxMovieDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieDecoder.h; sourceTree = "<group>"; };
+		6696779722753F5B00E92A8A /* KxMovieGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieGLView.m; sourceTree = "<group>"; };
+		6696779822753F5B00E92A8A /* KxMovieGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMovieGLView.h; sourceTree = "<group>"; };
+		6696779922753F5B00E92A8A /* KxMovieDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMovieDecoder.m; sourceTree = "<group>"; };
+		6696779B22753F5B00E92A8A /* PlayerDataReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlayerDataReader.mm; sourceTree = "<group>"; };
+		6696779C22753F5B00E92A8A /* PlayerDataReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerDataReader.h; sourceTree = "<group>"; };
+		6696779D22753F5B00E92A8A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6696779F22753F5B00E92A8A /* AudioManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioManager.h; sourceTree = "<group>"; };
+		669677A022753F5B00E92A8A /* UIColor+HexColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+HexColor.m"; sourceTree = "<group>"; };
+		669677A122753F5B00E92A8A /* VideoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoView.m; sourceTree = "<group>"; };
+		669677A222753F5B00E92A8A /* AudioManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioManager.mm; sourceTree = "<group>"; };
+		669677A322753F5B00E92A8A /* VideoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoView.h; sourceTree = "<group>"; };
+		669677A422753F5B00E92A8A /* UIColor+HexColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+HexColor.h"; sourceTree = "<group>"; };
+		669677A622753F5B00E92A8A /* HWVideoDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HWVideoDecoder.m; sourceTree = "<group>"; };
+		669677A722753F5B00E92A8A /* VideoDecode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoDecode.h; sourceTree = "<group>"; };
+		669677A822753F5B00E92A8A /* HWVideoDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HWVideoDecoder.h; sourceTree = "<group>"; };
+		669677A922753F5B00E92A8A /* VideoDecode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = VideoDecode.c; sourceTree = "<group>"; };
+		8BB8A4E103221CB3A011DF9F /* Pods_EasyPlayerRTSP.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EasyPlayerRTSP.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		91A61A234C659B3130EECFE7 /* Pods-EasyPlayer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasyPlayer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-EasyPlayer/Pods-EasyPlayer.debug.xcconfig"; sourceTree = "<group>"; };
 		C7C030FE36C447773FBA3A82 /* Pods-EasyPlayer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasyPlayer.release.xcconfig"; path = "Pods/Target Support Files/Pods-EasyPlayer/Pods-EasyPlayer.release.xcconfig"; sourceTree = "<group>"; };
-		E19AC7B31FBBE686008E2FA7 /* AudioManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioManager.h; sourceTree = "<group>"; };
-		E19AC7B41FBBE686008E2FA7 /* AudioManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioManager.mm; sourceTree = "<group>"; };
-		E19AC7B71FBBE987008E2FA7 /* AACDecoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AACDecoder.c; sourceTree = "<group>"; };
-		E19AC7B81FBBE987008E2FA7 /* AACDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AACDecoder.h; sourceTree = "<group>"; };
-		E19AC7B91FBBE987008E2FA7 /* EasyAudioDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyAudioDecoder.h; sourceTree = "<group>"; };
-		E19AC7BA1FBBE987008E2FA7 /* EasyAudioDecoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = EasyAudioDecoder.c; sourceTree = "<group>"; };
-		E19AC7BE1FBBE987008E2FA7 /* g711.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = g711.h; sourceTree = "<group>"; };
-		E19AC7BF1FBBE987008E2FA7 /* g711.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = g711.c; sourceTree = "<group>"; };
 		E1A6BC1B1FBAC6EC0000213E /* EasyPlayerRTSP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyPlayerRTSP.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		E1A6BC1F1FBAC6EC0000213E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		E1A6BC211FBAC6EC0000213E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		E1A6BC221FBAC6EC0000213E /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		E1A6BC281FBAC6EC0000213E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		E1A6BC2A1FBAC6EC0000213E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E1A6BC2D1FBAC6EC0000213E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		E1A6BC2F1FBAC6EC0000213E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1A6BCAE1FBAC7690000213E /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
 		E1A6BCB01FBAC7710000213E /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
 		E1A6BCB21FBAC7760000213E /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		E1A6BCB41FBAC77C0000213E /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
-		E1A6BCB61FBAC7920000213E /* RtspDataReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RtspDataReader.h; sourceTree = "<group>"; };
-		E1A6BCB71FBAC7920000213E /* RtspDataReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RtspDataReader.mm; sourceTree = "<group>"; };
-		E1A6BCB91FBAC7D90000213E /* VideoDecode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = VideoDecode.c; sourceTree = "<group>"; };
-		E1A6BCBA1FBAC7D90000213E /* VideoDecode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoDecode.h; sourceTree = "<group>"; };
-		E1A6BCE91FBAD1E40000213E /* VideoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoView.h; sourceTree = "<group>"; };
-		E1A6BCEA1FBAD1E40000213E /* VideoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoView.m; sourceTree = "<group>"; };
-		E1A6BCED1FBAD2210000213E /* ALView+PureLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ALView+PureLayout.h"; sourceTree = "<group>"; };
-		E1A6BCEE1FBAD2210000213E /* ALView+PureLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ALView+PureLayout.m"; sourceTree = "<group>"; };
-		E1A6BCEF1FBAD2210000213E /* NSArray+PureLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+PureLayout.h"; sourceTree = "<group>"; };
-		E1A6BCF01FBAD2210000213E /* NSArray+PureLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+PureLayout.m"; sourceTree = "<group>"; };
-		E1A6BCF11FBAD2210000213E /* NSLayoutConstraint+PureLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSLayoutConstraint+PureLayout.h"; sourceTree = "<group>"; };
-		E1A6BCF21FBAD2210000213E /* NSLayoutConstraint+PureLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSLayoutConstraint+PureLayout.m"; sourceTree = "<group>"; };
-		E1A6BCF31FBAD2210000213E /* PureLayout+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PureLayout+Internal.h"; sourceTree = "<group>"; };
-		E1A6BCF41FBAD2210000213E /* PureLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PureLayout.h; sourceTree = "<group>"; };
-		E1A6BCF51FBAD2210000213E /* PureLayoutDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PureLayoutDefines.h; sourceTree = "<group>"; };
-		E1A6BCFC1FBAD5EA0000213E /* UIColor+HexColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+HexColor.h"; sourceTree = "<group>"; };
-		E1A6BCFD1FBAD5EA0000213E /* UIColor+HexColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+HexColor.m"; sourceTree = "<group>"; };
-		E1A6BD031FBAD6800000213E /* VideoPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPanel.h; sourceTree = "<group>"; };
-		E1A6BD041FBAD6800000213E /* VideoPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VideoPanel.mm; sourceTree = "<group>"; };
-		E1A6BD081FBAD7700000213E /* VideoPlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayerController.h; sourceTree = "<group>"; };
-		E1A6BD091FBAD7700000213E /* VideoPlayerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VideoPlayerController.m; sourceTree = "<group>"; };
 		E8EE66CDBAC44889E7D217F6 /* Pods-EasyPlayerRTSP.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EasyPlayerRTSP.release.xcconfig"; path = "Pods/Target Support Files/Pods-EasyPlayerRTSP/Pods-EasyPlayerRTSP.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -282,41 +296,15 @@
 				368B0B5E1FCBFFA300172BDB /* VideoToolbox.framework in Frameworks */,
 				664FAC89206396D800A2C767 /* libavcodec.a in Frameworks */,
 				664FAC8B206396D800A2C767 /* libavdevice.a in Frameworks */,
-				665D6A6D222FAE1E00A0F922 /* libEasyRTSPClient.a in Frameworks */,
+				669677C022753F5B00E92A8A /* libEasyRTSPClient.a in Frameworks */,
 				664FAC8C206396D800A2C767 /* libswresample.a in Frameworks */,
-				A57CAB0D3342E691E03D2778 /* libPods-EasyPlayerRTSP.a in Frameworks */,
+				FF52F4CA116520D03C44AEC8 /* Pods_EasyPlayerRTSP.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		6635A75C1FF767AA00C25760 /* Util */ = {
-			isa = PBXGroup;
-			children = (
-				6635A75D1FF767C600C25760 /* PathUnit.h */,
-				6635A75E1FF767C600C25760 /* PathUnit.m */,
-				6635A7601FF777A000C25760 /* NSUserDefaultsUnit.h */,
-				6635A7611FF777A000C25760 /* NSUserDefaultsUnit.m */,
-			);
-			path = Util;
-			sourceTree = "<group>";
-		};
-		6635A7661FF77CC000C25760 /* Record */ = {
-			isa = PBXGroup;
-			children = (
-				6635A76D1FF7837A00C25760 /* FileListViewController.h */,
-				6635A76E1FF7837A00C25760 /* FileListViewController.m */,
-				6635A7671FF77CEB00C25760 /* ScreenShotListViewController.h */,
-				6635A7681FF77CEB00C25760 /* ScreenShotListViewController.m */,
-				6635A76A1FF77CF500C25760 /* RecordListViewController.h */,
-				6635A76B1FF77CF500C25760 /* RecordListViewController.m */,
-				664FAC07206393CD00A2C767 /* PlayRecordViewController.h */,
-				664FAC06206393CC00A2C767 /* PlayRecordViewController.m */,
-			);
-			path = Record;
-			sourceTree = "<group>";
-		};
 		664FAC09206396D800A2C767 /* ffmpeg */ = {
 			isa = PBXGroup;
 			children = (
@@ -512,117 +500,201 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
-		6654F4C92011BF5F00795BC9 /* Tool */ = {
+		6696774322753F5A00E92A8A /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
-				6654F4CD2011BF6F00795BC9 /* DC_AlertManager.h */,
-				6654F4CB2011BF6F00795BC9 /* DC_AlertManager.m */,
-				6654F4CA2011BF6F00795BC9 /* UIView+Toast.h */,
-				6654F4CC2011BF6F00795BC9 /* UIView+Toast.m */,
-			);
-			path = Tool;
-			sourceTree = "<group>";
-		};
-		665D6A60222FADFA00A0F922 /* kxmovie */ = {
-			isa = PBXGroup;
-			children = (
-				665D6A61222FADFA00A0F922 /* KxMovieDecoder.h */,
-				665D6A62222FADFA00A0F922 /* KxMovieGLView.m */,
-				665D6A63222FADFA00A0F922 /* KxMovieGLView.h */,
-				665D6A64222FADFA00A0F922 /* KxMovieDecoder.m */,
-			);
-			path = kxmovie;
-			sourceTree = "<group>";
-		};
-		665D6A67222FAE1E00A0F922 /* libEasyRTSPClient */ = {
-			isa = PBXGroup;
-			children = (
-				665D6A68222FAE1E00A0F922 /* include */,
-				665D6A6C222FAE1E00A0F922 /* libEasyRTSPClient.a */,
-			);
-			path = libEasyRTSPClient;
-			sourceTree = "<group>";
-		};
-		665D6A68222FAE1E00A0F922 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				665D6A69222FAE1E00A0F922 /* EasyTypes.h */,
-				665D6A6B222FAE1E00A0F922 /* EasyRTSPClientAPI.h */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		668665451FCE957200956A52 /* EasyVideoDecoder */ = {
-			isa = PBXGroup;
-			children = (
-				368B0B5A1FCBFE9100172BDB /* HWVideoDecoder.h */,
-				368B0B591FCBFE9100172BDB /* HWVideoDecoder.m */,
-				E1A6BCBA1FBAC7D90000213E /* VideoDecode.h */,
-				E1A6BCB91FBAC7D90000213E /* VideoDecode.c */,
-			);
-			path = EasyVideoDecoder;
-			sourceTree = "<group>";
-		};
-		668665461FCE959400956A52 /* EasyRTSPReader */ = {
-			isa = PBXGroup;
-			children = (
-				E1A6BCB61FBAC7920000213E /* RtspDataReader.h */,
-				E1A6BCB71FBAC7920000213E /* RtspDataReader.mm */,
-			);
-			path = EasyRTSPReader;
-			sourceTree = "<group>";
-		};
-		668665471FCE95A600956A52 /* Player */ = {
-			isa = PBXGroup;
-			children = (
-				E1A6BCE91FBAD1E40000213E /* VideoView.h */,
-				E1A6BCEA1FBAD1E40000213E /* VideoView.m */,
-				E19AC7B31FBBE686008E2FA7 /* AudioManager.h */,
-				E19AC7B41FBBE686008E2FA7 /* AudioManager.mm */,
-				E1A6BCFC1FBAD5EA0000213E /* UIColor+HexColor.h */,
-				E1A6BCFD1FBAD5EA0000213E /* UIColor+HexColor.m */,
-			);
-			path = Player;
-			sourceTree = "<group>";
-		};
-		66D62EE41FED219F00C3B5C7 /* MuxerToVideo */ = {
-			isa = PBXGroup;
-			children = (
-				664FAB7F20638D8A00A2C767 /* Muxer.h */,
-				664FAB7E20638D8A00A2C767 /* Muxer.c */,
-			);
-			path = MuxerToVideo;
-			sourceTree = "<group>";
-		};
-		66D62EEB1FEE899A00C3B5C7 /* ViewController */ = {
-			isa = PBXGroup;
-			children = (
-				363E00AF1FBDB1F4008690E7 /* RootViewController.h */,
-				363E00AD1FBDB1F3008690E7 /* RootViewController.m */,
-				E1A6BD081FBAD7700000213E /* VideoPlayerController.h */,
-				E1A6BD091FBAD7700000213E /* VideoPlayerController.m */,
-				6635A7591FF75C1600C25760 /* SettingViewController.h */,
-				6635A75A1FF75C1600C25760 /* SettingViewController.m */,
-				6635A7631FF77BFB00C25760 /* AboutViewController.h */,
-				6635A7641FF77BFB00C25760 /* AboutViewController.m */,
-				6635A7661FF77CC000C25760 /* Record */,
+				6696775D22753F5A00E92A8A /* Base */,
+				6696775122753F5A00E92A8A /* RootViewController.h */,
+				6696774422753F5A00E92A8A /* RootViewController.m */,
+				6696775022753F5A00E92A8A /* EditURLViewController.h */,
+				6696774E22753F5A00E92A8A /* EditURLViewController.m */,
+				6696775222753F5A00E92A8A /* ScanViewController.h */,
+				6696774F22753F5A00E92A8A /* ScanViewController.m */,
+				6696775822753F5A00E92A8A /* Play */,
+				6696774522753F5A00E92A8A /* Record */,
+				6696775322753F5A00E92A8A /* Setting */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
 		};
-		66D62EEC1FEE89A800C3B5C7 /* View */ = {
+		6696774522753F5A00E92A8A /* Record */ = {
 			isa = PBXGroup;
 			children = (
-				E1A6BC271FBAC6EC0000213E /* Main.storyboard */,
-				363E00AC1FBDB1F3008690E7 /* VideoCell.h */,
-				363E00AE1FBDB1F4008690E7 /* VideoCell.m */,
-				6635A7801FF7997200C25760 /* ScreenShotListCell.h */,
-				6635A7811FF7997200C25760 /* ScreenShotListCell.m */,
-				E1A6BD031FBAD6800000213E /* VideoPanel.h */,
-				E1A6BD041FBAD6800000213E /* VideoPanel.mm */,
-				6654F4C92011BF5F00795BC9 /* Tool */,
+				6696774D22753F5A00E92A8A /* RecordViewController.h */,
+				6696774822753F5A00E92A8A /* RecordViewController.m */,
+				6696774922753F5A00E92A8A /* ScreenShotListViewController.h */,
+				6696774C22753F5A00E92A8A /* ScreenShotListViewController.m */,
+				6696774A22753F5A00E92A8A /* RecordListViewController.h */,
+				6696774722753F5A00E92A8A /* RecordListViewController.m */,
+				6696774622753F5A00E92A8A /* PlayRecordViewController.h */,
+				6696774B22753F5A00E92A8A /* PlayRecordViewController.m */,
+			);
+			path = Record;
+			sourceTree = "<group>";
+		};
+		6696775322753F5A00E92A8A /* Setting */ = {
+			isa = PBXGroup;
+			children = (
+				6696775622753F5A00E92A8A /* AboutViewController.h */,
+				6696775422753F5A00E92A8A /* AboutViewController.m */,
+				6696775522753F5A00E92A8A /* SettingViewController.h */,
+				6696775722753F5A00E92A8A /* SettingViewController.m */,
+			);
+			path = Setting;
+			sourceTree = "<group>";
+		};
+		6696775822753F5A00E92A8A /* Play */ = {
+			isa = PBXGroup;
+			children = (
+				6696775B22753F5A00E92A8A /* VideoPlayerController.h */,
+				6696775A22753F5A00E92A8A /* VideoPlayerController.m */,
+				6696775C22753F5A00E92A8A /* SplitScreenViewController.h */,
+				6696775922753F5A00E92A8A /* SplitScreenViewController.m */,
+			);
+			path = Play;
+			sourceTree = "<group>";
+		};
+		6696775D22753F5A00E92A8A /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				6696776122753F5A00E92A8A /* BaseViewController.h */,
+				6696775F22753F5A00E92A8A /* BaseViewController.m */,
+				6696776022753F5A00E92A8A /* BaseTableViewController.h */,
+				6696775E22753F5A00E92A8A /* BaseTableViewController.m */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		6696776222753F5A00E92A8A /* MuxerToVideo */ = {
+			isa = PBXGroup;
+			children = (
+				6696776622753F5A00E92A8A /* Muxer.h */,
+				6696776822753F5A00E92A8A /* Muxer.c */,
+				6696776922753F5A00E92A8A /* MuxerToMP4.h */,
+				6696776722753F5A00E92A8A /* MuxerToMP4.c */,
+			);
+			path = MuxerToVideo;
+			sourceTree = "<group>";
+		};
+		6696776B22753F5A00E92A8A /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				6696777022753F5A00E92A8A /* HRGBaseModel.h */,
+				6696777522753F5A00E92A8A /* HRGBaseModel.m */,
+				6696776D22753F5A00E92A8A /* URLModel.h */,
+				6696777222753F5A00E92A8A /* URLModel.m */,
+				6696776F22753F5A00E92A8A /* URLUnit.m */,
+				6696776E22753F5A00E92A8A /* PathUnit.m */,
+				6696777422753F5A00E92A8A /* URLUnit.h */,
+				6696777122753F5A00E92A8A /* PathUnit.h */,
+				6696776C22753F5A00E92A8A /* NSUserDefaultsUnit.h */,
+				6696777322753F5A00E92A8A /* NSUserDefaultsUnit.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		6696777622753F5A00E92A8A /* libEasyRTSPClient */ = {
+			isa = PBXGroup;
+			children = (
+				6696777722753F5A00E92A8A /* include */,
+				6696777A22753F5A00E92A8A /* libEasyRTSPClient.a */,
+			);
+			path = libEasyRTSPClient;
+			sourceTree = "<group>";
+		};
+		6696777722753F5A00E92A8A /* include */ = {
+			isa = PBXGroup;
+			children = (
+				6696777822753F5A00E92A8A /* EasyTypes.h */,
+				6696777922753F5A00E92A8A /* EasyRTSPClientAPI.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		6696777B22753F5A00E92A8A /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6696777F22753F5A00E92A8A /* LaunchScreen.storyboard */,
+				6696778122753F5A00E92A8A /* Main.storyboard */,
+				6696778622753F5A00E92A8A /* VideoCell.h */,
+				6696777E22753F5A00E92A8A /* VideoCell.m */,
+				6696778422753F5A00E92A8A /* RecordListCell.h */,
+				6696777C22753F5A00E92A8A /* RecordListCell.m */,
+				6696778322753F5A00E92A8A /* ScreenShotListCell.h */,
+				6696777D22753F5A00E92A8A /* ScreenShotListCell.m */,
+				6696778722753F5A00E92A8A /* VideoPanel.h */,
+				6696778522753F5A00E92A8A /* VideoPanel.mm */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		6696778822753F5A00E92A8A /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				6696778922753F5A00E92A8A /* AppDelegate.h */,
+				6696778B22753F5A00E92A8A /* AppDelegate.m */,
+				6696778A22753F5A00E92A8A /* main.m */,
+				6696778C22753F5A00E92A8A /* PrefixHeader.pch */,
+				6696778D22753F5A00E92A8A /* Info.plist */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		6696778E22753F5A00E92A8A /* EasyAudioDecoder */ = {
+			isa = PBXGroup;
+			children = (
+				6696778F22753F5A00E92A8A /* EasyAudioDecoder.h */,
+				6696779222753F5A00E92A8A /* EasyAudioDecoder.c */,
+				6696779322753F5A00E92A8A /* g711.h */,
+				6696779022753F5A00E92A8A /* g711.c */,
+				6696779422753F5A00E92A8A /* AACDecoder.h */,
+				6696779122753F5A00E92A8A /* AACDecoder.c */,
+			);
+			path = EasyAudioDecoder;
+			sourceTree = "<group>";
+		};
+		6696779522753F5B00E92A8A /* kxmovie */ = {
+			isa = PBXGroup;
+			children = (
+				6696779822753F5B00E92A8A /* KxMovieGLView.h */,
+				6696779722753F5B00E92A8A /* KxMovieGLView.m */,
+				6696779622753F5B00E92A8A /* KxMovieDecoder.h */,
+				6696779922753F5B00E92A8A /* KxMovieDecoder.m */,
+			);
+			path = kxmovie;
+			sourceTree = "<group>";
+		};
+		6696779A22753F5B00E92A8A /* EasyPlayerReader */ = {
+			isa = PBXGroup;
+			children = (
+				6696779C22753F5B00E92A8A /* PlayerDataReader.h */,
+				6696779B22753F5B00E92A8A /* PlayerDataReader.mm */,
+			);
+			path = EasyPlayerReader;
+			sourceTree = "<group>";
+		};
+		6696779E22753F5B00E92A8A /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				6696779F22753F5B00E92A8A /* AudioManager.h */,
+				669677A022753F5B00E92A8A /* UIColor+HexColor.m */,
+				669677A122753F5B00E92A8A /* VideoView.m */,
+				669677A222753F5B00E92A8A /* AudioManager.mm */,
+				669677A322753F5B00E92A8A /* VideoView.h */,
+				669677A422753F5B00E92A8A /* UIColor+HexColor.h */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
+		669677A522753F5B00E92A8A /* EasyVideoDecoder */ = {
+			isa = PBXGroup;
+			children = (
+				669677A822753F5B00E92A8A /* HWVideoDecoder.h */,
+				669677A622753F5B00E92A8A /* HWVideoDecoder.m */,
+				669677A722753F5B00E92A8A /* VideoDecode.h */,
+				669677A922753F5B00E92A8A /* VideoDecode.c */,
+			);
+			path = EasyVideoDecoder;
 			sourceTree = "<group>";
 		};
 		7A0DC49A2813D2FB8B90E0C7 /* Pods */ = {
@@ -634,19 +706,6 @@
 				E8EE66CDBAC44889E7D217F6 /* Pods-EasyPlayerRTSP.release.xcconfig */,
 			);
 			name = Pods;
-			sourceTree = "<group>";
-		};
-		E19AC7B61FBBE987008E2FA7 /* EasyAudioDecoder */ = {
-			isa = PBXGroup;
-			children = (
-				E19AC7B91FBBE987008E2FA7 /* EasyAudioDecoder.h */,
-				E19AC7BA1FBBE987008E2FA7 /* EasyAudioDecoder.c */,
-				E19AC7B81FBBE987008E2FA7 /* AACDecoder.h */,
-				E19AC7B71FBBE987008E2FA7 /* AACDecoder.c */,
-				E19AC7BE1FBBE987008E2FA7 /* g711.h */,
-				E19AC7BF1FBBE987008E2FA7 /* g711.c */,
-			);
-			path = EasyAudioDecoder;
 			sourceTree = "<group>";
 		};
 		E1A6BC121FBAC6EC0000213E = {
@@ -670,18 +729,18 @@
 		E1A6BC1D1FBAC6EC0000213E /* EasyPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				66D62EEB1FEE899A00C3B5C7 /* ViewController */,
-				66D62EEC1FEE89A800C3B5C7 /* View */,
-				668665471FCE95A600956A52 /* Player */,
-				665D6A60222FADFA00A0F922 /* kxmovie */,
-				668665461FCE959400956A52 /* EasyRTSPReader */,
-				66D62EE41FED219F00C3B5C7 /* MuxerToVideo */,
-				668665451FCE957200956A52 /* EasyVideoDecoder */,
-				E19AC7B61FBBE987008E2FA7 /* EasyAudioDecoder */,
-				665D6A67222FAE1E00A0F922 /* libEasyRTSPClient */,
+				6696778822753F5A00E92A8A /* Main */,
+				6696777B22753F5A00E92A8A /* View */,
+				6696774322753F5A00E92A8A /* ViewController */,
+				6696776B22753F5A00E92A8A /* Model */,
+				6696779E22753F5B00E92A8A /* Player */,
+				6696779522753F5B00E92A8A /* kxmovie */,
+				6696779A22753F5B00E92A8A /* EasyPlayerReader */,
+				6696776222753F5A00E92A8A /* MuxerToVideo */,
+				669677A522753F5B00E92A8A /* EasyVideoDecoder */,
+				6696778E22753F5A00E92A8A /* EasyAudioDecoder */,
+				6696777622753F5A00E92A8A /* libEasyRTSPClient */,
 				664FAC09206396D800A2C767 /* ffmpeg */,
-				E1A6BCEC1FBAD2210000213E /* PureLayout */,
-				6635A75C1FF767AA00C25760 /* Util */,
 				E1A6BC1E1FBAC6EC0000213E /* Supporting Files */,
 			);
 			path = EasyPlayer;
@@ -690,13 +749,8 @@
 		E1A6BC1E1FBAC6EC0000213E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				E1A6BC211FBAC6EC0000213E /* AppDelegate.h */,
-				E1A6BC221FBAC6EC0000213E /* AppDelegate.m */,
-				363E00B21FBDB2E3008690E7 /* EasyPlayer_Defs.h */,
-				E1A6BC2A1FBAC6EC0000213E /* Assets.xcassets */,
-				E1A6BC2C1FBAC6EC0000213E /* LaunchScreen.storyboard */,
-				E1A6BC2F1FBAC6EC0000213E /* Info.plist */,
-				E1A6BC1F1FBAC6EC0000213E /* main.m */,
+				6696779D22753F5B00E92A8A /* Assets.xcassets */,
+				6696776A22753F5A00E92A8A /* NewIcon.xcassets */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -711,25 +765,9 @@
 				E1A6BCB21FBAC7760000213E /* libz.tbd */,
 				E1A6BCB01FBAC7710000213E /* libiconv.tbd */,
 				E1A6BCAE1FBAC7690000213E /* libstdc++.tbd */,
-				1EF49487F4091290C1E51034 /* libPods-EasyPlayerRTSP.a */,
+				8BB8A4E103221CB3A011DF9F /* Pods_EasyPlayerRTSP.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		E1A6BCEC1FBAD2210000213E /* PureLayout */ = {
-			isa = PBXGroup;
-			children = (
-				E1A6BCED1FBAD2210000213E /* ALView+PureLayout.h */,
-				E1A6BCEE1FBAD2210000213E /* ALView+PureLayout.m */,
-				E1A6BCEF1FBAD2210000213E /* NSArray+PureLayout.h */,
-				E1A6BCF01FBAD2210000213E /* NSArray+PureLayout.m */,
-				E1A6BCF11FBAD2210000213E /* NSLayoutConstraint+PureLayout.h */,
-				E1A6BCF21FBAD2210000213E /* NSLayoutConstraint+PureLayout.m */,
-				E1A6BCF41FBAD2210000213E /* PureLayout.h */,
-				E1A6BCF31FBAD2210000213E /* PureLayout+Internal.h */,
-				E1A6BCF51FBAD2210000213E /* PureLayoutDefines.h */,
-			);
-			path = PureLayout;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -743,6 +781,7 @@
 				E1A6BC171FBAC6EC0000213E /* Sources */,
 				E1A6BC181FBAC6EC0000213E /* Frameworks */,
 				E1A6BC191FBAC6EC0000213E /* Resources */,
+				A244D156A0CE2BF3592519CE /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -759,7 +798,7 @@
 		E1A6BC131FBAC6EC0000213E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0920;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = cs;
 				TargetAttributes = {
 					E1A6BC1A1FBAC6EC0000213E = {
@@ -771,7 +810,7 @@
 			};
 			buildConfigurationList = E1A6BC161FBAC6EC0000213E /* Build configuration list for PBXProject "EasyPlayerRTSP" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -792,9 +831,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1A6BC2E1FBAC6EC0000213E /* LaunchScreen.storyboard in Resources */,
-				E1A6BC2B1FBAC6EC0000213E /* Assets.xcassets in Resources */,
-				E1A6BC291FBAC6EC0000213E /* Main.storyboard in Resources */,
+				669677C522753F5B00E92A8A /* Main.storyboard in Resources */,
+				669677C422753F5B00E92A8A /* LaunchScreen.storyboard in Resources */,
+				669677D022753F5B00E92A8A /* Assets.xcassets in Resources */,
+				669677BA22753F5B00E92A8A /* NewIcon.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -819,6 +859,34 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		A244D156A0CE2BF3592519CE /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-EasyPlayerRTSP/Pods-EasyPlayerRTSP-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/IQKeyboardManager/IQKeyboardManager.framework",
+				"${BUILT_PRODUCTS_DIR}/Masonry/Masonry.framework",
+				"${BUILT_PRODUCTS_DIR}/RTRootNavigationController/RTRootNavigationController.framework",
+				"${BUILT_PRODUCTS_DIR}/ReactiveCocoa/ReactiveCocoa.framework",
+				"${BUILT_PRODUCTS_DIR}/WHToast/WHToast.framework",
+				"${BUILT_PRODUCTS_DIR}/YYKit/YYKit.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardManager.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Masonry.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RTRootNavigationController.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactiveCocoa.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WHToast.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/YYKit.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-EasyPlayerRTSP/Pods-EasyPlayerRTSP-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -826,58 +894,63 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				664FAB8020638D8B00A2C767 /* Muxer.c in Sources */,
-				E1A6BD071FBAD6800000213E /* VideoPanel.mm in Sources */,
-				363E00B11FBDB1F4008690E7 /* VideoCell.m in Sources */,
-				6635A76F1FF7837A00C25760 /* FileListViewController.m in Sources */,
-				E1A6BCF81FBAD2210000213E /* NSLayoutConstraint+PureLayout.m in Sources */,
-				368B0B5B1FCBFE9200172BDB /* HWVideoDecoder.m in Sources */,
-				E19AC7C11FBBE987008E2FA7 /* EasyAudioDecoder.c in Sources */,
-				6635A7821FF7997200C25760 /* ScreenShotListCell.m in Sources */,
-				664FAC08206393CD00A2C767 /* PlayRecordViewController.m in Sources */,
-				6654F4CE2011BF6F00795BC9 /* DC_AlertManager.m in Sources */,
-				E19AC7C31FBBE987008E2FA7 /* g711.c in Sources */,
-				6635A76C1FF77CF500C25760 /* RecordListViewController.m in Sources */,
-				665D6A66222FADFA00A0F922 /* KxMovieDecoder.m in Sources */,
-				6635A7691FF77CEB00C25760 /* ScreenShotListViewController.m in Sources */,
-				E1A6BCB81FBAC7920000213E /* RtspDataReader.mm in Sources */,
-				E1A6BCBB1FBAC7D90000213E /* VideoDecode.c in Sources */,
-				E19AC7B51FBBE686008E2FA7 /* AudioManager.mm in Sources */,
-				6635A75F1FF767C600C25760 /* PathUnit.m in Sources */,
-				6635A7621FF777A000C25760 /* NSUserDefaultsUnit.m in Sources */,
-				6635A75B1FF75C1600C25760 /* SettingViewController.m in Sources */,
-				E1A6BCF61FBAD2210000213E /* ALView+PureLayout.m in Sources */,
-				E1A6BD0A1FBAD7700000213E /* VideoPlayerController.m in Sources */,
-				E1A6BCFE1FBAD5EA0000213E /* UIColor+HexColor.m in Sources */,
-				E1A6BC231FBAC6EC0000213E /* AppDelegate.m in Sources */,
-				E1A6BC201FBAC6EC0000213E /* main.m in Sources */,
-				6654F4CF2011BF6F00795BC9 /* UIView+Toast.m in Sources */,
-				363E00B01FBDB1F4008690E7 /* RootViewController.m in Sources */,
-				665D6A65222FADFA00A0F922 /* KxMovieGLView.m in Sources */,
-				E1A6BCEB1FBAD1E40000213E /* VideoView.m in Sources */,
-				E19AC7C01FBBE987008E2FA7 /* AACDecoder.c in Sources */,
-				E1A6BCF71FBAD2210000213E /* NSArray+PureLayout.m in Sources */,
-				6635A7651FF77BFB00C25760 /* AboutViewController.m in Sources */,
+				669677D522753F5B00E92A8A /* VideoDecode.c in Sources */,
+				669677B622753F5B00E92A8A /* BaseViewController.m in Sources */,
+				669677BD22753F5B00E92A8A /* URLModel.m in Sources */,
+				669677B822753F5B00E92A8A /* MuxerToMP4.c in Sources */,
+				669677B022753F5B00E92A8A /* ScanViewController.m in Sources */,
+				669677D122753F5B00E92A8A /* UIColor+HexColor.m in Sources */,
+				669677AF22753F5B00E92A8A /* EditURLViewController.m in Sources */,
+				669677B422753F5B00E92A8A /* VideoPlayerController.m in Sources */,
+				669677AA22753F5B00E92A8A /* RootViewController.m in Sources */,
+				669677D322753F5B00E92A8A /* AudioManager.mm in Sources */,
+				669677AD22753F5B00E92A8A /* PlayRecordViewController.m in Sources */,
+				669677B122753F5B00E92A8A /* AboutViewController.m in Sources */,
+				669677CD22753F5B00E92A8A /* KxMovieGLView.m in Sources */,
+				669677D422753F5B00E92A8A /* HWVideoDecoder.m in Sources */,
+				669677BE22753F5B00E92A8A /* NSUserDefaultsUnit.m in Sources */,
+				669677AB22753F5B00E92A8A /* RecordListViewController.m in Sources */,
+				669677C322753F5B00E92A8A /* VideoCell.m in Sources */,
+				669677C122753F5B00E92A8A /* RecordListCell.m in Sources */,
+				669677AC22753F5B00E92A8A /* RecordViewController.m in Sources */,
+				669677C822753F5B00E92A8A /* AppDelegate.m in Sources */,
+				669677B522753F5B00E92A8A /* BaseTableViewController.m in Sources */,
+				669677B322753F5B00E92A8A /* SplitScreenViewController.m in Sources */,
+				669677D222753F5B00E92A8A /* VideoView.m in Sources */,
+				669677CF22753F5B00E92A8A /* PlayerDataReader.mm in Sources */,
+				669677C222753F5B00E92A8A /* ScreenShotListCell.m in Sources */,
+				669677B922753F5B00E92A8A /* Muxer.c in Sources */,
+				669677C622753F5B00E92A8A /* VideoPanel.mm in Sources */,
+				669677B222753F5B00E92A8A /* SettingViewController.m in Sources */,
+				669677BF22753F5B00E92A8A /* HRGBaseModel.m in Sources */,
+				669677CA22753F5B00E92A8A /* g711.c in Sources */,
+				669677AE22753F5B00E92A8A /* ScreenShotListViewController.m in Sources */,
+				669677BB22753F5B00E92A8A /* PathUnit.m in Sources */,
+				669677CB22753F5B00E92A8A /* AACDecoder.c in Sources */,
+				669677CE22753F5B00E92A8A /* KxMovieDecoder.m in Sources */,
+				669677CC22753F5B00E92A8A /* EasyAudioDecoder.c in Sources */,
+				669677C722753F5B00E92A8A /* main.m in Sources */,
+				669677BC22753F5B00E92A8A /* URLUnit.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		E1A6BC271FBAC6EC0000213E /* Main.storyboard */ = {
+		6696777F22753F5A00E92A8A /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				E1A6BC281FBAC6EC0000213E /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		E1A6BC2C1FBAC6EC0000213E /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				E1A6BC2D1FBAC6EC0000213E /* Base */,
+				6696778022753F5A00E92A8A /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		6696778122753F5A00E92A8A /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6696778222753F5A00E92A8A /* Base */,
+			);
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -887,6 +960,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -896,6 +970,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -903,6 +978,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -940,6 +1016,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -949,6 +1026,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -956,6 +1034,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -988,6 +1067,7 @@
 			baseConfigurationReference = 02E19BEBCD451349B8CB5207 /* Pods-EasyPlayerRTSP.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = NO;
@@ -1000,25 +1080,30 @@
 				DEVELOPMENT_TEAM = 33USAS7KQX;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(PROJECT_DIR)",
 					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/IQKeyboardManager\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Masonry\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RTRootNavigationController\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactiveCocoa\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/WHToast\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/YYKit\"",
+					"\"${PODS_ROOT}/Bugly\"",
 				);
 				GCC_NO_COMMON_BLOCKS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "${SRCROOT}/EasyPlayer/Main/PrefixHeader.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
 					"$(SDKROOT)/usr/include/libxml2",
 					"$(PROJECT_DIR)/EasyPlayer/ffmpeg/include",
-					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public/Masonry\"",
 				);
-				INFOPLIST_FILE = EasyPlayer/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				INFOPLIST_FILE = "$(SRCROOT)/EasyPlayer/Main/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/libEasyRTSPClient",
 					"$(PROJECT_DIR)/EasyPlayer/ffmpeg/lib",
 					"$(PROJECT_DIR)/EasyPlayer/libEasyRTSPClient",
 				);
@@ -1035,6 +1120,7 @@
 			baseConfigurationReference = E8EE66CDBAC44889E7D217F6 /* Pods-EasyPlayerRTSP.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = NO;
@@ -1047,24 +1133,29 @@
 				DEVELOPMENT_TEAM = 33USAS7KQX;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(PROJECT_DIR)",
 					"$(inherited)",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/IQKeyboardManager\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/Masonry\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/RTRootNavigationController\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/ReactiveCocoa\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/WHToast\"",
+					"\"${PODS_CONFIGURATION_BUILD_DIR}/YYKit\"",
+					"\"${PODS_ROOT}/Bugly\"",
 				);
 				GCC_NO_COMMON_BLOCKS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "${SRCROOT}/EasyPlayer/Main/PrefixHeader.pch";
 				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
 					"$(SDKROOT)/usr/include/libxml2",
 					"$(PROJECT_DIR)/EasyPlayer/ffmpeg/include",
-					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public/Masonry\"",
 				);
-				INFOPLIST_FILE = EasyPlayer/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				INFOPLIST_FILE = "$(SRCROOT)/EasyPlayer/Main/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/libEasyRTSPClient",
 					"$(PROJECT_DIR)/EasyPlayer/ffmpeg/lib",
 					"$(PROJECT_DIR)/EasyPlayer/libEasyRTSPClient",
 				);

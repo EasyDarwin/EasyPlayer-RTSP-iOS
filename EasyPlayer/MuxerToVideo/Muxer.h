@@ -1,6 +1,6 @@
 //
 //  Muxer.h
-//  EasyPlayerRTMP
+//  EasyPlayerRTSP
 //
 //  Created by liyy on 2018/3/19.
 //  Copyright © 2018年 cs. All rights reserved.

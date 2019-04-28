@@ -9,8 +9,6 @@
 #import <VideoToolbox/VideoToolbox.h>
 #import "KxMovieDecoder.h"
 
-//#define iMicroVideo 0
-
 typedef enum {
     DEC_264,
     DEC_265,
@@ -27,7 +25,7 @@ typedef enum {
 - (id)initWithDelegate:(id<HWVideoDecoderDelegate>)aDelegate;
 
 // 解码视频数据
-- (int)decodeVideoData:(unsigned char *)pData len:(int)len isInit:(BOOL)isInit;
+- (int)decodeVideoData:(unsigned char *)pH264Data len:(int)len isInit:(BOOL)isInit;
 
 // 关闭解码器，并释放资源
 - (void)closeDecoder;
@@ -36,7 +34,7 @@ typedef enum {
 
 @protocol HWVideoDecoderDelegate <NSObject>
 
--(void) getDecodePictureData:(KxVideoFrame *)frame;
--(void) getDecodePixelData:(CVImageBufferRef )frame;
+-(void) getDecodePictureData:(KxVideoFrame *) frame length:(unsigned int) length;
+-(void) getDecodePixelData:(CVImageBufferRef) frame;
 
 @end

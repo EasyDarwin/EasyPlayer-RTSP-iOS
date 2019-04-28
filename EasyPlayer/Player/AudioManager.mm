@@ -10,15 +10,10 @@
 #import <Accelerate/Accelerate.h>
 #include <vector>
 
-static void sessionInterruptionListener(void *inClientData, UInt32 inInterruption) {
-    
-}
-
 @interface AudioManager() {
     AudioUnit remoteIOUnit;
     SInt16 * _outData;
     BOOL _activated;
-    BOOL _initialized;
 }
 
 @property (nonatomic, readwrite)BOOL playing;
@@ -68,38 +63,25 @@ static BOOL checkError(OSStatus error, const char *operation) {
 }
 
 - (BOOL) activateAudioSession {
-    if (!_initialized) {
-        AudioSessionInitialize(NULL,
-                               kCFRunLoopDefaultMode,
-                               sessionInterruptionListener,
-                               (__bridge void *)(self));
-        
-        _initialized = YES;
-    }
-    
     if (!_activated) {
-        UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
-        if (checkError(AudioSessionSetProperty(kAudioSessionProperty_AudioCategory,
-                                               sizeof(sessionCategory),
-                                               &sessionCategory),
-                       "Couldn't set audio category"))
+        if (![[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil]) {
             return NO;
+        }
         
-        if (checkError(AudioSessionSetActive(YES),
-                       "Couldn't activate the audio session"))
+        if (![[AVAudioSession sharedInstance] setActive:YES withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil]) {
             return NO;
+        }
         
         _activated = YES;
     }
     
-    return _initialized;
+    return YES;
 }
 
 - (void) deactivateAudioSession {
     [self stop];
+    [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
     
-    checkError(AudioSessionSetActive(NO),
-               "Couldn't deactivate the audio session");
     _activated = NO;
 }
 
@@ -229,8 +211,13 @@ static OSStatus outputRenderCallback(void                        *inRefCon,
         if (_outputBlock != nil) {
             _outputBlock(_outData, inNumberFrames, self.channel);
             
-            for (int iBuffer=0; iBuffer < ioData->mNumberBuffers; ++iBuffer) {
+            for (int iBuffer = 0; iBuffer < ioData->mNumberBuffers; ++iBuffer) {
                 int thisNumChannels = ioData->mBuffers[iBuffer].mNumberChannels;
+                
+                if (thisNumChannels <= 0 || thisNumChannels > 2) {
+                    thisNumChannels = 1;
+                }
+                
                 SInt16 *frameBuffer = (SInt16 *)ioData->mBuffers[iBuffer].mData;
                 memcpy(frameBuffer, _outData, inNumberFrames * thisNumChannels * sizeof(SInt16));
             }
