@@ -21,7 +21,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash_bg" translatesAutoresizingMaskIntoConstraints="NO" id="Czv-w8-2Dm">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash_bg" translatesAutoresizingMaskIntoConstraints="NO" id="3Y6-Tp-q6H">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Copyright © 2012-2019 www.EasyDarwin.org" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tYw-II-hRG">
@@ -48,18 +48,18 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="Czv-w8-2Dm" secondAttribute="bottom" id="6Nb-fX-2e0"/>
-                            <constraint firstAttribute="trailing" secondItem="Czv-w8-2Dm" secondAttribute="trailing" id="AbP-Qt-WhM"/>
+                            <constraint firstItem="3Y6-Tp-q6H" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="2s6-Td-9Ms"/>
+                            <constraint firstAttribute="trailing" secondItem="3Y6-Tp-q6H" secondAttribute="trailing" id="9Qy-87-14e"/>
                             <constraint firstItem="4Xs-2I-gCh" firstAttribute="top" secondItem="Llm-lL-Icb" secondAttribute="bottom" constant="50" id="BPJ-wx-aZd"/>
-                            <constraint firstItem="Czv-w8-2Dm" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="Dpz-9L-9GZ"/>
                             <constraint firstItem="oCt-MS-TTW" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="OrP-Sf-JbL"/>
+                            <constraint firstItem="3Y6-Tp-q6H" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="QhG-BE-x0B"/>
                             <constraint firstItem="oCt-MS-TTW" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="Tvj-Bf-OlI"/>
                             <constraint firstItem="4Xs-2I-gCh" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Um3-hi-QmX"/>
+                            <constraint firstAttribute="bottom" secondItem="3Y6-Tp-q6H" secondAttribute="bottom" id="XWL-gU-Td5"/>
                             <constraint firstItem="tYw-II-hRG" firstAttribute="top" secondItem="Lxx-xV-Khh" secondAttribute="bottom" constant="10" id="c91-FL-Et9"/>
                             <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="tYw-II-hRG" secondAttribute="bottom" constant="35" id="e3l-fr-fLA"/>
                             <constraint firstItem="Lxx-xV-Khh" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="fFz-K3-bbu"/>
                             <constraint firstItem="tYw-II-hRG" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="oy1-Z9-xJG"/>
-                            <constraint firstItem="Czv-w8-2Dm" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="wQ8-h1-4h4"/>
                         </constraints>
                     </view>
                 </viewController>
