@@ -25,7 +25,8 @@
         model.url = @"rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
         [URLUnit addURLModel:model];
         
-        [NSUserDefaultsUnit setFFMpeg:YES];// 默认软解码
+        [NSUserDefaultsUnit setFFMpeg:YES];     // 默认软解码
+        [NSUserDefaultsUnit setAutoAudio:YES];  // 默认自动播放音频
     }
     
     [PlayerDataReader startUp];
