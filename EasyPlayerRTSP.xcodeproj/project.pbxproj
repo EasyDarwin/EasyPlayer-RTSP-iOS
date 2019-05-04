@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		368B0B5E1FCBFFA300172BDB /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 368B0B5D1FCBFF8D00172BDB /* VideoToolbox.framework */; };
 		368B0B601FCBFFB600172BDB /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 368B0B5F1FCBFFB000172BDB /* CoreMedia.framework */; };
+		66268FE3227DCB4C009C84CE /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66268FE1227DCB4C009C84CE /* WebViewController.m */; };
 		664FAC87206396D800A2C767 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 664FAC80206396D800A2C767 /* libavutil.a */; };
 		664FAC88206396D800A2C767 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 664FAC81206396D800A2C767 /* libavfilter.a */; };
 		664FAC89206396D800A2C767 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 664FAC82206396D800A2C767 /* libavcodec.a */; };
@@ -75,6 +76,8 @@
 		368B0B5C1FCBFF8D00172BDB /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		368B0B5D1FCBFF8D00172BDB /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		368B0B5F1FCBFFB000172BDB /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		66268FE1227DCB4C009C84CE /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
+		66268FE2227DCB4C009C84CE /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
 		664FAC0C206396D800A2C767 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		664FAC0D206396D800A2C767 /* buffersrc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = buffersrc.h; sourceTree = "<group>"; };
 		664FAC0E206396D800A2C767 /* buffersink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = buffersink.h; sourceTree = "<group>"; };
@@ -550,6 +553,8 @@
 		6696775322753F5A00E92A8A /* Setting */ = {
 			isa = PBXGroup;
 			children = (
+				66268FE2227DCB4C009C84CE /* WebViewController.h */,
+				66268FE1227DCB4C009C84CE /* WebViewController.m */,
 				6696775622753F5A00E92A8A /* AboutViewController.h */,
 				6696775422753F5A00E92A8A /* AboutViewController.m */,
 				6696775522753F5A00E92A8A /* SettingViewController.h */,
@@ -935,6 +940,7 @@
 				669677AC22753F5B00E92A8A /* RecordViewController.m in Sources */,
 				669677C822753F5B00E92A8A /* AppDelegate.m in Sources */,
 				669677B522753F5B00E92A8A /* BaseTableViewController.m in Sources */,
+				66268FE3227DCB4C009C84CE /* WebViewController.m in Sources */,
 				669677B322753F5B00E92A8A /* SplitScreenViewController.m in Sources */,
 				669677D222753F5B00E92A8A /* VideoView.m in Sources */,
 				669677CF22753F5B00E92A8A /* PlayerDataReader.mm in Sources */,
