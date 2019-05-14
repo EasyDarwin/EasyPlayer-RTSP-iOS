@@ -696,12 +696,12 @@
 		6696779E22753F5B00E92A8A /* Player */ = {
 			isa = PBXGroup;
 			children = (
-				6696779F22753F5B00E92A8A /* AudioManager.h */,
-				669677A022753F5B00E92A8A /* UIColor+HexColor.m */,
-				669677A122753F5B00E92A8A /* VideoView.m */,
-				669677A222753F5B00E92A8A /* AudioManager.mm */,
 				669677A322753F5B00E92A8A /* VideoView.h */,
+				669677A122753F5B00E92A8A /* VideoView.m */,
+				6696779F22753F5B00E92A8A /* AudioManager.h */,
+				669677A222753F5B00E92A8A /* AudioManager.mm */,
 				669677A422753F5B00E92A8A /* UIColor+HexColor.h */,
+				669677A022753F5B00E92A8A /* UIColor+HexColor.m */,
 			);
 			path = Player;
 			sourceTree = "<group>";

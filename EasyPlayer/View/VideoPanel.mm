@@ -67,6 +67,10 @@
     for (int i = 0; i < [_resuedViews count]; i++) {
         URLModel *model = urlModels[i];
         
+        if (!model.url) {
+            continue;
+        }
+        
         VideoView *videoView = [_resuedViews objectAtIndex:i];
         videoView.url = model.url;
         videoView.transportMode = model.transportMode;
@@ -97,9 +101,9 @@
 }
 
 - (void)setLayout:(IVideoLayout)layout currentURL:(NSString *)url URLs:(NSArray<URLModel *> *)urlModels {
-//    if (_layout == layout) {
-//        return;
-//    }
+    //    if (_layout == layout) {
+    //        return;
+    //    }
     
     _layout = layout;
     
@@ -165,7 +169,7 @@
                 [view mas_updateConstraints:^(MASConstraintMaker *make) {
                     make.left.equalTo(@0);
                 }];
-
+                
                 if (topView == nil) {
                     [view mas_updateConstraints:^(MASConstraintMaker *make) {
                         make.top.equalTo(@0);
@@ -175,7 +179,7 @@
                         make.top.equalTo(topView.mas_bottom).offset(kContentInset);
                     }];
                 }
-
+                
                 if (i == rowCount - 1) {
                     [view mas_makeConstraints:^(MASConstraintMaker *make) {
                         make.bottom.equalTo(@0);
@@ -202,14 +206,14 @@
         leftView = nil;
     }
     
-//    if (!hasActiveView) {
-//        for (VideoView *view in _resuedViews) {
-//            view.active = NO;
-//        }
-//
-//        VideoView *view = [_resuedViews firstObject];
-//        [self videoViewBeginActive:view];
-//    }
+    //    if (!hasActiveView) {
+    //        for (VideoView *view in _resuedViews) {
+    //            view.active = NO;
+    //        }
+    //
+    //        VideoView *view = [_resuedViews firstObject];
+    //        [self videoViewBeginActive:view];
+    //    }
     
     if (url) {
         // 全屏时，需要设置为1分屏, 并设置当前VideoView为第一个View
@@ -315,6 +319,12 @@
 - (void)videoViewDidiUpdateStream:(VideoView *)view {
     if (view == _activeView) {
         [self.delegate activeViewDidiUpdateStream:_activeView];
+    }
+}
+
+- (void) back {
+    if (self.delegate) {
+        [self.delegate back];
     }
 }
 
