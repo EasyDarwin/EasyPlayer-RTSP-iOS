@@ -55,7 +55,7 @@
     self.nameLabel.attributedText = attr;
     self.nameLabel.numberOfLines = 0;
     
-    NSString *html = @"EasyPlayer RTSP iOS 播放器是由 TSINGSEE青犀开放平台 开发和维护的一个完善的RTSP流媒体播放器项目，视频编码支持H.264，H.265，MPEG4，MJPEG，音频支持G711A，G711U，G726，AAC，支持RTSP over TCP/UDP协议，支持硬解码，是一套极佳的安防流媒体平台播放组件！EasyPlayer iOS版本经过了多个项目的检验和迭代，已经非常稳定、完整，功能包括：直播、录像、抓图，支持指令集包括armv7a、armv8a、x86，应该说是目前市面上功能性、稳定性和完整性最强的一款RTSP播放器！";
+    NSString *html = @"EasyPlayer-RTSP iOS版 播放器是由 TSINGSEE青犀开放平台 开发和维护的一个完善的RTSP流媒体播放器项目，视频编码支持H.264，H.265，MPEG4，MJPEG，音频支持G711A，G711U，G726，AAC，支持RTSP over TCP/UDP协议，支持硬解码，是一套极佳的安防流媒体平台播放组件！EasyPlayer-RTSP iOS版本经过了多个项目的检验和迭代，已经非常稳定、完整，功能包括：直播、录像、抓图，支持指令集包括armv7a、armv8a、x86，应该说是目前市面上功能性、稳定性和完整性最强的一款RTSP播放器！";
     NSData *data = [html dataUsingEncoding:NSUnicodeStringEncoding];
     
     NSDictionary *options = @{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
@@ -80,25 +80,7 @@
     UIButton *btn = (UIButton *)sender;
     
     WebViewController *controller = [[WebViewController alloc] init];
-    controller.title = @"EasyDarwin开源流媒体服务器";
-    controller.url = btn.titleLabel.text;
-    [self.navigationController pushViewController:controller animated:YES];
-}
-
-- (IBAction)easyDSS:(id)sender {
-    UIButton *btn = (UIButton *)sender;
-    
-    WebViewController *controller = [[WebViewController alloc] init];
-    controller.title = @"EasyDSS商用流媒体解决方案";
-    controller.url = btn.titleLabel.text;
-    [self.navigationController pushViewController:controller animated:YES];
-}
-
-- (IBAction)easyNVR:(id)sender {
-    UIButton *btn = (UIButton *)sender;
-    
-    WebViewController *controller = [[WebViewController alloc] init];
-    controller.title = @"EasyNVR无插件直播方案";
+    controller.title = @"EasyPlayer播放器系列";
     controller.url = btn.titleLabel.text;
     [self.navigationController pushViewController:controller animated:YES];
 }
