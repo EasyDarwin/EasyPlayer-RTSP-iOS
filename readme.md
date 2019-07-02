@@ -34,11 +34,6 @@ Xcode 编译；
 ![EasyPlayer iOS](http://www.easydarwin.org/github/images/easyplayer/easyplayer20171225.png)
 
 
-## DEMO效果 ##
-
-![EasyPlayer Android](https://raw.githubusercontent.com/EasyDarwin/EasyPlayer_Android/master/EasyPlayer/screenshot/single_video.jpg?raw=true)
-
-
 ## EasyPlayer项目集群说明 ##
 
 ### √ EasyPlayer-RTSP ###
