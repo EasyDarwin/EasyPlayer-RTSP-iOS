@@ -2,8 +2,8 @@
 //  SplitScreenViewController.h
 //  EasyPlayerRTSP
 //
-//  Created by liyy on 2019/4/24.
-//  Copyright © 2019年 cs. All rights reserved.
+//  Created by leo on 2019/4/24.
+//  Copyright © 2019年 leo. All rights reserved.
 //
 
 #import "BaseViewController.h"

@@ -37,7 +37,7 @@
 		669677BC22753F5B00E92A8A /* URLUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696776F22753F5A00E92A8A /* URLUnit.m */; };
 		669677BD22753F5B00E92A8A /* URLModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777222753F5A00E92A8A /* URLModel.m */; };
 		669677BE22753F5B00E92A8A /* NSUserDefaultsUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777322753F5A00E92A8A /* NSUserDefaultsUnit.m */; };
-		669677BF22753F5B00E92A8A /* HRGBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777522753F5A00E92A8A /* HRGBaseModel.m */; };
+		669677BF22753F5B00E92A8A /* BaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777522753F5A00E92A8A /* BaseModel.m */; };
 		669677C022753F5B00E92A8A /* libEasyRTSPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6696777A22753F5A00E92A8A /* libEasyRTSPClient.a */; };
 		669677C122753F5B00E92A8A /* RecordListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777C22753F5A00E92A8A /* RecordListCell.m */; };
 		669677C222753F5B00E92A8A /* ScreenShotListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6696777D22753F5A00E92A8A /* ScreenShotListCell.m */; };
@@ -229,12 +229,12 @@
 		6696776D22753F5A00E92A8A /* URLModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLModel.h; sourceTree = "<group>"; };
 		6696776E22753F5A00E92A8A /* PathUnit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PathUnit.m; sourceTree = "<group>"; };
 		6696776F22753F5A00E92A8A /* URLUnit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLUnit.m; sourceTree = "<group>"; };
-		6696777022753F5A00E92A8A /* HRGBaseModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HRGBaseModel.h; sourceTree = "<group>"; };
+		6696777022753F5A00E92A8A /* BaseModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseModel.h; sourceTree = "<group>"; };
 		6696777122753F5A00E92A8A /* PathUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathUnit.h; sourceTree = "<group>"; };
 		6696777222753F5A00E92A8A /* URLModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLModel.m; sourceTree = "<group>"; };
 		6696777322753F5A00E92A8A /* NSUserDefaultsUnit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSUserDefaultsUnit.m; sourceTree = "<group>"; };
 		6696777422753F5A00E92A8A /* URLUnit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLUnit.h; sourceTree = "<group>"; };
-		6696777522753F5A00E92A8A /* HRGBaseModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HRGBaseModel.m; sourceTree = "<group>"; };
+		6696777522753F5A00E92A8A /* BaseModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseModel.m; sourceTree = "<group>"; };
 		6696777822753F5A00E92A8A /* EasyTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyTypes.h; sourceTree = "<group>"; };
 		6696777922753F5A00E92A8A /* EasyRTSPClientAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyRTSPClientAPI.h; sourceTree = "<group>"; };
 		6696777A22753F5A00E92A8A /* libEasyRTSPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libEasyRTSPClient.a; sourceTree = "<group>"; };
@@ -599,8 +599,8 @@
 		6696776B22753F5A00E92A8A /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				6696777022753F5A00E92A8A /* HRGBaseModel.h */,
-				6696777522753F5A00E92A8A /* HRGBaseModel.m */,
+				6696777022753F5A00E92A8A /* BaseModel.h */,
+				6696777522753F5A00E92A8A /* BaseModel.m */,
 				6696776D22753F5A00E92A8A /* URLModel.h */,
 				6696777222753F5A00E92A8A /* URLModel.m */,
 				6696776F22753F5A00E92A8A /* URLUnit.m */,
@@ -948,7 +948,7 @@
 				669677B922753F5B00E92A8A /* Muxer.c in Sources */,
 				669677C622753F5B00E92A8A /* VideoPanel.mm in Sources */,
 				669677B222753F5B00E92A8A /* SettingViewController.m in Sources */,
-				669677BF22753F5B00E92A8A /* HRGBaseModel.m in Sources */,
+				669677BF22753F5B00E92A8A /* BaseModel.m in Sources */,
 				669677CA22753F5B00E92A8A /* g711.c in Sources */,
 				669677AE22753F5B00E92A8A /* ScreenShotListViewController.m in Sources */,
 				669677BB22753F5B00E92A8A /* PathUnit.m in Sources */,

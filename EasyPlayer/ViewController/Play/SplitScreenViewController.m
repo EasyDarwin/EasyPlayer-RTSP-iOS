@@ -2,8 +2,8 @@
 //  SplitScreenViewController.m
 //  EasyPlayerRTMP
 //
-//  Created by liyy on 2019/4/24.
-//  Copyright © 2019年 cs. All rights reserved.
+//  Created by leo on 2019/4/24.
+//  Copyright © 2019年 leo. All rights reserved.
 //
 
 #import "SplitScreenViewController.h"
@@ -64,7 +64,7 @@
         make.height.equalTo(@40);
     }];
     
-    self.panelFrame = CGRectMake(0, 70, HRGScreenWidth, HRGScreenWidth);
+    self.panelFrame = CGRectMake(0, 70, EasyScreenWidth, EasyScreenWidth);
     self.panel = [[VideoPanel alloc] initWithFrame:self.panelFrame];
     self.panel.delegate = self;
     [self.view addSubview:self.panel];
@@ -135,7 +135,7 @@
         self.statusBarHidden = NO;
         [self prefersStatusBarHidden];
         
-        self.panel.frame = CGRectMake(0, 0, HRGScreenHeight, HRGScreenWidth);
+        self.panel.frame = CGRectMake(0, 0, EasyScreenHeight, EasyScreenWidth);
         self.panel.center = self.view.center;
         
         if (isLeft) {
