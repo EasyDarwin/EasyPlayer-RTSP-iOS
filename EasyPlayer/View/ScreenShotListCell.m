@@ -1,15 +1,13 @@
 //
 //  BrandShopCell.m
-//  BTG
+//  Easy
 //
-//  Created by liyy on 2017/11/6.
-//  Copyright © 2017年 CCDC. All rights reserved.
+//  Created by leo on 2017/11/6.
+//  Copyright © 2017年 leo. All rights reserved.
 //
 
 #import "ScreenShotListCell.h"
-#import <Masonry.h>
-
-#define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
+#import "Masonry.h"
 
 @implementation ScreenShotListCell
 
