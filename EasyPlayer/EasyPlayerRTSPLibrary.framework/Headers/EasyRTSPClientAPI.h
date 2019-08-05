@@ -9,45 +9,45 @@
 
 #include "EasyTypes.h"
 
-#define	RTSP_PROG_NAME	"EasyRTSPClient v1.6.17.1117"
+#define	RTSP_PROG_NAME	"libEasyRTSPClient v3.0.19.0415"
 
 /*
-	_channelId:		é€šé“å·,æš‚æ—¶ä¸ç”¨
-	_channelPtr:	é€šé“å¯¹åº”å¯¹è±¡,æš‚æ—¶ä¸ç”¨
+	_channelId:		Í¨µÀºÅ,ÔİÊ±²»ÓÃ
+	_channelPtr:	Í¨µÀ¶ÔÓ¦¶ÔÏó,ÔİÊ±²»ÓÃ
 	_frameType:		EASY_SDK_VIDEO_FRAME_FLAG/EASY_SDK_AUDIO_FRAME_FLAG/EASY_SDK_EVENT_FRAME_FLAG/...	
-	_pBuf:			å›è°ƒçš„æ•°æ®éƒ¨åˆ†ï¼Œå…·ä½“ç”¨æ³•çœ‹Demo
-	_frameInfo:		å¸§ç»“æ„æ•°æ®
+	_pBuf:			»Øµ÷µÄÊı¾İ²¿·Ö£¬¾ßÌåÓÃ·¨¿´Demo
+	_frameInfo:		Ö¡½á¹¹Êı¾İ
 */
-typedef int (Easy_APICALL *RTSPSourceCallBack)( int _channelId, void *_channelPtr, int _frameType, char *pBuf, RTSP_FRAME_INFO* _frameInfo);
+typedef int (Easy_APICALL *RTSPSourceCallBack)( int _channelId, void *_channelPtr, int _frameType, char *pBuf, EASY_FRAME_INFO* _frameInfo);
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-	/* è·å–æœ€åä¸€æ¬¡é”™è¯¯çš„é”™è¯¯ç  */
-	Easy_API int Easy_APICALL EasyRTSP_GetErrCode(Easy_RTSP_Handle handle);
+	/* »ñÈ¡×îºóÒ»´Î´íÎóµÄ´íÎóÂë */
+	Easy_API int Easy_APICALL EasyRTSP_GetErrCode(Easy_Handle handle);
 
-	/* æ¿€æ´» */
+	/* ¼¤»î */
 #ifdef ANDROID
 	Easy_API int Easy_APICALL EasyRTSP_Activate(char *license, char* userPtr);
 #else
 	Easy_API int Easy_APICALL EasyRTSP_Activate(char *license);
 #endif
 
-	/* åˆ›å»ºRTSPClientå¥æŸ„  è¿”å›0è¡¨ç¤ºæˆåŠŸï¼Œè¿”å›é0è¡¨ç¤ºå¤±è´¥ */
-	Easy_API int Easy_APICALL EasyRTSP_Init(Easy_RTSP_Handle *handle);
+	/* ´´½¨RTSPClient¾ä±ú  ·µ»Ø0±íÊ¾³É¹¦£¬·µ»Ø·Ç0±íÊ¾Ê§°Ü */
+	Easy_API int Easy_APICALL EasyRTSP_Init(Easy_Handle *handle);
 
-	/* é‡Šæ”¾RTSPClient å‚æ•°ä¸ºRTSPClientå¥æŸ„ */
-	Easy_API int Easy_APICALL EasyRTSP_Deinit(Easy_RTSP_Handle *handle);
+	/* ÊÍ·ÅRTSPClient ²ÎÊıÎªRTSPClient¾ä±ú */
+	Easy_API int Easy_APICALL EasyRTSP_Deinit(Easy_Handle *handle);
 
-	/* è®¾ç½®æ•°æ®å›è°ƒ */
-	Easy_API int Easy_APICALL EasyRTSP_SetCallback(Easy_RTSP_Handle handle, RTSPSourceCallBack _callback);
+	/* ÉèÖÃÊı¾İ»Øµ÷ */
+	Easy_API int Easy_APICALL EasyRTSP_SetCallback(Easy_Handle handle, RTSPSourceCallBack _callback);
 
-	/* æ‰“å¼€ç½‘ç»œæµ */
-	Easy_API int Easy_APICALL EasyRTSP_OpenStream(Easy_RTSP_Handle handle, int _channelid, char *_url, EASY_RTP_CONNECT_TYPE _connType, unsigned int _mediaType, char *_username, char *_password, void *userPtr, int _reconn/*1000è¡¨ç¤ºé•¿è¿æ¥,å³å¦‚æœç½‘ç»œæ–­å¼€è‡ªåŠ¨é‡è¿, å…¶å®ƒå€¼ä¸ºè¿æ¥æ¬¡æ•°*/, int outRtpPacket/*é»˜è®¤ä¸º0,å³å›è°ƒè¾“å‡ºå®Œæ•´çš„å¸§, å¦‚æœä¸º1,åˆ™è¾“å‡ºRTPåŒ…*/, int heartbeatType/*0x00:ä¸å‘é€å¿ƒè·³ 0x01:OPTIONS 0x02:GET_PARAMETER*/, int _verbosity/*æ—¥å¿—æ‰“å°è¾“å‡ºç­‰çº§ï¼Œ0è¡¨ç¤ºä¸è¾“å‡º*/);
+	/* ´ò¿ªÍøÂçÁ÷ */
+	Easy_API int Easy_APICALL EasyRTSP_OpenStream(Easy_Handle handle, int _channelid, char *_url, EASY_RTP_CONNECT_TYPE _connType, unsigned int _mediaType, char *_username, char *_password, void *userPtr, int _reconn/*1000±íÊ¾³¤Á¬½Ó,¼´Èç¹ûÍøÂç¶Ï¿ª×Ô¶¯ÖØÁ¬, ÆäËüÖµÎªÁ¬½Ó´ÎÊı*/, int outRtpPacket/*Ä¬ÈÏÎª0,¼´»Øµ÷Êä³öÍêÕûµÄÖ¡, Èç¹ûÎª1,ÔòÊä³öRTP°ü*/, int heartbeatType/*0x00:²»·¢ËÍĞÄÌø 0x01:OPTIONS 0x02:GET_PARAMETER*/, int _verbosity/*ÈÕÖ¾´òÓ¡Êä³öµÈ¼¶£¬0±íÊ¾²»Êä³ö*/);
 	
-	/* å…³é—­ç½‘ç»œæµ */
-	Easy_API int Easy_APICALL EasyRTSP_CloseStream(Easy_RTSP_Handle handle);
+	/* ¹Ø±ÕÍøÂçÁ÷ */
+	Easy_API int Easy_APICALL EasyRTSP_CloseStream(Easy_Handle handle);
 
 #ifdef __cplusplus
 }
