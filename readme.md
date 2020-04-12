@@ -31,7 +31,7 @@ Xcode 编译；
 
 - iOS RTSP版：[https://itunes.apple.com/cn/app/easy-player/id1158675416?mt=8](https://itunes.apple.com/cn/app/easy-player/id1158675416?mt=8)
 
-![EasyPlayer iOS](http://www.easydarwin.org/github/images/easyplayer/easyplayer20171225.png)
+![EasyPlayer iOS](http://www.easydarwin.org/github/images/app/2020/easy_player_rtsp_iOS.png)
 
 
 ## EasyPlayer项目集群说明 ##
