@@ -1137,6 +1137,7 @@
 					"$(PROJECT_DIR)/EasyPlayer/ffmpeg/lib",
 					"$(PROJECT_DIR)/EasyPlayer/libEasyRTSPClient",
 				);
+				MARKETING_VERSION = 1.5;
 				ORDER_FILE = "";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1238,6 +1239,7 @@
 					"$(PROJECT_DIR)/EasyPlayer/ffmpeg/lib",
 					"$(PROJECT_DIR)/EasyPlayer/libEasyRTSPClient",
 				);
+				MARKETING_VERSION = 1.5;
 				ORDER_FILE = "";
 				OTHER_CFLAGS = (
 					"$(inherited)",
