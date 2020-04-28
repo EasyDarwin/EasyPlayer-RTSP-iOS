@@ -666,7 +666,7 @@
 					"\"${PODS_ROOT}/IQKeyboardManager\"",
 					"\"${PODS_ROOT}/YYKit\"",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.6;
 				ORDER_FILE = "";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -769,7 +769,7 @@
 					"\"${PODS_ROOT}/IQKeyboardManager\"",
 					"\"${PODS_ROOT}/YYKit\"",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.6;
 				ORDER_FILE = "";
 				OTHER_CFLAGS = (
 					"$(inherited)",
