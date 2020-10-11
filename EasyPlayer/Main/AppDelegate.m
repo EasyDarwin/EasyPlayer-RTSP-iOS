@@ -22,7 +22,7 @@
     
     if (![URLUnit urlModels]) {
         URLModel *model = [[URLModel alloc] initDefault];
-        model.url = @"rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
+        model.url = @"rtsp://admin:bsak8888@183.245.246.103:554/MPEG-4/ch1/main/av_stream";
         [URLUnit addURLModel:model];
         
         [NSUserDefaultsUnit setFFMpeg:YES];     // 默认软解码
@@ -31,7 +31,7 @@
     
     [PlayerDataReader startUp];
     
-    int days = EasyRTSP_Activate("6D75724D7A502B32734B7741706B56666F4C705A3066464659584E355547786865575679556C525455434E58444661672F39482F5A57467A65513D3D");
+    int days = EasyRTSP_Activate("6D75724D7A502B32734B79412B5942666F4838475950464659584E355547786865575679556C525455495258444661672F2B442F5A57467A65513D3D");
     NSLog(@"key有效期：%d", days);
     [NSUserDefaultsUnit setActiveDay:days];
     
