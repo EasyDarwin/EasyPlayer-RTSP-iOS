@@ -22,7 +22,7 @@
     
     if (![URLUnit urlModels]) {
         URLModel *model = [[URLModel alloc] initDefault];
-        model.url = @"rtsp://admin:bsak8888@183.245.246.103:554/MPEG-4/ch1/main/av_stream";
+        model.url = @"rtsp://admin:ranqi333@114.242.130.60:556/h264/ch1/sub/av_stream";
         [URLUnit addURLModel:model];
         
         [NSUserDefaultsUnit setFFMpeg:YES];     // 默认软解码
@@ -31,7 +31,7 @@
     
     [PlayerDataReader startUp];
     
-    int days = EasyRTSP_Activate("6D75724D7A502B32734B774132635A666F446B6D7066464659584E355547786865575679556C525455436C58444661672F36582F5A57467A65513D3D");
+    int days = EasyRTSP_Activate("6D75724D7A502B32734B79414C6A78676E3850525176464659584E355547786865575679556C525455477858444661672F384C2F5A57467A65513D3D");
     NSLog(@"key有效期：%d", days);
     [NSUserDefaultsUnit setActiveDay:days];
     
