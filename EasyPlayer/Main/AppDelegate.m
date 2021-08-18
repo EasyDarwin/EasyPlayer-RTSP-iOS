@@ -22,7 +22,7 @@
     
     if (![URLUnit urlModels]) {
         URLModel *model = [[URLModel alloc] initDefault];
-        model.url = @"rtsp://admin:ranqi333@114.242.130.60:556/h264/ch1/sub/av_stream";
+        model.url = @"rtsp://";
         [URLUnit addURLModel:model];
         
         [NSUserDefaultsUnit setFFMpeg:YES];     // 默认软解码
@@ -31,7 +31,7 @@
     
     [PlayerDataReader startUp];
     
-    int days = EasyRTSP_Activate("6D75724D7A502B32734B7941654C56676E3071484A66464659584E355547786865575679556C525455477858444661672F36582B4947566863336B3D");
+    int days = EasyRTSP_Activate("EasyPlayer key is free!");
     NSLog(@"key有效期：%d", days);
     [NSUserDefaultsUnit setActiveDay:days];
     
