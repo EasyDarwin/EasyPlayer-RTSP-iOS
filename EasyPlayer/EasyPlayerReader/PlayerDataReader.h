@@ -37,7 +37,10 @@
 
 - (id)initWithUrl:(NSString *)url;
 - (void)start;
+/// 同步关流（CloseStream + join 线程），不要在主线程调用
 - (void)stop;
+/// 在后台串行队列执行 stop，避免页面消失时卡住主线程
+- (void)stopAsync;
 
 - (EASY_MEDIA_INFO_T)mediaInfo;
 

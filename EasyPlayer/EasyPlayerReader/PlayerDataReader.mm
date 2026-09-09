@@ -330,6 +330,15 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
 
 #pragma mark - public method
 
+static dispatch_queue_t PlayerReaderStopQueue(void) {
+    static dispatch_queue_t queue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        queue = dispatch_queue_create("org.easydarwin.easyplayer.reader.stop", DISPATCH_QUEUE_SERIAL);
+    });
+    return queue;
+}
+
 - (void)start {
     if (self.url.length == 0) {
         return;
@@ -344,33 +353,43 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
     _audioThread = std::thread([self] { [self audioThreadFunc]; });
 }
 
+- (void)stopAsync {
+    dispatch_async(PlayerReaderStopQueue(), ^{
+        [self stop];
+    });
+}
+
 - (void)stop {
     pthread_mutex_lock(&mutexStop);
-
     if (!_running) {
         pthread_mutex_unlock(&mutexStop);
         return;
     }
+    _running = NO;
+    pthread_mutex_unlock(&mutexStop);
 
-    if (rtspHandle != NULL) {
-        _running = false;
-        EasyRTSP_SetCallback(rtspHandle, NULL);
-        EasyRTSP_CloseStream(rtspHandle);// 关闭网络流
-        EasyRTSP_Deinit(&rtspHandle);
-        rtspHandle = NULL;
-    } else {
-        _running = false;
+    // 与 initRtspHandle / OpenStream 串行，避免一边开流一边关流
+    pthread_mutex_lock(&mutexInit);
+    Easy_Handle handle = rtspHandle;
+    rtspHandle = NULL;
+    if (handle != NULL) {
+        EasyRTSP_SetCallback(handle, NULL);
+        EasyRTSP_CloseStream(handle);
+        EasyRTSP_Deinit(&handle);
     }
+    pthread_mutex_unlock(&mutexInit);
 
     mNewestStample = 0;
     sDecodePathLogCount = 0;
     sCodecDiagLogCount = 0;
     [self resetFirstFrameTiming];
 
-    pthread_mutex_unlock(&mutexStop);
-
-    if (_videoThread.joinable()) _videoThread.join();
-    if (_audioThread.joinable()) _audioThread.join();
+    if (_videoThread.joinable()) {
+        _videoThread.join();
+    }
+    if (_audioThread.joinable()) {
+        _audioThread.join();
+    }
 }
 
 #pragma mark - dealloc
@@ -623,6 +642,10 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
 - (void) initRtspHandle {
     // ------------ 加锁mutexInit ------------
     pthread_mutex_lock(&mutexInit);
+    if (!_running) {
+        pthread_mutex_unlock(&mutexInit);
+        return;
+    }
     if (rtspHandle == NULL) {
         int ret = EasyRTSP_Init(&rtspHandle);
         if (ret != 0) {

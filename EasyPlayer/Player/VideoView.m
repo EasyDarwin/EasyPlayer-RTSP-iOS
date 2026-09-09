@@ -416,12 +416,16 @@
 
     _playButton.selected = NO;
     oldReader.recordFilePath = nil;
+    // 立刻断开回调，避免关流完成前旧帧/事件再改 UI
+    oldReader.frameOutputBlock = nil;
+    oldReader.fetchMediaInfoSuccessBlock = nil;
+    oldReader.rtspEventBlock = nil;
     
     [self hideActivity];
     self.videoStatus = Stopped;
     
     [self stopAudio];
-    [oldReader stop];
+    [oldReader stopAsync];
     
     if (!firstFrame && displayWidth > 0 && displayHeight > 0) {
         [self screenShotName:YES];
