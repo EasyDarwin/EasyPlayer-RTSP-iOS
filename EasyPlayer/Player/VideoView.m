@@ -427,6 +427,7 @@
     [self stopAudio];
     [oldReader stopAsync];
     
+    // 停播截图不能同步读 GL：viewWillDisappear 在主线程，curImage 里 dispatch_sync(_glQueue) 会和页面销毁互相锁死
     if (!firstFrame && displayWidth > 0 && displayHeight > 0) {
         [self screenShotName:YES];
     }
@@ -759,31 +760,34 @@
 #pragma mark - getter
 
 - (void) screenShotName:(BOOL)isSnapshot {
-    // 保存图片到沙盒
-    if (isSnapshot) {
-        _screenShotPath = [PathUnit snapshotWithURL:_url];
-    } else {
-        _screenShotPath = [PathUnit screenShotWithURL:_url];
-    }
-    
-    // 截屏
-    if (_screenShotPath) {
-        UIImage *currentImage = [kxGlView curImage];
-        if (!currentImage) {
-            _screenShotPath = nil;
+    if (!isSnapshot) {
+        if (_screenShotPath.length > 0) {
             return;
         }
-        // 把图片直接保存到指定的路径（同时应该把图片的路径imagePath存起来，下次就可以直接用来取）
-        NSData *imageData = UIImagePNGRepresentation(currentImage);
-        if (imageData.length > 0) {
-            [imageData writeToFile:_screenShotPath atomically:YES];
-        }
-        _screenShotPath = nil;
-        
-        if (!isSnapshot) {
-            [WHToast showMessage:@"截图保存成功" duration:1 finishHandler:nil];
-        }
+        _screenShotPath = @"__pending__";
     }
+
+    KxMovieGLView *glView = kxGlView;
+    NSString *url = [_url copy];
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+        UIImage *currentImage = [glView curImage];
+        NSString *path = isSnapshot ? [PathUnit snapshotWithURL:url] : [PathUnit screenShotWithURL:url];
+        if (currentImage && path.length > 0) {
+            NSData *imageData = UIImagePNGRepresentation(currentImage);
+            if (imageData.length > 0) {
+                [imageData writeToFile:path atomically:YES];
+            }
+        }
+
+        if (!isSnapshot) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.screenShotPath = nil;
+                if (currentImage) {
+                    [WHToast showMessage:@"截图保存成功" duration:1 finishHandler:nil];
+                }
+            });
+        }
+    });
 }
 
 #pragma mark - UIScrollViewDelegate

@@ -382,6 +382,44 @@ enum {
     dispatch_queue_t _glQueue;
 }
 
+static const void *kKxGLQueueKey = &kKxGLQueueKey;
+
+static UIImage *KxImageFromGLPixels(NSData *pixelData, NSInteger backingW, NSInteger backingH, NSInteger destW, NSInteger destH) {
+    if (!pixelData || backingW <= 0 || backingH <= 0) {
+        return nil;
+    }
+    if (destW <= 0) {
+        destW = backingW;
+    }
+    if (destH <= 0) {
+        destH = backingH;
+    }
+
+    CGDataProviderRef providerRef = CGDataProviderCreateWithCFData((__bridge CFDataRef)pixelData);
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGImageRef imageRef = CGImageCreate(backingW, backingH, 8, 32,
+                                        backingW * 4,
+                                        colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
+                                        providerRef, NULL, true, kCGRenderingIntentDefault);
+    if (!imageRef) {
+        CGDataProviderRelease(providerRef);
+        CGColorSpaceRelease(colorspace);
+        return nil;
+    }
+
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(destW, destH), NO, 1);
+    CGContextRef cgcontext = UIGraphicsGetCurrentContext();
+    CGContextSetBlendMode(cgcontext, kCGBlendModeCopy);
+    CGContextDrawImage(cgcontext, CGRectMake(0.0, 0.0, destW, destH), imageRef);
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    CGImageRelease(imageRef);
+    CGDataProviderRelease(providerRef);
+    CGColorSpaceRelease(colorspace);
+    return image;
+}
+
 + (Class) layerClass {
 	return [CAEAGLLayer class];
 }
@@ -389,6 +427,7 @@ enum {
 - (id) initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         _glQueue = dispatch_queue_create("com.easyplayer.glrender", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_set_specific(_glQueue, kKxGLQueueKey, (void *)kKxGLQueueKey, NULL);
         
         CAEAGLLayer *eaglLayer = (CAEAGLLayer*) self.layer;
         eaglLayer.opaque = YES;
@@ -489,29 +528,35 @@ enum {
 }
 
 - (void)dealloc {
-    dispatch_sync(_glQueue, ^{
-        _renderer = nil;
-        
-        if (_framebuffer) {
-            glDeleteFramebuffers(1, &_framebuffer);
-            _framebuffer = 0;
+    dispatch_queue_t queue = _glQueue;
+    EAGLContext *context = _context;
+    GLuint framebuffer = _framebuffer;
+    GLuint renderbuffer = _renderbuffer;
+    GLuint program = _program;
+    _framebuffer = 0;
+    _renderbuffer = 0;
+    _program = 0;
+    _renderer = nil;
+    _context = nil;
+    if (!queue) {
+        return;
+    }
+    dispatch_async(queue, ^{
+        [EAGLContext setCurrentContext:context];
+        if (framebuffer) {
+            GLuint fb = framebuffer;
+            glDeleteFramebuffers(1, &fb);
         }
-        
-        if (_renderbuffer) {
-            glDeleteRenderbuffers(1, &_renderbuffer);
-            _renderbuffer = 0;
+        if (renderbuffer) {
+            GLuint rb = renderbuffer;
+            glDeleteRenderbuffers(1, &rb);
         }
-        
-        if (_program) {
-            glDeleteProgram(_program);
-            _program = 0;
+        if (program) {
+            glDeleteProgram(program);
         }
-        
-        if ([EAGLContext currentContext] == _context) {
+        if ([EAGLContext currentContext] == context) {
             [EAGLContext setCurrentContext:nil];
         }
-        
-        _context = nil;
     });
 }
 
@@ -541,50 +586,55 @@ enum {
     });
 }
 
+- (void)runSyncOnGLQueue:(void (^)(void))block {
+    if (!block || !_glQueue) {
+        return;
+    }
+    if (dispatch_get_specific(kKxGLQueueKey)) {
+        block();
+        return;
+    }
+    dispatch_sync(_glQueue, block);
+}
+
 - (UIImage *)curImage {
-    if (srcWidth == 0 || srcHeight == 0) return nil;
-    
-    __block UIImage *image = nil;
-    dispatch_sync(_glQueue, ^{
+    if (!_glQueue || !_context) {
+        return nil;
+    }
+
+    __block NSInteger backingW = 0;
+    __block NSInteger backingH = 0;
+    __block NSInteger destW = 0;
+    __block NSInteger destH = 0;
+    __block NSData *pixelData = nil;
+
+    [self runSyncOnGLQueue:^{
+        if (!_context || srcWidth == 0 || srcHeight == 0 || _backingWidth <= 0 || _backingHeight <= 0) {
+            return;
+        }
+
         [EAGLContext setCurrentContext:_context];
+        glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
-        
-        NSInteger dataLength = _backingWidth * _backingHeight * 4;
-        GLubyte *data = (GLubyte *)malloc(dataLength * sizeof(GLubyte));
-        if (data == nil) return;
-        
-        // Read pixel data from the framebuffer
+
+        NSInteger dataLength = (NSInteger)_backingWidth * (NSInteger)_backingHeight * 4;
+        GLubyte *data = (GLubyte *)malloc((size_t)dataLength);
+        if (data == NULL) {
+            return;
+        }
+
         glPixelStorei(GL_PACK_ALIGNMENT, 4);
         glReadPixels(0, 0, _backingWidth, _backingHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        
-        // Create a CGImage with the pixel data
-        CGDataProviderRef providerRef = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
-        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-        CGImageRef imageRef = CGImageCreate(_backingWidth, _backingHeight, 8, 32,
-                                            _backingWidth * 4,
-                                            colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
-                                            providerRef, NULL, true, kCGRenderingIntentDefault);
-        
-        NSInteger widthInPoints, heightInPoints;
-        widthInPoints = srcWidth;
-        heightInPoints = srcHeight;
-        UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, 1);
-        
-        CGContextRef cgcontext = UIGraphicsGetCurrentContext();
-        CGContextSetBlendMode(cgcontext, kCGBlendModeCopy);
-        CGContextDrawImage(cgcontext, CGRectMake(0.0, 0.0, widthInPoints, heightInPoints), imageRef);
-        
-        image = UIGraphicsGetImageFromCurrentImageContext();
-        
-        UIGraphicsEndImageContext();
-        
-        free(data);
-        CGImageRelease(imageRef);
-        CGDataProviderRelease(providerRef);
-        CGColorSpaceRelease(colorspace);
-    });
-    
-    return image;
+
+        backingW = _backingWidth;
+        backingH = _backingHeight;
+        destW = (NSInteger)srcWidth;
+        destH = (NSInteger)srcHeight;
+        pixelData = [NSData dataWithBytesNoCopy:data length:(NSUInteger)dataLength freeWhenDone:YES];
+    }];
+
+    // UIKit 不能在 GL 队列里跑：主线程若正在 dispatch_sync 等这条队列，会和 UIGraphics / CAEAGLLayer 互相等待
+    return KxImageFromGLPixels(pixelData, backingW, backingH, destW, destH);
 }
 
 - (BOOL)loadShaders {
