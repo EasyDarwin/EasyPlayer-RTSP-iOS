@@ -44,6 +44,15 @@ static BOOL checkError(OSStatus error, const char *operation) {
 
 @implementation AudioManager
 
+static dispatch_queue_t AudioSessionQueue(void) {
+    static dispatch_queue_t queue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        queue = dispatch_queue_create("org.easydarwin.easyplayer.audio", DISPATCH_QUEUE_SERIAL);
+    });
+    return queue;
+}
+
 + (AudioManager *) sharedInstance {
     static AudioManager *audioManager = nil;
     static dispatch_once_t onceToken;
@@ -63,26 +72,31 @@ static BOOL checkError(OSStatus error, const char *operation) {
 }
 
 - (BOOL) activateAudioSession {
-    if (!_activated) {
-        if (![[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil]) {
-            return NO;
+    __block BOOL success = YES;
+    dispatch_sync(AudioSessionQueue(), ^{
+        if (!_activated) {
+            if (![[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil]) {
+                success = NO;
+                return;
+            }
+
+            if (![[AVAudioSession sharedInstance] setActive:YES withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil]) {
+                success = NO;
+                return;
+            }
+
+            _activated = YES;
         }
-        
-        if (![[AVAudioSession sharedInstance] setActive:YES withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil]) {
-            return NO;
-        }
-        
-        _activated = YES;
-    }
-    
-    return YES;
+    });
+    return success;
 }
 
 - (void) deactivateAudioSession {
-    [self stop];
-    [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
-    
-    _activated = NO;
+    dispatch_async(AudioSessionQueue(), ^{
+        [self stop];
+        [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+        _activated = NO;
+    });
 }
 
 - (void)stop {

@@ -201,8 +201,8 @@
 }
 
 - (void)enterBackground {
-    [[AudioManager sharedInstance] deactivateAudioSession];
     [self.panel stopAll];
+    [[AudioManager sharedInstance] deactivateAudioSession];
 }
 
 #pragma mark - VideoPanelDelegate

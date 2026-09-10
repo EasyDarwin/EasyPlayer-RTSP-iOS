@@ -55,6 +55,8 @@
 - (void)hideActivity;
 
 - (void)fillAudioData:(SInt16 *)outData numFrames:(UInt32)numFrames numChannels:(UInt32)numChannels;
+- (void)cancelKbpsTimer;
+- (void)detachReaderAndStop;
 
 @end
 
@@ -352,10 +354,13 @@
 
 - (void)stopAudio {
     if ([AudioManager sharedInstance].source == self) {
-        [[AudioManager sharedInstance] stop];
+        // 先断开回调，再 pause，避免音频线程还在 fillAudioData 时 Uninitialize 卡住主线程
         [AudioManager sharedInstance].outputBlock = nil;
+        [AudioManager sharedInstance].source = nil;
+        [[AudioManager sharedInstance] pause];
     }
-    self.audioPlaying = NO;
+    // 不要走 setter：dealloc / 停播时 setter 会 dispatch_async 强引用 self，对象半销毁后再碰 audioButton 会崩
+    _audioPlaying = NO;
 }
 
 - (void)startPlay {
@@ -410,25 +415,40 @@
     [_reader start];
 }
 
-- (void)stopPlay {
+- (void)cancelKbpsTimer {
+    if (self.timer) {
+        dispatch_source_cancel(self.timer);
+        self.timer = nil;
+    }
+}
+
+- (void)detachReaderAndStop {
+    [self cancelKbpsTimer];
+    [kxGlView flush];
+
     PlayerDataReader *oldReader = _reader;
     _reader = nil;
 
-    _playButton.selected = NO;
     oldReader.recordFilePath = nil;
-    // 立刻断开回调，避免关流完成前旧帧/事件再改 UI
     oldReader.frameOutputBlock = nil;
     oldReader.fetchMediaInfoSuccessBlock = nil;
     oldReader.rtspEventBlock = nil;
-    
-    [self hideActivity];
-    self.videoStatus = Stopped;
-    
+
     [self stopAudio];
     [oldReader stopAsync];
-    
+}
+
+- (void)stopPlay {
+    BOOL shouldSnapshot = !firstFrame && displayWidth > 0 && displayHeight > 0;
+
+    _playButton.selected = NO;
+    [self hideActivity];
+    self.videoStatus = Stopped;
+
+    [self detachReaderAndStop];
+
     // 停播截图不能同步读 GL：viewWillDisappear 在主线程，curImage 里 dispatch_sync(_glQueue) 会和页面销毁互相锁死
-    if (!firstFrame && displayWidth > 0 && displayHeight > 0) {
+    if (shouldSnapshot) {
         [self screenShotName:YES];
     }
     
@@ -438,6 +458,10 @@
     
     [self updateUI];
     [self flush];
+}
+
+- (void)dealloc {
+    [self detachReaderAndStop];
 }
 
 - (void)flush {
@@ -717,21 +741,36 @@
         return;
     }
     _videoStatus = videoStatus;
-    
-    if ([self.delegate respondsToSelector:@selector(videoView:didChangeStatus:)]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate videoView:self didChangeStatus:videoStatus];
-        });
+
+    if (![self.delegate respondsToSelector:@selector(videoView:didChangeStatus:)]) {
+        return;
     }
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        [strongSelf.delegate videoView:strongSelf didChangeStatus:videoStatus];
+    });
 }
 
 - (void)setAudioPlaying:(BOOL)audioPlaying {
     _audioPlaying = audioPlaying;
-    
     _reader.enableAudio = _audioPlaying;
-    
+
+    if ([NSThread isMainThread]) {
+        _audioButton.selected = audioPlaying;
+        return;
+    }
+
+    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.audioButton.selected = self.audioPlaying;
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.audioButton.selected = audioPlaying;
     });
 }
 

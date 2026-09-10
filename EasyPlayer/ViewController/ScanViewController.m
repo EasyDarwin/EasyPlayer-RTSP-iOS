@@ -118,8 +118,11 @@
         [_timer invalidate];
         _timer = nil ;
     }
-    
-    [self.captureSession stopRunning];
+
+    AVCaptureSession *session = self.captureSession;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        [session stopRunning];
+    });
     [_scanLayer removeFromSuperlayer];
     [_videoPreviewLayer removeFromSuperlayer];
 }

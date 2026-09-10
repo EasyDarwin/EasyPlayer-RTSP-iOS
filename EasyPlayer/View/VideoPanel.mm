@@ -346,7 +346,7 @@
 #pragma mark - dealloc
 
 - (void)dealloc {
-    
+    [self stopAll];
 }
 
 #pragma mark - override

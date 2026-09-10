@@ -1,4 +1,4 @@
-platform :ios, '12.0'
+  platform :ios, '12.0'
 
 target 'EasyPlayerRTSP' do
     # Uncomment the next line if you're using Swift or would like to use dynamic frameworks

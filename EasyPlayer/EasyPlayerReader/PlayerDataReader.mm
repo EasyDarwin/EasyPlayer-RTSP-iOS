@@ -184,6 +184,7 @@ static BOOL DeviceSupportsHEVCHardwareDecode(void) {
 - (void)forceBeginPlayAttempt;
 - (void)endPlayAttemptWithoutSuccess;
 - (void)reportPlaySuccessRate;
+- (void)performStop;
 
 @end
 
@@ -355,11 +356,20 @@ static dispatch_queue_t PlayerReaderStopQueue(void) {
 
 - (void)stopAsync {
     dispatch_async(PlayerReaderStopQueue(), ^{
-        [self stop];
+        [self performStop];
     });
 }
 
 - (void)stop {
+    if ([NSThread isMainThread]) {
+        NSLog(@"[PlayerDataReader] stop 在主线程调用，改为 stopAsync，避免 CloseStream/join 卡住 UI");
+        [self stopAsync];
+        return;
+    }
+    [self performStop];
+}
+
+- (void)performStop {
     pthread_mutex_lock(&mutexStop);
     if (!_running) {
         pthread_mutex_unlock(&mutexStop);
@@ -395,8 +405,9 @@ static dispatch_queue_t PlayerReaderStopQueue(void) {
 #pragma mark - dealloc
 
 - (void)dealloc {
-
-    [self stop];
+    // VideoView.dealloc / stopPlay 会先 stopAsync；此处应已是 no-op。
+    // 若仍 running，必须在本线程关完再销毁锁（因此 VideoView 不能在主线程直接释放未 stop 的 reader）。
+    [self performStop];
 
     [self removeVideoFrameSet];
     [self removeAudioFrameSet];
