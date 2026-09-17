@@ -20,7 +20,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    if (![URLUnit urlModels]) {
+    if ([URLUnit urlModels].count == 0) {
         URLModel *model = [[URLModel alloc] initDefault];
         model.url = @"rtsp://admin:a1234567@192.168.2.120:554/Streaming/Channels/101";
         [URLUnit addURLModel:model];

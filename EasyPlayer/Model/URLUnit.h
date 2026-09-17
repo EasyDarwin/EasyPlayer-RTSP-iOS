@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - 播放url的存储
 
-// 获取所有url
+// 获取所有url（返回的是深拷贝，直接修改它不会影响存储，需要落盘请调用下面的方法）
 + (NSMutableArray *) urlModels;
 
 // 添加rl

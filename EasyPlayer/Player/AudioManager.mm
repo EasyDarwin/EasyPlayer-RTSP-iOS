@@ -8,12 +8,14 @@
 
 #import "AudioManager.h"
 #import <Accelerate/Accelerate.h>
+#import <os/lock.h>
 #include <vector>
 
 @interface AudioManager() {
     AudioUnit remoteIOUnit;
     SInt16 * _outData;
-    BOOL _activated;
+    BOOL _activated;   // AVAudioSession 是否已激活，只在音频队列上读写
+    os_unfair_lock _outputBlockLock;   // outputBlock 由主线程写、音频渲染线程读，必须加锁
 }
 
 @property (nonatomic, readwrite)BOOL playing;
@@ -44,13 +46,28 @@ static BOOL checkError(OSStatus error, const char *operation) {
 
 @implementation AudioManager
 
+@synthesize outputBlock = _outputBlock;
+
+static const void * const kAudioQueueKey = &kAudioQueueKey;
+
 static dispatch_queue_t AudioSessionQueue(void) {
     static dispatch_queue_t queue;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         queue = dispatch_queue_create("org.easydarwin.easyplayer.audio", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_set_specific(queue, kAudioQueueKey, (void *)kAudioQueueKey, NULL);
     });
     return queue;
+}
+
+// 主线程绝不能同步等这条队列：AVAudioSession setActive: / AudioUnitUninitialize 都可能耗时几百毫秒，
+// 在 viewWillAppear / becomeActive 这种时机同步等待会把主线程卡死，最终被 watchdog 杀掉
+static void RunOnAudioQueue(dispatch_block_t block) {
+    if (dispatch_get_specific(kAudioQueueKey)) {
+        block();
+    } else {
+        dispatch_async(AudioSessionQueue(), block);
+    }
 }
 
 + (AudioManager *) sharedInstance {
@@ -66,75 +83,129 @@ static dispatch_queue_t AudioSessionQueue(void) {
 - (id)init {
     if (self = [super init]) {
         _outData = (SInt16 *)calloc(4096 * 2, sizeof(SInt16));
+        _outputBlockLock = OS_UNFAIR_LOCK_INIT;
     }
     
     return self;
 }
 
+#pragma mark - outputBlock 的跨线程读写
+
+// 主线程把 outputBlock 置 nil 时，音频渲染线程可能正在执行它。
+// 默认的 nonatomic 访问器在这里会 use-after-free，所以改成自己加锁。
+- (void)setOutputBlock:(AudioManagerOutputBlock)outputBlock {
+    AudioManagerOutputBlock copied = [outputBlock copy];
+    
+    os_unfair_lock_lock(&_outputBlockLock);
+    _outputBlock = copied;
+    os_unfair_lock_unlock(&_outputBlockLock);
+}
+
+- (AudioManagerOutputBlock)outputBlock {
+    os_unfair_lock_lock(&_outputBlockLock);
+    AudioManagerOutputBlock block = _outputBlock;
+    os_unfair_lock_unlock(&_outputBlockLock);
+    
+    return block;
+}
+
+// 下面几个公开方法都只是把请求投递到音频队列，不会阻塞调用方（通常是主线程），
+// 返回值只表示“请求已提交”，真正的结果通过 playing 属性观察
 - (BOOL) activateAudioSession {
-    __block BOOL success = YES;
-    dispatch_sync(AudioSessionQueue(), ^{
-        if (!_activated) {
-            if (![[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil]) {
-                success = NO;
-                return;
-            }
-
-            if (![[AVAudioSession sharedInstance] setActive:YES withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil]) {
-                success = NO;
-                return;
-            }
-
-            _activated = YES;
-        }
+    RunOnAudioQueue(^{
+        [self activateSessionOnQueue];
     });
-    return success;
+    
+    return YES;
 }
 
 - (void) deactivateAudioSession {
-    dispatch_async(AudioSessionQueue(), ^{
-        [self stop];
-        [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
-        _activated = NO;
+    RunOnAudioQueue(^{
+        [self stopOnQueue];
+        
+        if (self->_activated) {
+            [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+            self->_activated = NO;
+        }
     });
 }
 
 - (void)stop {
-    [self pause];
-    
-    if (remoteIOUnit != nil) {
-        checkError(AudioUnitUninitialize(remoteIOUnit),
-                   "Couldn't uninitialize the audio unit");
-    }
-
-    remoteIOUnit = nil;
+    RunOnAudioQueue(^{
+        [self stopOnQueue];
+    });
 }
 
 - (BOOL)play {
-    if (!_playing) {
-        if ([self activateAudioSession] && [self setupAudio]) {
-            _playing = !checkError(AudioOutputUnitStart(remoteIOUnit),
-                                   "Couldn't start the output unit");
+    RunOnAudioQueue(^{
+        if (self.playing) {
+            return;
         }
-    }
+        
+        if ([self activateSessionOnQueue] && [self setupAudio]) {
+            self.playing = !checkError(AudioOutputUnitStart(self->remoteIOUnit),
+                                       "Couldn't start the output unit");
+        }
+    });
     
-    return _playing;
+    return YES;
 }
 
 - (void)pause {
-    if (_playing) {
+    RunOnAudioQueue(^{
+        [self pauseOnQueue];
+    });
+}
+
+#pragma mark - 以下方法只允许在音频队列上执行
+
+- (BOOL)activateSessionOnQueue {
+    if (_activated) {
+        return YES;
+    }
+    
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    if (![session setCategory:AVAudioSessionCategoryPlayback error:nil]) {
+        return NO;
+    }
+    
+    if (![session setActive:YES withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil]) {
+        return NO;
+    }
+    
+    _activated = YES;
+    
+    return YES;
+}
+
+- (void)pauseOnQueue {
+    if (_playing && remoteIOUnit != NULL) {
         checkError(AudioOutputUnitStop(remoteIOUnit),
-                              "Couldn't stop the output unit");
+                   "Couldn't stop the output unit");
     }
     
     _playing = NO;
 }
 
-- (void)dealloc {
-    delete []_outData;
+- (void)stopOnQueue {
+    [self pauseOnQueue];
     
-    checkError(AudioComponentInstanceDispose(remoteIOUnit),
-               "Couldn't dispose the output audio unit");
+    if (remoteIOUnit != NULL) {
+        checkError(AudioUnitUninitialize(remoteIOUnit),
+                   "Couldn't uninitialize the audio unit");
+        // 只 Uninitialize 不 Dispose 会泄漏 AudioComponentInstance，下次 setupAudio 又会新建一个
+        checkError(AudioComponentInstanceDispose(remoteIOUnit),
+                   "Couldn't dispose the output audio unit");
+        remoteIOUnit = NULL;
+    }
+}
+
+- (void)dealloc {
+    [self stopOnQueue];
+    
+    // _outData 是 calloc 出来的，必须用 free 释放；delete[] 会破坏堆
+    free(_outData);
+    _outData = NULL;
 }
 
 static OSStatus outputRenderCallback(void                        *inRefCon,
@@ -150,7 +221,7 @@ static OSStatus outputRenderCallback(void                        *inRefCon,
 }
 
 -(BOOL)setupAudio {
-    if (remoteIOUnit != nil) {
+    if (remoteIOUnit != NULL) {
         return YES;
     }
     
@@ -211,8 +282,6 @@ static OSStatus outputRenderCallback(void                        *inRefCon,
         return NO;
     }
     
-    _activated = YES;
-    
     return YES;
 }
 
@@ -221,20 +290,25 @@ static OSStatus outputRenderCallback(void                        *inRefCon,
         memset(ioData->mBuffers[iBuffer].mData, 0, ioData->mBuffers[iBuffer].mDataByteSize);
     }
     
-    if (_playing) {
-        if (_outputBlock != nil) {
-            _outputBlock(_outData, inNumberFrames, self.channel);
+    // 先在锁里把 block 抓到栈上（强引用），出锁之后即使主线程把属性置 nil 也不会被释放；
+    // 这里不能用 self.outputBlock，getter 返回的是 autorelease 对象，渲染线程上没有自动释放池
+    AudioManagerOutputBlock outputBlock = nil;
+    os_unfair_lock_lock(&_outputBlockLock);
+    outputBlock = _outputBlock;
+    os_unfair_lock_unlock(&_outputBlockLock);
+    
+    if (_playing && outputBlock != nil) {
+        outputBlock(_outData, inNumberFrames, self.channel);
+        
+        for (int iBuffer = 0; iBuffer < ioData->mNumberBuffers; ++iBuffer) {
+            int thisNumChannels = ioData->mBuffers[iBuffer].mNumberChannels;
             
-            for (int iBuffer = 0; iBuffer < ioData->mNumberBuffers; ++iBuffer) {
-                int thisNumChannels = ioData->mBuffers[iBuffer].mNumberChannels;
-                
-                if (thisNumChannels <= 0 || thisNumChannels > 2) {
-                    thisNumChannels = 1;
-                }
-                
-                SInt16 *frameBuffer = (SInt16 *)ioData->mBuffers[iBuffer].mData;
-                memcpy(frameBuffer, _outData, inNumberFrames * thisNumChannels * sizeof(SInt16));
+            if (thisNumChannels <= 0 || thisNumChannels > 2) {
+                thisNumChannels = 1;
             }
+            
+            SInt16 *frameBuffer = (SInt16 *)ioData->mBuffers[iBuffer].mData;
+            memcpy(frameBuffer, _outData, inNumberFrames * thisNumChannels * sizeof(SInt16));
         }
     }
 }

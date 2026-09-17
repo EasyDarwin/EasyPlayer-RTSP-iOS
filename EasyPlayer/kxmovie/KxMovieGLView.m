@@ -380,6 +380,7 @@ enum {
     NSUInteger srcHeight;
     
     dispatch_queue_t _glQueue;
+    BOOL            _glInitFailed;      // 只在 _glQueue 上读写
 }
 
 static const void *kKxGLQueueKey = &kKxGLQueueKey;
@@ -447,11 +448,13 @@ static UIImage *KxImageFromGLPixels(NSData *pixelData, NSInteger backingW, NSInt
         
         format = KxVideoFrameFormatYUV;
         
-        __block BOOL glInitSuccess = YES;
+        // 帧缓冲的创建放到 GL 队列上异步做：这段有 renderbufferStorage:fromDrawable:，
+        // 在主线程同步等待会让 view 的创建（往往在 viewDidLoad / viewWillAppear 里）多卡几十毫秒。
+        // 后续所有 GL 操作都排在同一条串行队列上，天然排在这个初始化之后，不需要等它。
         CGSize boundsSize = self.bounds.size;
-        dispatch_sync(_glQueue, ^{
-            if (![EAGLContext setCurrentContext:_context]) {
-                glInitSuccess = NO;
+        dispatch_async(_glQueue, ^{
+            if (![EAGLContext setCurrentContext:self->_context]) {
+                self->_glInitFailed = YES;
                 return;
             }
             
@@ -459,21 +462,18 @@ static UIImage *KxImageFromGLPixels(NSData *pixelData, NSInteger backingW, NSInt
             
             GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
             if (status != GL_FRAMEBUFFER_COMPLETE) {
-                glInitSuccess = NO;
+                // 例如此刻 bounds 还是 0：不是致命错误，layoutSubviews 拿到真实尺寸后会重建
+                self->_glInitFailed = YES;
                 return;
             }
             
-            GLenum glError = glGetError();
-            if (GL_NO_ERROR != glError) {
-                glInitSuccess = NO;
+            if (GL_NO_ERROR != glGetError()) {
+                self->_glInitFailed = YES;
                 return;
             }
+            
+            self->_glInitFailed = NO;
         });
-        
-        if (!glInitSuccess) {
-            self = nil;
-            return nil;
-        }
         
         _vertices[0] = -1.0f;  // x0
         _vertices[1] = -1.0f;  // y0
@@ -510,7 +510,11 @@ static UIImage *KxImageFromGLPixels(NSData *pixelData, NSInteger backingW, NSInt
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         NSLog(@"Failure with display framebuffer generation for display of size: %d %d", _backingWidth, _backingHeight);
+        _glInitFailed = YES;
+        return;
     }
+    
+    _glInitFailed = NO;
     boundsSizeAtFrameBufferEpoch = boundsSize;
 }
 
@@ -533,16 +537,33 @@ static UIImage *KxImageFromGLPixels(NSData *pixelData, NSInteger backingW, NSInt
     GLuint framebuffer = _framebuffer;
     GLuint renderbuffer = _renderbuffer;
     GLuint program = _program;
+    
+    // renderer 的 dealloc 里有 glDeleteTextures，而纹理名字只在「自己的 context」里有意义。
+    // 在这里直接 _renderer = nil 的话，dealloc 跑在哪条线程、那条线程上当前绑的是谁的 context
+    // 全凭运气：绑的是别人的 context 就会删掉别的播放窗口的纹理，什么都没绑就是纯泄漏。
+    // 所以把它交给 GL 队列，在 setCurrentContext 之后再释放。
+    __block id<KxMovieGLRenderer> renderer = _renderer;
+    
+    // 帧缓冲／渲染缓冲是绑在这个 CAEAGLLayer 上的，删除动作是异步的，
+    // 必须让 layer 活到删完为止，否则就是对已释放 drawable 的操作
+    CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
+    
     _framebuffer = 0;
     _renderbuffer = 0;
     _program = 0;
     _renderer = nil;
     _context = nil;
+    
     if (!queue) {
+        renderer = nil;
         return;
     }
+    
     dispatch_async(queue, ^{
         [EAGLContext setCurrentContext:context];
+        
+        renderer = nil;     // 在正确的 context 下删纹理
+        
         if (framebuffer) {
             GLuint fb = framebuffer;
             glDeleteFramebuffers(1, &fb);
@@ -557,6 +578,8 @@ static UIImage *KxImageFromGLPixels(NSData *pixelData, NSInteger backingW, NSInt
         if ([EAGLContext currentContext] == context) {
             [EAGLContext setCurrentContext:nil];
         }
+        
+        (void)eaglLayer;    // 仅用于延长 layer 的生命周期到这里
     });
 }
 
@@ -580,9 +603,15 @@ static UIImage *KxImageFromGLPixels(NSData *pixelData, NSInteger backingW, NSInt
 - (void)flush {
     dispatch_async(_glQueue, ^{
         [self renderInternal:nil];
-        _renderer = nil;
-        srcWidth = 0;
-        srcHeight = 0;
+        
+        // renderInternal 在帧缓冲没就绪时会直接返回、不会绑 context，
+        // 而下一行释放 renderer 会触发 glDeleteTextures，这里必须自己确保 context 是本 view 的
+        if (self->_context) {
+            [EAGLContext setCurrentContext:self->_context];
+        }
+        self->_renderer = nil;
+        self->srcWidth = 0;
+        self->srcHeight = 0;
     });
 }
 
@@ -722,6 +751,11 @@ exit:
         1.0f, 0.0f,
     };
 	
+    // 帧缓冲还没建好（或建失败）时直接丢帧，等 layoutSubviews 重建后自然恢复
+    if (!_context || _glInitFailed || _framebuffer == 0) {
+        return;
+    }
+    
     [EAGLContext setCurrentContext:_context];
     
     glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);

@@ -10,6 +10,7 @@
 #import "NSUserDefaultsUnit.h"
 #import "WHToast.h"
 #import "Masonry.h"
+#import <os/lock.h>
 
 @interface VideoView() <UIScrollViewDelegate> {
     UIScrollView *scrollView;
@@ -24,6 +25,7 @@
     int displayHeight;
     
     NSMutableArray *_audioFrames;   // 解码的音频数据
+    os_unfair_lock _audioFramesLock;// _audioFrames 被主线程、解码线程、音频渲染线程三方访问
     
     NSData  *_currentAudioFrame;    // 当前播放的音频帧
     NSUInteger _currentAudioFramePos;
@@ -79,6 +81,7 @@
         self.audioPlaying = YES;
         
         _audioFrames = [[NSMutableArray alloc] init];
+        _audioFramesLock = OS_UNFAIR_LOCK_INIT;
     }
     
     return self;
@@ -452,9 +455,11 @@
         [self screenShotName:YES];
     }
     
-    @synchronized(_audioFrames) {
-        [_audioFrames removeAllObjects];
-    }
+    // 用 os_unfair_lock 代替 @synchronized：临界区只有几条数组操作，
+    // 主线程在这里的等待被压到音频渲染线程那一小段之内
+    os_unfair_lock_lock(&_audioFramesLock);
+    [_audioFrames removeAllObjects];
+    os_unfair_lock_unlock(&_audioFramesLock);
     
     [self updateUI];
     [self flush];
@@ -510,14 +515,13 @@
             });
         }
     } else if (frame.type == KxMovieFrameTypeAudio) {
-        @synchronized(_audioFrames) {
-            if (!self.audioPlaying) {
-                [_audioFrames removeAllObjects];
-                return;
-            }
-            
+        os_unfair_lock_lock(&_audioFramesLock);
+        if (self.audioPlaying) {
             [_audioFrames addObject:frame];
+        } else {
+            [_audioFrames removeAllObjects];
         }
+        os_unfair_lock_unlock(&_audioFramesLock);
     }
 }
 
@@ -557,29 +561,46 @@
     @autoreleasepool {
         while (numFrames > 0) {
             if (_currentAudioFrame == nil) {
-                @synchronized(_audioFrames) {
-                    NSUInteger count = _audioFrames.count;
-                    if (count > 0) {
-                        KxAudioFrame *frame = _audioFrames[0];
-                        CGFloat differ = _moviePosition - frame.position;
-                        
-                        // 似乎没有作用
-                        if (differ < -0.1) {
-                            memset(outData, 0, numFrames * numChannels * sizeof(SInt16));
-                            break; // silence and exit
-                        }
-                        
+                // 这里跑在 CoreAudio 的渲染线程上，锁里只做取帧／出队，
+                // memset 和日志都挪到解锁之后，尽量缩短其他线程的等待
+                BOOL silenceAndExit = NO;
+                BOOL skipThisFrame = NO;
+                CGFloat skippedDiffer = 0;
+                CGFloat skippedPosition = 0;
+                
+                os_unfair_lock_lock(&_audioFramesLock);
+                NSUInteger count = _audioFrames.count;
+                if (count > 0) {
+                    KxAudioFrame *frame = _audioFrames[0];
+                    CGFloat differ = _moviePosition - frame.position;
+                    
+                    // 似乎没有作用
+                    if (differ < -0.1) {
+                        silenceAndExit = YES;
+                    } else {
                         [_audioFrames removeObjectAtIndex:0];
                         
                         if (differ > 0.1 && count > 1) {
-                            NSLog(@"differ = %.4f", differ);
-                            NSLog(@"audio skip movPos = %.4f audioPos = %.4f", _moviePosition, frame.position);
-                            continue;
+                            skipThisFrame = YES;
+                            skippedDiffer = differ;
+                            skippedPosition = frame.position;
+                        } else {
+                            _currentAudioFramePos = 0;
+                            _currentAudioFrame = frame.samples;
                         }
-                        
-                        _currentAudioFramePos = 0;
-                        _currentAudioFrame = frame.samples;
                     }
+                }
+                os_unfair_lock_unlock(&_audioFramesLock);
+                
+                if (silenceAndExit) {
+                    memset(outData, 0, numFrames * numChannels * sizeof(SInt16));
+                    break; // silence and exit
+                }
+                
+                if (skipThisFrame) {
+                    NSLog(@"differ = %.4f", skippedDiffer);
+                    NSLog(@"audio skip movPos = %.4f audioPos = %.4f", _moviePosition, skippedPosition);
+                    continue;
                 }
             }
             

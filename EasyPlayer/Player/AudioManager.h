@@ -27,6 +27,11 @@ typedef void (^AudioManagerOutputBlock)(SInt16 *outData, UInt32 numFrames, UInt3
 @property (nonatomic) float sampleRate;
 @property (nonatomic) int channel;
 
+/**
+ 以下方法都是异步的：只把请求投递到内部的音频串行队列，不会阻塞调用线程。
+ AVAudioSession / AudioUnit 的调用可能耗时较长，主线程同步等待会造成卡死。
+ activateAudioSession、play 的返回值只代表“请求已提交”。
+ */
 - (BOOL) activateAudioSession;
 - (void) deactivateAudioSession;
 

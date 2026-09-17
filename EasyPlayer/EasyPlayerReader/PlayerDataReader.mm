@@ -405,9 +405,37 @@ static dispatch_queue_t PlayerReaderStopQueue(void) {
 #pragma mark - dealloc
 
 - (void)dealloc {
-    // VideoView.dealloc / stopPlay 会先 stopAsync；此处应已是 no-op。
-    // 若仍 running，必须在本线程关完再销毁锁（因此 VideoView 不能在主线程直接释放未 stop 的 reader）。
-    [self performStop];
+    // dealloc 落在哪条线程取决于最后一次 release 发生在哪里，调用方无法保证。
+    // 所以这里不能再走 performStop：EasyRTSP_CloseStream 在网络不通时会挂住几秒，
+    // 一旦这次 release 恰好发生在主线程，就是一次必然的卡死。
+    // 做法是把还没关闭的句柄「搬走」，交给后台串行队列去关。
+    pthread_mutex_lock(&mutexStop);
+    _running = NO;      // 先让两个工作线程退出循环
+    pthread_mutex_unlock(&mutexStop);
+
+    pthread_mutex_lock(&mutexInit);
+    Easy_Handle handle = rtspHandle;
+    rtspHandle = NULL;
+    pthread_mutex_unlock(&mutexInit);
+
+    if (handle != NULL) {
+        // 回调会回到 self，必须在当前线程先摘干净，之后句柄和 self 再无关系
+        EasyRTSP_SetCallback(handle, NULL);
+        dispatch_async(PlayerReaderStopQueue(), ^{
+            Easy_Handle h = handle;
+            EasyRTSP_CloseStream(h);
+            EasyRTSP_Deinit(&h);
+        });
+    }
+
+    // 工作线程的 lambda 强引用 self，能走到 dealloc 说明它们已经结束，join 只是回收线程对象；
+    // 即使极端情况下还没退出，上面已经把 _running 置 NO，轮询间隔是 5ms
+    if (_videoThread.joinable()) {
+        _videoThread.join();
+    }
+    if (_audioThread.joinable()) {
+        _audioThread.join();
+    }
 
     [self removeVideoFrameSet];
     [self removeAudioFrameSet];
