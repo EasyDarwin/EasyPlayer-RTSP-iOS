@@ -2,6 +2,7 @@
 #import "PlayerDataReader.h"
 
 #include <pthread.h>
+#include <os/lock.h>
 #include <thread>
 #include <vector>
 #include <set>
@@ -108,7 +109,14 @@ static BOOL DeviceSupportsHEVCHardwareDecode(void) {
     return NO;
 }
 
+typedef void (^PlayerFetchMediaInfoBlock)(void);
+typedef void (^PlayerFrameOutputBlock)(KxMovieFrame *frame, unsigned int length);
+typedef void (^PlayerRTSPEventBlock)(NSInteger eventCode, NSString *message, NSInteger data, NSInteger count, NSInteger total);
+
 @interface PlayerDataReader()<HWVideoDecoderDelegate> {
+    // 回调 block 和录像路径：主线程写（停播时置 nil），解码线程 / RTSP 回调线程读
+    os_unfair_lock _callbackLock;
+
     // RTSP拉流句柄
     Easy_Handle rtspHandle;
 
@@ -296,6 +304,11 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
 
 @implementation PlayerDataReader
 
+@synthesize fetchMediaInfoSuccessBlock = _fetchMediaInfoSuccessBlock;
+@synthesize frameOutputBlock = _frameOutputBlock;
+@synthesize rtspEventBlock = _rtspEventBlock;
+@synthesize recordFilePath = _recordFilePath;
+
 + (void)startUp {
     DecodeRegiestAll();
 }
@@ -316,6 +329,8 @@ int RTSPDataCallBack(int channelId, void *channelPtr, int frameType, char *pBuf,
 
         pthread_mutex_init(&mutexInit, 0);
         pthread_mutex_init(&mutexStop, 0);
+
+        _callbackLock = OS_UNFAIR_LOCK_INIT;
 
         _videoDecHandle = NULL;
         _audioDecHandle = NULL;
@@ -719,6 +734,8 @@ static dispatch_queue_t PlayerReaderStopQueue(void) {
     // 在播放中 该线程一直运行
     while (_running) {
         if (rtspHandle == NULL) {
+            // 句柄还没建好（或 Init 失败一直重试）时不能空转，否则会吃满一个核
+            usleep(5 * 1000);
             continue;
         }
 
@@ -929,8 +946,10 @@ static dispatch_queue_t PlayerReaderStopQueue(void) {
 
                 _lastVideoFramePosition = video->timeStamp;
 
-                if (self.frameOutputBlock) {
-                    self.frameOutputBlock(frame, (Easy_U32)(video->frameLen));
+                // 只取一次：判空和调用之间主线程可能把它置 nil，调用 nil block 会直接崩
+                PlayerFrameOutputBlock outputBlock = self.frameOutputBlock;
+                if (outputBlock) {
+                    outputBlock(frame, (Easy_U32)(video->frameLen));
                 }
             }
         }
@@ -967,8 +986,9 @@ static dispatch_queue_t PlayerReaderStopQueue(void) {
             KxAudioFrame *frame = [[KxAudioFrame alloc] init];
             frame.samples = [NSData dataWithBytes:pcmBuf.data() length:pcmLen];
             frame.position = audio->timeStamp / 1000.0;
-            if (self.frameOutputBlock) {
-                self.frameOutputBlock(frame, (Easy_U32)frame.samples.length);
+            PlayerFrameOutputBlock outputBlock = self.frameOutputBlock;
+            if (outputBlock) {
+                outputBlock(frame, (Easy_U32)frame.samples.length);
             }
         }
     }
@@ -1202,9 +1222,10 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
         }
     }
 
-    if (self.frameOutputBlock) {
+    PlayerFrameOutputBlock outputBlock = self.frameOutputBlock;
+    if (outputBlock) {
         frame.position = lastFrameStampUs / 1000.0;
-        self.frameOutputBlock(frame, length);
+        outputBlock(frame, length);
     }
 
     // 帧里面有个timestamp 是当前帧的时间戳， 先获取下系统时间A，然后解码播放，解码后获取系统时间B， B-A就是本次的耗时。sleep的时长就是 当期帧的timestamp  减去 上一个视频帧的timestamp 再减去 这次的耗时
@@ -1240,17 +1261,81 @@ int read_audio_packet(void *opaque, uint8_t *buf, int buf_size) {
     return _mediaInfo;
 }
 
-// 设置录像的路径
-- (void) setRecordFilePath:(NSString *)recordFilePath {
-    if ((_recordFilePath) && (!recordFilePath)) {
-        _recordFilePath = recordFilePath;
+#pragma mark - 回调 block / 录像路径的跨线程读写
 
+// 这几个属性由主线程写（停播时置 nil），却在解码线程、RTSP 回调线程上读。
+// nonatomic 的默认访问器下，读线程刚取出指针、还没 retain，主线程就可能把旧值释放掉，
+// 读线程拿到的是野指针；所以和 AudioManager.outputBlock 一样改成加锁读写。
+// setter 里旧值要到出锁之后才释放（objc_precise_lifetime），避免它析构时回头再碰这把锁。
+
+- (PlayerFetchMediaInfoBlock)fetchMediaInfoSuccessBlock {
+    os_unfair_lock_lock(&_callbackLock);
+    PlayerFetchMediaInfoBlock block = _fetchMediaInfoSuccessBlock;
+    os_unfair_lock_unlock(&_callbackLock);
+    return block;
+}
+
+- (void)setFetchMediaInfoSuccessBlock:(PlayerFetchMediaInfoBlock)fetchMediaInfoSuccessBlock {
+    PlayerFetchMediaInfoBlock copied = [fetchMediaInfoSuccessBlock copy];
+    __attribute__((objc_precise_lifetime)) PlayerFetchMediaInfoBlock old = nil;
+    os_unfair_lock_lock(&_callbackLock);
+    old = _fetchMediaInfoSuccessBlock;
+    _fetchMediaInfoSuccessBlock = copied;
+    os_unfair_lock_unlock(&_callbackLock);
+}
+
+- (PlayerFrameOutputBlock)frameOutputBlock {
+    os_unfair_lock_lock(&_callbackLock);
+    PlayerFrameOutputBlock block = _frameOutputBlock;
+    os_unfair_lock_unlock(&_callbackLock);
+    return block;
+}
+
+- (void)setFrameOutputBlock:(PlayerFrameOutputBlock)frameOutputBlock {
+    PlayerFrameOutputBlock copied = [frameOutputBlock copy];
+    __attribute__((objc_precise_lifetime)) PlayerFrameOutputBlock old = nil;
+    os_unfair_lock_lock(&_callbackLock);
+    old = _frameOutputBlock;
+    _frameOutputBlock = copied;
+    os_unfair_lock_unlock(&_callbackLock);
+}
+
+- (PlayerRTSPEventBlock)rtspEventBlock {
+    os_unfair_lock_lock(&_callbackLock);
+    PlayerRTSPEventBlock block = _rtspEventBlock;
+    os_unfair_lock_unlock(&_callbackLock);
+    return block;
+}
+
+- (void)setRtspEventBlock:(PlayerRTSPEventBlock)rtspEventBlock {
+    PlayerRTSPEventBlock copied = [rtspEventBlock copy];
+    __attribute__((objc_precise_lifetime)) PlayerRTSPEventBlock old = nil;
+    os_unfair_lock_lock(&_callbackLock);
+    old = _rtspEventBlock;
+    _rtspEventBlock = copied;
+    os_unfair_lock_unlock(&_callbackLock);
+}
+
+- (NSString *)recordFilePath {
+    os_unfair_lock_lock(&_callbackLock);
+    NSString *path = _recordFilePath;
+    os_unfair_lock_unlock(&_callbackLock);
+    return path;
+}
+
+// 设置录像的路径
+- (void)setRecordFilePath:(NSString *)recordFilePath {
+    NSString *path = [recordFilePath copy];
+    os_unfair_lock_lock(&_callbackLock);
+    NSString *oldPath = _recordFilePath;
+    _recordFilePath = path;
+    os_unfair_lock_unlock(&_callbackLock);
+
+    if (oldPath && !path) {
         *stopRecord = 1;
         muxer(NULL, stopRecord, read_video_packet, read_audio_packet);
         isKeyFrame = 0;
     }
-
-    _recordFilePath = recordFilePath;
 }
 
 /**

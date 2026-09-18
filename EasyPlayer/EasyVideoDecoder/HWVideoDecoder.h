@@ -19,7 +19,8 @@ typedef enum {
 @interface HWVideoDecoder : NSObject
 
 @property (nonatomic, assign) DecoderType type;
-@property (nonatomic, assign) id<HWVideoDecoderDelegate> hwDelegate;
+// weak：delegate（PlayerDataReader）先释放时自动变 nil，assign 会留下野指针
+@property (nonatomic, weak) id<HWVideoDecoderDelegate> hwDelegate;
 
 // 初始化视频解码器,并设置delegate
 - (id)initWithDelegate:(id<HWVideoDecoderDelegate>)aDelegate;

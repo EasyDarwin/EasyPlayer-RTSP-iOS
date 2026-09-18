@@ -11,6 +11,7 @@
 
 #import "KxMovieGLView.h"
 #import <QuartzCore/QuartzCore.h>
+#include <stdatomic.h>
 #import <OpenGLES/EAGLDrawable.h>
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES3/gl.h>
@@ -381,7 +382,11 @@ enum {
     
     dispatch_queue_t _glQueue;
     BOOL            _glInitFailed;      // 只在 _glQueue 上读写
+    atomic_int      _pendingRenders;    // 已投递到 _glQueue、还没画完的帧数
 }
+
+// GL 队列里最多积压的帧数，超过就丢新帧
+static const int kKxMaxPendingRenders = 3;
 
 static const void *kKxGLQueueKey = &kKxGLQueueKey;
 
@@ -738,8 +743,15 @@ exit:
 }
 
 - (void)render:(KxVideoFrame *)frame {
+    // 解码线程只管往 GL 队列投帧，GL 跟不上时（老机型 / 多路 / 分辨率高）队列会无限堆积，
+    // 而每帧都带着一份完整的 YUV 拷贝，内存会一路涨；积压超过上限就直接丢掉这一帧
+    if (atomic_fetch_add(&_pendingRenders, 1) >= kKxMaxPendingRenders) {
+        atomic_fetch_sub(&_pendingRenders, 1);
+        return;
+    }
     dispatch_async(_glQueue, ^{
         [self renderInternal:frame];
+        atomic_fetch_sub(&self->_pendingRenders, 1);
     });
 }
 

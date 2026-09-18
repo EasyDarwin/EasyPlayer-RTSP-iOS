@@ -31,9 +31,11 @@
     NSUInteger _currentAudioFramePos;
     
     CGFloat _moviePosition;         // 当前播放视频的时间戳（毫秒为单位）
+
+    BOOL _ownsAudioOutput;          // 是否由自己接管了 AudioManager 的输出（只在主线程读写）
 }
 
-@property (nonatomic, strong) dispatch_source_t timer;
+@property (nonatomic, strong) dispatch_source_t timer;  // 只在主线程创建 / 取消
 @property (nonatomic, assign) int frameLength;
 
 @property (nonatomic, strong) UIView *statusView;
@@ -57,6 +59,7 @@
 - (void)hideActivity;
 
 - (void)fillAudioData:(SInt16 *)outData numFrames:(UInt32)numFrames numChannels:(UInt32)numChannels;
+- (void)startKbpsTimer;
 - (void)cancelKbpsTimer;
 - (void)detachReaderAndStop;
 
@@ -353,15 +356,20 @@
     [AudioManager sharedInstance].outputBlock = ^(SInt16 *outData, UInt32 numFrames, UInt32 numChannels) {
         [weakSelf fillAudioData:outData numFrames:numFrames numChannels:numChannels];
     };
+    _ownsAudioOutput = YES;
 }
 
 - (void)stopAudio {
-    if ([AudioManager sharedInstance].source == self) {
+    // source 是 weak：dealloc 期间读到的永远是 nil，只比较 source == self 会漏掉停止，
+    // 所以 source 为 nil 时再看自己是否接管过输出；source 是别的窗口时不能动它的声音
+    id source = [AudioManager sharedInstance].source;
+    if (source == self || (source == nil && _ownsAudioOutput)) {
         // 先断开回调，再 pause，避免音频线程还在 fillAudioData 时 Uninitialize 卡住主线程
         [AudioManager sharedInstance].outputBlock = nil;
         [AudioManager sharedInstance].source = nil;
         [[AudioManager sharedInstance] pause];
     }
+    _ownsAudioOutput = NO;
     // 不要走 setter：dealloc / 停播时 setter 会 dispatch_async 强引用 self，对象半销毁后再碰 audioButton 会崩
     _audioPlaying = NO;
 }
@@ -372,8 +380,9 @@
     }
     _playButton.selected = YES;
     
+    // _currentAudioFramePos 只归音频渲染线程管，这里不能在主线程改它：
+    // 渲染线程正在拷贝时被清零，会按旧偏移 + 整帧长度越界读
     _moviePosition = 0;
-    _currentAudioFramePos = 0;
     self.playStartTime = CACurrentMediaTime();
     self.hasReceivedFirstFrame = NO;
     self.firstFrameCostMs = 0;
@@ -415,7 +424,31 @@
             [weakSelf.delegate videoView:weakSelf didReceiveRTSPEvent:eventCode message:message data:data count:count total:total];
         }
     };
+    [self startKbpsTimer];
     [_reader start];
+}
+
+// 定时器以前在解码线程的 sendPacket 里懒创建，停播时又在主线程取消：
+// 两个线程同时读写 nonatomic 的 timer，会重复创建或释放已释放的 source；
+// 取消之后解码线程还可能再建一个，而 handler 强引用 self，VideoView 就永远释放不掉。
+// 现在只在主线程创建和取消，handler 在主队列上执行，并且只持有 weak。
+- (void)startKbpsTimer {
+    [self cancelKbpsTimer];
+    self.frameLength = 0;
+
+    __weak VideoView *weakSelf = self;
+    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+    dispatch_source_set_timer(timer, dispatch_walltime(NULL, 0), 1.0 * NSEC_PER_SEC, 0);
+    dispatch_source_set_event_handler(timer, ^{
+        __strong VideoView *strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.kbpsLabel.text = [NSString stringWithFormat:@"%dkbps", strongSelf.frameLength * 8 / 1000];
+        strongSelf.frameLength = 0;
+    });
+    dispatch_resume(timer);
+    self.timer = timer;
 }
 
 - (void)cancelKbpsTimer {
@@ -426,17 +459,17 @@
 }
 
 - (void)detachReaderAndStop {
-    [self cancelKbpsTimer];
-    [kxGlView flush];
-
     PlayerDataReader *oldReader = _reader;
     _reader = nil;
 
+    // 先摘回调，解码线程 / RTSP 回调线程就不会再回到 self
     oldReader.recordFilePath = nil;
     oldReader.frameOutputBlock = nil;
     oldReader.fetchMediaInfoSuccessBlock = nil;
     oldReader.rtspEventBlock = nil;
 
+    [self cancelKbpsTimer];
+    [kxGlView flush];
     [self stopAudio];
     [oldReader stopAsync];
 }
@@ -536,23 +569,9 @@
 
 #pragma mark - 流量检测
 
+// 解码线程调用：只累加字节数，定时器由主线程在 startPlay 里创建
 - (void) sendPacket:(unsigned int)u32AVFrameLen {
     self.frameLength += u32AVFrameLen;
-    
-    if (!self.timer) {
-        NSTimeInterval period = 1.0; // 设置时间间隔
-        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        self.timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-        dispatch_source_set_timer(_timer, dispatch_walltime(NULL, 0), period * NSEC_PER_SEC, 0);
-        dispatch_source_set_event_handler(_timer, ^{
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self.kbpsLabel.text = [NSString stringWithFormat:@"%dkbps", self.frameLength * 8 / 1000];
-                self.frameLength = 0;
-            });
-        });
-        
-        dispatch_resume(self.timer);
-    }
 }
 
 #pragma mark - 填充音频数据
@@ -701,8 +720,8 @@
         [self startAudio];
     } else {
         self.audioPlaying = NO;
-        [[AudioManager sharedInstance] pause];
-        [AudioManager sharedInstance].outputBlock = nil;
+        // 走 stopAudio：分屏时只有自己接管了输出才停，不能把别的窗口的声音一起关掉
+        [self stopAudio];
     }
 }
 
@@ -776,22 +795,23 @@
     });
 }
 
+// 异步 block 里不能捕获 self，强弱引用都不行：
+// - 强引用：调用时 self 如果正在 dealloc，retain 不生效，主队列执行时 self 已释放，
+//   objc_msgSend 访问野指针（旧版就是这样崩的：主队列 block → objc_msgSend SEGV）；
+// - __weak：对正在 dealloc 的对象建 weak 引用，runtime 直接 abort。
+// 所以只把按钮交给主线程，按钮由 block 持有，和 VideoView 的生命周期无关。
 - (void)setAudioPlaying:(BOOL)audioPlaying {
     _audioPlaying = audioPlaying;
-    _reader.enableAudio = _audioPlaying;
+    _reader.enableAudio = audioPlaying;
 
+    UIButton *button = _audioButton;
     if ([NSThread isMainThread]) {
-        _audioButton.selected = audioPlaying;
+        button.selected = audioPlaying;
         return;
     }
 
-    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf) {
-            return;
-        }
-        strongSelf.audioButton.selected = audioPlaying;
+        button.selected = audioPlaying;
     });
 }
 

@@ -11,6 +11,7 @@
 
 #import "KxMovieDecoder.h"
 #import <Accelerate/Accelerate.h>
+#include "libavutil/pixdesc.h"
 
 NSString * kxmovieErrorDomain = @"ru.kolyvan.kxmovie";
 
@@ -145,19 +146,46 @@ NSString * kxmovieErrorDomain = @"ru.kolyvan.kxmovie";
     return KxVideoFrameFormatYUV;
 }
 
-+ (instancetype) handleVideoFrame:(AVFrame *)videoFrame videoCodecCtx:(AVCodecContext *)videoCodecCtx {
-    if (!videoFrame->data[0])
+static NSData *KxCopyPlane(const uint8_t *src, int linesize, int rows) {
+    if (src == NULL || linesize <= 0 || rows <= 0) {
         return nil;
-    
+    }
+    return [NSData dataWithBytes:src length:(NSUInteger)linesize * (NSUInteger)rows];
+}
+
+// 渲染在 GL 队列上异步进行，而 AVFrame 的缓冲区归解码器所有：解下一帧时就会被复用，
+// 停播 / 分辨率变化时 DecodeClose 直接 av_frame_free。只存 data 指针的话，
+// GL 线程里 glTexImage2D 读到的是已被覆盖或已释放的内存 → EXC_BAD_ACCESS。
+// 所以三个平面各拷贝一份（保留 linesize 布局，渲染代码不用改），由帧自己持有。
++ (instancetype) handleVideoFrame:(AVFrame *)videoFrame videoCodecCtx:(AVCodecContext *)videoCodecCtx {
+    if (!videoFrame->data[0] || videoFrame->height <= 0)
+        return nil;
+
+    const int lumaRows = videoFrame->height;
+    int chromaRows = (lumaRows + 1) / 2;
+    const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get((enum AVPixelFormat)videoFrame->format);
+    if (desc) {
+        chromaRows = AV_CEIL_RSHIFT(lumaRows, desc->log2_chroma_h);
+    }
+
+    NSData *luma = KxCopyPlane(videoFrame->data[0], videoFrame->linesize[0], lumaRows);
+    if (!luma)
+        return nil;
+    NSData *chromaB = KxCopyPlane(videoFrame->data[1], videoFrame->linesize[1], chromaRows);
+    NSData *chromaR = KxCopyPlane(videoFrame->data[2], videoFrame->linesize[2], chromaRows);
+
     KxVideoFrameYUV * frame = [[KxVideoFrameYUV alloc] init];
-    
-    frame.lumaData = videoFrame->data[0];
+    frame.luma = luma;
+    frame.chromaB = chromaB;
+    frame.chromaR = chromaR;
+
+    frame.lumaData = (uint8_t *)luma.bytes;
     frame.lumaLinesize = videoFrame->linesize[0];
-    frame.chromaBData = videoFrame->data[1];
+    frame.chromaBData = (uint8_t *)chromaB.bytes;
     frame.chromaBLinesize = videoFrame->linesize[1];
-    frame.chromaRData = videoFrame->data[2];
+    frame.chromaRData = (uint8_t *)chromaR.bytes;
     frame.chromaRLinesize = videoFrame->linesize[2];
-    
+
     return frame;
 }
 
