@@ -20,10 +20,13 @@
     BOOL firstFrame;                // 得到第一帧，调整相关UI
     BOOL transforming;
     
-    // 视频帧的宽高
+    // 视频帧的宽高：只在主线程读写（layoutSubviews / stopPlay）
     int displayWidth;
     int displayHeight;
-    
+    // 解码线程自己记的上一帧宽高，只用来判断分辨率有没有变
+    int _decodedWidth;
+    int _decodedHeight;
+
     NSMutableArray *_audioFrames;   // 解码的音频数据
     os_unfair_lock _audioFramesLock;// _audioFrames 被主线程、解码线程、音频渲染线程三方访问
     
@@ -269,78 +272,73 @@
 
 #pragma mark - override
 
+// 把 videoSize 等比缩放后居中放进 container
+static CGRect VideoViewAspectFitRect(CGSize videoSize, CGSize container) {
+    CGFloat scale = MIN(container.width / videoSize.width, container.height / videoSize.height);
+    CGFloat width = videoSize.width * scale;
+    CGFloat height = videoSize.height * scale;
+    return CGRectMake((container.width - width) / 2, (container.height - height) / 2, width, height);
+}
+
+// NaN / inf 进了 layer 会直接抛 CALayerInvalidGeometry；CGRectNull 的 origin 是 inf，也在这里被拦掉
+static BOOL VideoViewRectIsValid(CGRect rect) {
+    return isfinite(rect.origin.x) && isfinite(rect.origin.y) &&
+           isfinite(rect.size.width) && isfinite(rect.size.height) &&
+           rect.size.width >= 0 && rect.size.height >= 0;
+}
+
 - (void)layoutSubviews {
     [super layoutSubviews];
     
     _addButton.frame = self.bounds;
     
+    // 还没加到父视图、转屏过程中 bounds 可能是 0，此时算不出有意义的 frame
+    CGSize bounds = scrollView.bounds.size;
+    if (bounds.width <= 0 || bounds.height <= 0) {
+        return;
+    }
+    
+    // 视频宽高只读这一次，后面全用局部变量
+    CGSize videoSize = CGSizeMake(displayWidth, displayHeight);
+    BOOL hasVideoSize = videoSize.width > 0 && videoSize.height > 0;
+    
+    CGSize contentSize = bounds;
+    // 保持 CGRectNull 表示这次不动 kxGlView
+    CGRect glFrame = CGRectNull;
+    
     if (_landspaceButton.selected) {
-        kxGlView.frame = scrollView.bounds;
-        scrollView.contentSize = scrollView.frame.size;
-        
-        if (displayHeight != 0 && displayWidth != 0) {
-            if (displayWidth < displayHeight) {
-                CGFloat height = scrollView.bounds.size.height;
-                CGFloat width = height * displayWidth / displayHeight;
-                
-                scrollView.contentSize = CGSizeMake(width, height);
-                
-                CGFloat x = (scrollView.bounds.size.width - width) / 2;
-                kxGlView.frame = CGRectMake(x, 0, width, height);
-            }
+        // 横屏：横向视频拉满；竖向视频按高度铺满、水平居中
+        glFrame = (CGRect){CGPointZero, bounds};
+        if (hasVideoSize && videoSize.width < videoSize.height) {
+            CGFloat width = bounds.height * videoSize.width / videoSize.height;
+            contentSize = CGSizeMake(width, bounds.height);
+            glFrame = CGRectMake((bounds.width - width) / 2, 0, width, bounds.height);
+        }
+    } else if (_showAllRegon) {
+        // 不放大：比窗口小按原尺寸居中，宽超出压到窗口宽，高超出截到窗口高
+        if (hasVideoSize) {
+            CGFloat width = MIN(videoSize.width, bounds.width);
+            CGFloat height = MIN(videoSize.height * width / videoSize.width, bounds.height);
+            glFrame = CGRectMake(round((bounds.width - width) / 2),
+                                 round((bounds.height - height) / 2),
+                                 width,
+                                 height);
         }
     } else {
-        if (_showAllRegon) {
-            CGRect rc = scrollView.frame;
-            scrollView.contentSize = rc.size;
-            if (displayWidth != 0 && displayHeight != 0) {
-                int x = displayWidth > self.bounds.size.width ? 0 : (int)(fabs(self.bounds.size.width - displayWidth) / 2.0 + 0.5);
-                int cx = MIN(displayWidth, self.bounds.size.width);
-                int cy = MIN(displayHeight * cx / displayWidth, self.bounds.size.height);
-                int y = (self.bounds.size.height - cy) / 2.0 + 0.5;
-                
-                CGRect imageRect;
-                imageRect.origin = CGPointMake(x, y);
-                imageRect.size = CGSizeMake(cx, cy);
-                kxGlView.frame = imageRect;
-            }
-        } else {
-            CGFloat fitWidth, fitHeight;
-            CGFloat boundsW = scrollView.bounds.size.width;
-            CGFloat boundsH = scrollView.bounds.size.height;
-            
-            if (displayHeight != 0 && displayWidth != 0) {
-                if (displayWidth > displayHeight) {
-                    fitWidth = boundsH * (float)displayWidth / (float)displayHeight;
-                    if (fitWidth > boundsW) {
-                        fitWidth = boundsW;
-                        fitHeight = fitWidth * (float)displayHeight / (float)displayWidth;
-                    } else {
-                        fitHeight = boundsH;
-                    }
-                } else {
-                    fitWidth = boundsH * (float)displayWidth / (float)displayHeight;
-                    fitHeight = boundsH;
-                }
-            } else {
-                CGFloat ratio = 16.0 / 9.0;
-                fitWidth = boundsH * ratio;
-                if (fitWidth > boundsW) {
-                    fitWidth = boundsW;
-                    fitHeight = fitWidth / ratio;
-                } else {
-                    fitHeight = boundsH;
-                }
-            }
-            
-            scrollView.contentSize = scrollView.bounds.size;
-            kxGlView.frame = CGRectMake((boundsW - fitWidth) / 2,
-                                        (boundsH - fitHeight) / 2,
-                                        fitWidth,
-                                        fitHeight);
-            
-            [self reCalculateArcPos];
-        }
+        // 等比缩放居中；还没拿到首帧时按 16:9 占位
+        glFrame = VideoViewAspectFitRect(hasVideoSize ? videoSize : CGSizeMake(16, 9), bounds);
+    }
+    
+    // 值没变就不赋：kxGlView 尺寸一变就要在 GL 队列上重建帧缓冲，contentSize 变了会回调 scrollViewDidScroll
+    if (!CGSizeEqualToSize(scrollView.contentSize, contentSize)) {
+        scrollView.contentSize = contentSize;
+    }
+    if (VideoViewRectIsValid(glFrame) && !CGRectEqualToRect(kxGlView.frame, glFrame)) {
+        kxGlView.frame = glFrame;
+    }
+    
+    if (!_landspaceButton.selected && !_showAllRegon) {
+        [self reCalculateArcPos];
     }
 }
 
@@ -526,10 +524,15 @@
         [kxGlView render:videoFrame];
         _moviePosition = videoFrame.position;
         
+        // 不能在这里直接写 displayWidth / displayHeight：主线程 layoutSubviews 判完非 0 之后再读，
+        // 中间被解码线程改掉就会除出 NaN / inf，frame 赋给 layer 直接抛 CALayerInvalidGeometry。
+        // 宽高随 block 带到主线程再写
+        int width = (int)videoFrame.width;
+        int height = (int)videoFrame.height;
         BOOL needsLayout = NO;
-        if (videoFrame.width != displayWidth || displayHeight != videoFrame.height) {
-            displayWidth = (int)videoFrame.width;
-            displayHeight = (int)videoFrame.height;
+        if (width != _decodedWidth || height != _decodedHeight) {
+            _decodedWidth = width;
+            _decodedHeight = height;
             needsLayout = YES;
         }
         
@@ -544,7 +547,7 @@
         
         if (needsLayout) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self updateDisplayLayout];
+                [self updateDisplayLayoutWithWidth:width height:height];
             });
         }
     } else if (frame.type == KxMovieFrameTypeAudio) {
@@ -558,9 +561,12 @@
     }
 }
 
-- (void)updateDisplayLayout {
+- (void)updateDisplayLayoutWithWidth:(int)width height:(int)height {
     if (self.videoStatus != Rendering) return;
-    
+
+    displayWidth = width;
+    displayHeight = height;
+
     scrollView.scrollEnabled = YES;
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     [self hideActivity];
