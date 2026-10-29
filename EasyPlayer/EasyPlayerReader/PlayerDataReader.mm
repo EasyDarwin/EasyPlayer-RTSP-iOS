@@ -825,6 +825,7 @@ static dispatch_queue_t PlayerReaderStopQueue(void) {
 
             decodeBegin = (long) [[NSDate dateWithTimeIntervalSinceNow:0] timeIntervalSince1970] * 1000;// 毫秒数
             @try {
+                _hwDec.type = (self.codecID == AV_CODEC_ID_HEVC) ? DEC_265 : DEC_264;
                 int hwRet = [_hwDec decodeVideoData:frame->pBuf len:frame->frameLen isInit:isInit];
                 if (hwRet < 0) {
                     [self notifyDecodeError:@"硬件解码失败"];

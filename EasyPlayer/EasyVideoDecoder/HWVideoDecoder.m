@@ -16,6 +16,8 @@
     
     unsigned char *pInnerData;
     unsigned int innerLen;
+
+    DecoderType sessionType;    // 当前解码会话对应的编码类型
 }
 
 @end
@@ -29,6 +31,7 @@
     NSString *msg = (status == noErr || status == 0)
         ? reason
         : [NSString stringWithFormat:@"%@(%d)", reason, (int)status];
+    NSLog(@"[HWVideoDecoder] %@", msg);
     id<HWVideoDecoderDelegate> delegate = self.hwDelegate;
     dispatch_async(dispatch_get_main_queue(), ^{
         [delegate hwVideoDecoder:self didFailWithMessage:msg];
@@ -296,9 +299,17 @@ void getXps(unsigned char *data, int offset, int length, int type, int *outPos, 
     if (pData == nil) {
         return -1;
     }
-    
-    self.type = DEC_264;
-    
+
+    // 编码类型变了，旧会话不能复用
+    if (self.type != sessionType) {
+        [self resetSession];
+        sessionType = self.type;
+    }
+
+    if (self.type == DEC_265) {
+        return [self decodeHEVCData:pData len:len isInit:isInit];
+    }
+
     [self initH264DecoderVideoData:pData len:len isInit:isInit];
     
     /* 确定nDiff值：
@@ -427,33 +438,249 @@ void getXps(unsigned char *data, int offset, int length, int type, int *outPos, 
     return 0;
 }
 
+#pragma mark - H265 解码
+
+/**
+ 查找下一个起始码(00 00 01 或 00 00 00 01)
+
+ @param data    数据
+ @param offset  起始查找位置
+ @param length  数据长度
+ @param scLen   起始码长度(3或4)
+ @return        起始码位置，找不到返回-1
+ */
+static int findStartCode(const uint8_t *data, int offset, int length, int *scLen) {
+    for (int i = offset; i + 3 <= length; i++) {
+        if (data[i] != 0 || data[i + 1] != 0) {
+            continue;
+        }
+
+        if (data[i + 2] == 1) {
+            *scLen = 3;
+            return i;
+        }
+
+        if (i + 4 <= length && data[i + 2] == 0 && data[i + 3] == 1) {
+            *scLen = 4;
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+// H265 NALU 头 2 字节，类型 = (第一个字节 >> 1) & 0x3F：0~31 为片数据，32 VPS，33 SPS，34 PPS
+- (int)decodeHEVCData:(unsigned char *)pData len:(int)len isInit:(BOOL)isInit {
+    const uint8_t *vps = NULL, *sps = NULL, *pps = NULL;
+    size_t vpsLen = 0, spsLen = 0, ppsLen = 0;
+
+    // 起始码换成 4 字节长度后，每个 NALU 最多多出 1 字节，NALU 至少 4 字节
+    size_t needLen = (size_t)len + len / 4 + 4;
+    if (innerLen < needLen) {
+        unsigned char *p = (unsigned char *)realloc(pInnerData, needLen);
+        if (p == NULL) {
+            [self reportDecodeFailure:@"硬件解码内存分配失败" status:noErr];
+            return -1;
+        }
+        pInnerData = p;
+        innerLen = (unsigned int)needLen;
+    }
+
+    // 1、按起始码拆分 NALU：取出 VPS/SPS/PPS，片数据转成 4 字节长度前缀(AVCC 格式)拼到 pInnerData
+    size_t sampleLen = 0;
+    int scLen = 0;
+    int pos = findStartCode(pData, 0, len, &scLen);
+    while (pos >= 0) {
+        int nalStart = pos + scLen;
+        int nextScLen = 0;
+        int next = findStartCode(pData, nalStart, len, &nextScLen);
+        int nalLen = (next >= 0 ? next : len) - nalStart;
+
+        if (nalLen > 0) {
+            const uint8_t *nal = pData + nalStart;
+            int nalType = (nal[0] >> 1) & 0x3F;
+
+            if (nalType == 32 && vps == NULL) {
+                vps = nal;
+                vpsLen = nalLen;
+            } else if (nalType == 33 && sps == NULL) {
+                sps = nal;
+                spsLen = nalLen;
+            } else if (nalType == 34 && pps == NULL) {
+                pps = nal;
+                ppsLen = nalLen;
+            } else if (nalType < 32) {
+                pInnerData[sampleLen]     = (uint8_t)(nalLen >> 24);
+                pInnerData[sampleLen + 1] = (uint8_t)(nalLen >> 16);
+                pInnerData[sampleLen + 2] = (uint8_t)(nalLen >> 8);
+                pInnerData[sampleLen + 3] = (uint8_t)nalLen;
+                memcpy(pInnerData + sampleLen + 4, nal, nalLen);
+                sampleLen += 4 + nalLen;
+            }
+        }
+
+        pos = next;
+        scLen = nextScLen;
+    }
+
+    // 2、关键帧带了 VPS/SPS/PPS，创建(或沿用)解码会话
+    if (vps != NULL && sps != NULL && pps != NULL) {
+        if (![self setupHEVCSessionWithVPS:vps vpsLen:vpsLen sps:sps spsLen:spsLen pps:pps ppsLen:ppsLen isInit:isInit]) {
+            return -1;
+        }
+    }
+
+    if (decompressSession == NULL || videoFormatDescr == NULL) {
+        [self reportDecodeFailure:@"硬件解码器未初始化" status:noErr];
+        return -1;
+    }
+
+    // 只有参数集、没有片数据
+    if (sampleLen == 0) {
+        return 0;
+    }
+
+    // 3、AVCC 数据包成 CMSampleBuffer 送解码
+    CMBlockBufferRef blockBuffer = NULL;
+    OSStatus status = CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault,
+                                                         pInnerData,
+                                                         sampleLen,
+                                                         kCFAllocatorNull,
+                                                         NULL,
+                                                         0,
+                                                         sampleLen,
+                                                         0,
+                                                         &blockBuffer);
+    if (status != kCMBlockBufferNoErr) {
+        [self reportDecodeFailure:@"硬件解码BlockBuffer创建失败" status:status];
+        return -1;
+    }
+
+    CMSampleBufferRef sampleBuffer = NULL;
+    const size_t sampleSizeArray[] = { sampleLen };
+    status = CMSampleBufferCreateReady(kCFAllocatorDefault,
+                                       blockBuffer,
+                                       videoFormatDescr,
+                                       1,
+                                       0,
+                                       NULL,
+                                       1,
+                                       sampleSizeArray,
+                                       &sampleBuffer);
+    CFRelease(blockBuffer);
+    if (status != noErr || sampleBuffer == NULL) {
+        [self reportDecodeFailure:@"硬件解码SampleBuffer创建失败" status:status];
+        return -1;
+    }
+
+    VTDecodeInfoFlags flagOut = 0;
+    status = VTDecompressionSessionDecodeFrame(decompressSession, sampleBuffer, 0, NULL, &flagOut);
+    if (status == noErr) {
+        VTDecompressionSessionWaitForAsynchronousFrames(decompressSession);
+    }
+    CFRelease(sampleBuffer);
+
+    if (status != noErr) {
+        // 退到后台等情况下会话会失效，丢掉后等下一个关键帧重建
+        if (status == kVTInvalidSessionErr) {
+            [self resetSession];
+        }
+        [self reportDecodeFailure:@"硬件解码DecodeFrame失败" status:status];
+        return -1;
+    }
+
+    return 0;
+}
+
+- (BOOL)setupHEVCSessionWithVPS:(const uint8_t *)vps vpsLen:(size_t)vpsLen
+                            sps:(const uint8_t *)sps spsLen:(size_t)spsLen
+                            pps:(const uint8_t *)pps ppsLen:(size_t)ppsLen
+                         isInit:(BOOL)isInit {
+    const uint8_t* const parameterSetPointers[3] = { vps, sps, pps };
+    const size_t parameterSetSizes[3] = { vpsLen, spsLen, ppsLen };
+
+    CMVideoFormatDescriptionRef formatDescr = NULL;
+    OSStatus status = CMVideoFormatDescriptionCreateFromHEVCParameterSets(kCFAllocatorDefault,
+                                                                          3,
+                                                                          parameterSetPointers,
+                                                                          parameterSetSizes,
+                                                                          4,
+                                                                          NULL,
+                                                                          &formatDescr);
+    if (status != noErr) {
+        [self reportDecodeFailure:@"硬件解码FormatDescription创建失败" status:status];
+        return NO;
+    }
+
+    // 参数集没变就沿用当前会话，不用每个关键帧都重建
+    if (!isInit && decompressSession != NULL && videoFormatDescr != NULL
+        && CMFormatDescriptionEqual(formatDescr, videoFormatDescr)) {
+        CFRelease(formatDescr);
+        return YES;
+    }
+
+    [self resetSession];
+    videoFormatDescr = formatDescr;
+
+    VTDecompressionOutputCallbackRecord callback;
+    callback.decompressionOutputCallback = didDecompress;
+    callback.decompressionOutputRefCon = (__bridge void *)self;
+    NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                [NSNumber numberWithBool:YES], (id)kCVPixelBufferOpenGLESCompatibilityKey,
+                                [NSNumber numberWithInt:kCVPixelFormatType_32BGRA],(id)kCVPixelBufferPixelFormatTypeKey,
+                                nil ];
+
+    status = VTDecompressionSessionCreate(kCFAllocatorDefault,
+                                          videoFormatDescr,
+                                          NULL,
+                                          (__bridge CFDictionaryRef)attributes,
+                                          &callback,
+                                          &decompressSession);
+    if (status != noErr) {
+        [self reportDecodeFailure:@"硬件解码Session创建失败" status:status];
+        return NO;
+    }
+
+    VTSessionSetProperty(decompressSession,
+                         kVTDecompressionPropertyKey_RealTime,
+                         kCFBooleanTrue);
+
+    CMVideoDimensions dim = CMVideoFormatDescriptionGetDimensions(videoFormatDescr);
+    NSLog(@"[HWVideoDecoder] HEVC session created %dx%d", dim.width, dim.height);
+    return YES;
+}
+
 #pragma mark - 关闭解码器
 
-- (void)closeDecoder {
-    NSLog(@"closeDecoder %@", self);
-    
-    if (spsData != NULL) {
-        free(spsData);
-        spsData = NULL;
-    }
-    
-    if (ppsData != NULL) {
-        free(ppsData);
-        ppsData = NULL;
-    }
-    
+// 释放解码会话和格式描述
+- (void)resetSession {
     if (decompressSession) {
-        // 释放解码会话
         VTDecompressionSessionInvalidate(decompressSession);
         CFRelease(decompressSession);
         decompressSession = NULL;
     }
-    
+
     if (videoFormatDescr) {
         CFRelease(videoFormatDescr);
         videoFormatDescr = NULL;
     }
-    
+}
+
+- (void)closeDecoder {
+    NSLog(@"closeDecoder %@", self);
+
+    if (spsData != NULL) {
+        free(spsData);
+        spsData = NULL;
+    }
+
+    if (ppsData != NULL) {
+        free(ppsData);
+        ppsData = NULL;
+    }
+
+    [self resetSession];
+
     if (pInnerData != NULL) {
         free(pInnerData);
         pInnerData = NULL;
