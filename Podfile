@@ -1,4 +1,4 @@
-  platform :ios, '12.0'
+  platform :ios, '15.0'
 
 target 'EasyPlayerRTSP' do
     # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
@@ -23,7 +23,7 @@ end
 post_install do |installer|
     installer.pods_project.targets.each do |target|
         target.build_configurations.each do |config|
-            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
         end
     end
 
@@ -63,5 +63,16 @@ post_install do |installer|
         end
     else
         puts "Skip YYKit fix: #{yykit_file} not found."
+    end
+
+    # ReactiveCocoa 2.5.2、YYKit 1.0.9 自身不带 App Store 要求的隐私清单，
+    # 把仓库里补的 PrivacyManifests/<Pod 名>/PrivacyInfo.xcprivacy 打进对应的 framework
+    %w[ReactiveCocoa YYKit].each do |name|
+        target = installer.pods_project.targets.find { |t| t.name == name }
+        next unless target
+        manifest = installer.sandbox.root.parent + "PrivacyManifests/#{name}/PrivacyInfo.xcprivacy"
+        group = installer.pods_project.main_group.find_subpath("PrivacyManifests/#{name}", true)
+        ref = group.files.find { |f| f.real_path == manifest } || group.new_reference(manifest)
+        target.resources_build_phase.add_file_reference(ref, true)
     end
 end

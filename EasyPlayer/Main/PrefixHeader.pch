@@ -61,6 +61,9 @@
 #define EasyTextFont 15.0
 
 // ----------------  默认地址 ----------------
+// 默认 RTSP 播放地址：首次安装时的默认列表项、新增地址时输入框的预填内容
+#define EasyDefaultRTSPURL @"rtsp://demo.easycvr.com:15540/live/stream_10726_0"
+
 #define defaultCity @"合肥市"
 #define defaultProvice @"安徽省"
 #define defaultLatitude 31.84087375

@@ -97,12 +97,44 @@
     [self.recordBtn setTitleColor:UIColorFromRGB(DefaultBtnColor) forState:UIControlStateNormal];
     [self.recordBtn setTitleColor:UIColorFromRGB(SelectBtnColor) forState:UIControlStateHighlighted];
     
-    [self.pushBtn setImageEdgeInsets:UIEdgeInsetsMake(-20, 20, 0, 0)];
-    [self.pushBtn setTitleEdgeInsets:UIEdgeInsetsMake(24, -32, 0, 0)];
-    [self.recordBtn setImageEdgeInsets:UIEdgeInsetsMake(-20, 20, 0, 0)];
-    [self.recordBtn setTitleEdgeInsets:UIEdgeInsetsMake(24, -32, 0, 0)];
-    [self.settingBtn setImageEdgeInsets:UIEdgeInsetsMake(-20, 20, 0, 0)];
-    [self.settingBtn setTitleEdgeInsets:UIEdgeInsetsMake(24, -32, 0, 0)];
+    for (UIButton *btn in @[ self.pushBtn, self.recordBtn, self.settingBtn ]) {
+        [self layoutImageAboveTitle:btn spacing:4];
+    }
+
+    // 按钮栏顶部分割线，让按钮栏和上方内容区分开
+    UIView *topLine = [[UIView alloc] init];
+    topLine.backgroundColor = UIColorFromRGB(0xdddddd);
+    topLine.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.bottomView addSubview:topLine];
+    [NSLayoutConstraint activateConstraints:@[
+        [topLine.topAnchor constraintEqualToAnchor:self.bottomView.topAnchor],
+        [topLine.leadingAnchor constraintEqualToAnchor:self.bottomView.leadingAnchor],
+        [topLine.trailingAnchor constraintEqualToAnchor:self.bottomView.trailingAnchor],
+        [topLine.heightAnchor constraintEqualToConstant:1.0 / [UIScreen mainScreen].scale],
+    ]];
+
+    // 底部按钮栏贴着安全区底部（按钮不被 Home 指示条挡住），全面屏机型下方会露出一条白边：
+    // 把按钮栏的背景色延伸到屏幕最底部。加在 bottomView 里，分屏选源时 bottomView 隐藏，它也跟着隐藏
+    UIView *bottomFill = [[UIView alloc] init];
+    bottomFill.backgroundColor = self.bottomView.backgroundColor;
+    bottomFill.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.bottomView addSubview:bottomFill];
+    [NSLayoutConstraint activateConstraints:@[
+        [bottomFill.topAnchor constraintEqualToAnchor:self.bottomView.bottomAnchor],
+        [bottomFill.leadingAnchor constraintEqualToAnchor:self.bottomView.leadingAnchor],
+        [bottomFill.trailingAnchor constraintEqualToAnchor:self.bottomView.trailingAnchor],
+        [bottomFill.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+    ]];
+}
+
+// 按钮图标在上、文字在下，整体在按钮内水平、垂直居中（按图标和文字的实际尺寸计算，不写死偏移量）
+- (void)layoutImageAboveTitle:(UIButton *)btn spacing:(CGFloat)spacing {
+    CGSize imageSize = btn.currentImage.size;
+    CGSize titleSize = [btn.currentTitle sizeWithAttributes:@{ NSFontAttributeName: btn.titleLabel.font }];
+    CGFloat totalHeight = imageSize.height + spacing + titleSize.height;
+
+    btn.imageEdgeInsets = UIEdgeInsetsMake(-(totalHeight - imageSize.height), 0, 0, -titleSize.width);
+    btn.titleEdgeInsets = UIEdgeInsetsMake(0, -imageSize.width, -(totalHeight - titleSize.height), 0);
 }
 
 #pragma mark - click event

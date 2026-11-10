@@ -18,11 +18,8 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = UIColorFromRGB(0xf5f5f5);
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];// item字体颜色
-    
-    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"top-bg"]forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault];
-    
-    [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor]}];
+    // 导航栏样式在 AppDelegate setupNavigationBarAppearance 中统一设置
+
     // 默认使用的是RTRoot框架内部的导航效果和返回按钮，如果要自定义，必须将此属性设置为NO，然后实现下方方法；
     self.rt_navigationController.useSystemBackBarButtonItem = NO;
 }

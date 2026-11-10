@@ -6,7 +6,8 @@
 ._*
 
 # Custom folder icons
-Icon
+Icon
+
 
 # Volume root files
 .DocumentRevisions-V100
@@ -149,3 +150,19 @@ playground.xcworkspace
 # Swift Package Manager
 # Package.resolved
 .idea
+
+### 打包脚本（见 package.json / scripts/）
+# npm（package.json 只用来跑脚本）
+node_modules/
+
+# Bundler（CocoaPods 装在项目内，见 Gemfile / scripts/pod.sh）
+vendor/bundle/
+.bundle/
+
+# App Store 截图（Snapshot/6.5、Snapshot/6.3），不提交
+Snapshot/
+
+scripts/
+
+package.json
+package-lock.json

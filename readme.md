@@ -18,7 +18,19 @@ EasyPlayer-**RTSP iOS** 播放器是由EasyDarwin开源团队开发和维护的�
 
 
 ## 编译方法
-Xcode 编译；
+Xcode 打开 `EasyPlayerRTSP.xcworkspace` 编译；也可以用命令行打包、装机（需要 Node.js，只用来跑脚本，不装任何 npm 依赖）：
+
+| 命令 | 作用 |
+| --- | --- |
+| `npm run build` | 打 Ad Hoc 测试包 → `build/EasyPlayerRTSP.ipa`（开发者后台已注册的设备可装） |
+| `npm run build:dev` | 打开发版包（可调试） |
+| `npm run install:device` | 用数据线把 `build/EasyPlayerRTSP.ipa` 装到手机（需 `brew install ios-deploy`） |
+| `npm run build:install` | 打包并装机 |
+| `npm run devices` | 查看已连接的设备 |
+| `npm run build:appstore` / `npm run upload:appstore` | 打 App Store 包 / 打包并上传 TestFlight（需 Xcode 26+） |
+| `npm run pod:install` | 用项目锁定的 CocoaPods 1.16.2 执行 pod install（不要用全局的 pod） |
+
+前提：Xcode → Settings → Accounts 已登录 Team 33USAS7KQX 的账号。更多参数见 [scripts/build-ipa.sh](scripts/build-ipa.sh) 文件头注释。
 
 详细开发说明见 **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**（环境搭建、架构、核心 API、二次开发）。
 

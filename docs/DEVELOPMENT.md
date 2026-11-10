@@ -15,8 +15,8 @@ EasyPlayer-RTSP iOS 是由 [EasyDarwin](http://www.easydarwin.org) 团队维护�
 | 解码 | VideoToolbox 硬解、FFmpeg 软解 |
 | 业务 | 直播、多路分屏、录像、截图、静音 |
 
-- **应用版本**：1.9.1（`MARKETING_VERSION`）
-- **最低系统**：iOS 12.0
+- **应用版本**：2.0.0（`MARKETING_VERSION`）
+- **最低系统**：iOS 15.0
 - **Bundle ID**：`org.easydarwin.easyplayer`
 - **RTSP SDK**：`libEasyRTSPClient` v3.0.19.0415
 
@@ -25,7 +25,7 @@ EasyPlayer-RTSP iOS 是由 [EasyDarwin](http://www.easydarwin.org) 团队维护�
 | 工具 | 说明 |
 |------|------|
 | macOS | 建议与 Xcode 版本匹配的系统 |
-| Xcode | 能编译 iOS 12+ 的版本（建议 Xcode 14+） |
+| Xcode | 能编译 iOS 15+ 的版本（上传 App Store 需 Xcode 26+） |
 | CocoaPods | 依赖管理，`pod install` 必需 |
 | 真机 / 模拟器 | 播放 RTSP 需网络；硬解建议在真机验证 |
 
@@ -247,7 +247,7 @@ flowchart TB
     
     if (![URLUnit urlModels]) {
         URLModel *model = [[URLModel alloc] initDefault];
-        model.url = @"rtsp://admin:xf1234567@36.34.0.68:19524/Streaming/Channels/101";
+        model.url = EasyDefaultRTSPURL; // rtsp://demo.easycvr.com:15540/live/stream_10726_0，定义在 PrefixHeader.pch
         [URLUnit addURLModel:model];
         
         [NSUserDefaultsUnit setFFMpeg:YES];     // 默认软解码
@@ -616,4 +616,4 @@ A：`readme.md` 为产品简介；本文档为开发与架构说明。
 
 ---
 
-*文档随工程版本更新，当前对应应用版本 1.9.1。*
+*文档随工程版本更新，当前对应应用版本 2.0.0。*

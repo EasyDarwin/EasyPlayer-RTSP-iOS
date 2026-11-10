@@ -23,7 +23,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="ipU-o0-JRB">
-                                <rect key="frame" x="0.0" y="20" width="375" height="598"/>
+                                <rect key="frame" x="0.0" y="20" width="375" height="591"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="sxh-Jv-jGf">
                                     <size key="itemSize" width="50" height="50"/>
@@ -43,10 +43,10 @@
                                 </cells>
                             </collectionView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lsc-d2-Udz">
-                                <rect key="frame" x="0.0" y="618" width="375" height="49"/>
+                                <rect key="frame" x="0.0" y="611" width="375" height="56"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5x6-8I-2ov">
-                                        <rect key="frame" x="0.0" y="0.0" width="125" height="49"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="125" height="56"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="地址" image="address">
                                             <color key="titleColor" red="0.65098039215686276" green="0.65098039215686276" blue="0.65098039215686276" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
@@ -56,7 +56,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sQR-rF-Rwk">
-                                        <rect key="frame" x="125" y="0.0" width="125" height="49"/>
+                                        <rect key="frame" x="125" y="0.0" width="125" height="56"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="分屏" image="split">
                                             <color key="titleColor" red="0.65098039215686276" green="0.65098039215686276" blue="0.65098039215686276" alpha="1" colorSpace="calibratedRGB"/>
@@ -66,7 +66,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="D8j-Si-bDD">
-                                        <rect key="frame" x="250" y="0.0" width="125" height="49"/>
+                                        <rect key="frame" x="250" y="0.0" width="125" height="56"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <state key="normal" title="设置" image="set">
                                             <color key="titleColor" red="0.65098039220000004" green="0.65098039220000004" blue="0.65098039220000004" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
@@ -80,7 +80,7 @@
                                 <constraints>
                                     <constraint firstItem="D8j-Si-bDD" firstAttribute="top" secondItem="lsc-d2-Udz" secondAttribute="top" id="2zZ-5u-SJZ"/>
                                     <constraint firstAttribute="trailing" secondItem="D8j-Si-bDD" secondAttribute="trailing" id="3f2-Sc-2bE"/>
-                                    <constraint firstAttribute="height" constant="49" id="5nP-ua-P4Z"/>
+                                    <constraint firstAttribute="height" constant="56" id="5nP-ua-P4Z"/>
                                     <constraint firstAttribute="bottom" secondItem="D8j-Si-bDD" secondAttribute="bottom" id="7il-DF-cUE"/>
                                     <constraint firstAttribute="bottom" secondItem="sQR-rF-Rwk" secondAttribute="bottom" id="FYN-jk-3jR"/>
                                     <constraint firstItem="sQR-rF-Rwk" firstAttribute="width" secondItem="5x6-8I-2ov" secondAttribute="width" id="OSi-Qi-4IB"/>

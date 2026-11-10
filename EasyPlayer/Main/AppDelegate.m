@@ -22,7 +22,7 @@
     
     if ([URLUnit urlModels].count == 0) {
         URLModel *model = [[URLModel alloc] initDefault];
-        model.url = @"rtsp://admin:a1234567@192.168.2.120:554/Streaming/Channels/101";
+        model.url = EasyDefaultRTSPURL;
         [URLUnit addURLModel:model];
         
         [NSUserDefaultsUnit setFFMpeg:YES];     // 默认软解码
@@ -51,6 +51,8 @@
     keyboardManager.keyboardDistanceFromTextField = 10.0f; // 输入框距离键盘的距离
     
     // UI逻辑
+    [self setupNavigationBarAppearance];
+
     CGRect frame = CGRectMake(0, 0, EasyScreenWidth, EasyScreenHeight);
     self.window = [[UIWindow alloc] initWithFrame:frame];
     self.window.backgroundColor = UIColorFromRGB(0xf5f5f5);
@@ -67,6 +69,37 @@
     NSLog(@"进程名：%@", pname);
     
     return YES;
+}
+
+#pragma mark - 导航栏样式
+
+// 全局导航栏样式：蓝色渐变背景（top-bg）、白色标题和按钮、无底部分割线。
+// 用 appearance 统一设置，RTRootNavigationController 为每个页面单独创建的导航栏、以及模态弹出的导航栏都会生效。
+//
+// iOS 15 起，页面滚动到顶部（scroll edge）时导航栏使用 scrollEdgeAppearance，没设置则背景透明，
+// 只用 setBackgroundImage: 的话导航栏会变成白色、白色标题看不见，所以四种状态都设置成同一个样式。
+- (void)setupNavigationBarAppearance {
+    UIImage *background = [UIImage imageNamed:@"top-bg"];
+    UIColor *foreground = [UIColor whiteColor];
+    NSDictionary *titleAttributes = @{ NSForegroundColorAttributeName: foreground };
+
+    UINavigationBar *bar = [UINavigationBar appearance];
+    bar.tintColor = foreground; // 返回箭头、按钮的颜色
+    // 不透明：页面内容从导航栏下方开始布局。原来设置不透明背景图时系统也会自动设为不透明，各页面布局依赖这一点
+    bar.translucent = NO;
+
+    UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+    [appearance configureWithOpaqueBackground];
+    appearance.backgroundColor = UIColorFromRGB(EasyThemeColor); // 背景图加载失败时的兜底色
+    appearance.backgroundImage = background;
+    appearance.backgroundImageContentMode = UIViewContentModeScaleToFill; // 横向渐变图拉伸铺满，包括状态栏区域
+    appearance.shadowColor = [UIColor clearColor]; // 去掉导航栏底部的灰色分割线
+    appearance.titleTextAttributes = titleAttributes;
+
+    bar.standardAppearance = appearance;
+    bar.scrollEdgeAppearance = appearance;
+    bar.compactAppearance = appearance;
+    bar.compactScrollEdgeAppearance = appearance;
 }
 
 @end
